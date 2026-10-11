@@ -1,0 +1,84 @@
+/* NuvemLeads — tokens extras sobre o Nocturne.
+   Ordem em globals.css (DECISOES §2, testada):
+     @import "tailwindcss";
+     @import "./tokens/nocturne.css" layer(components);
+     @import "./tokens/nuvemleads.css";
+   Importar antes do Tailwind gera referências circulares (--color-bg: var(--color-bg)) e apaga o tema. */
+:root {
+  --nl-success: oklch(0.76 0.13 158);
+  --nl-success-text: oklch(0.86 0.09 158);
+  --nl-warning: oklch(0.82 0.12 80);
+  --nl-error: oklch(0.72 0.15 22);
+  --nl-online: var(--nl-success);
+
+  --nl-msg-sent-bg: var(--color-accent-800);
+  --nl-msg-sent-fg: var(--color-accent-100);
+  --nl-msg-sent-meta: var(--color-accent-300);
+  --nl-msg-recv-bg: var(--color-surface);
+  --nl-msg-recv-fg: var(--color-text);
+  --nl-msg-recv-meta: var(--color-neutral-500);
+  --nl-msg-recv-edge: 0 0 0 1px color-mix(in srgb, var(--color-text) 6%, transparent);
+
+  --nl-radius-bubble: 14px;
+  --nl-radius-bubble-tail: 4px;
+  --nl-radius-pill: 21px;
+
+  --nl-chat-max: 780px;
+  --nl-bubble-max: 70%;
+  --nl-bubble-max-mobile: 86%;
+  --nl-media-w: 300px;
+  --nl-media-w-mobile: 232px;
+  --nl-sidebar-w: 228px;
+
+  --nl-glow-accent: 0 0 18px color-mix(in srgb, var(--color-accent) 35%, transparent);
+  --nl-ring-accent: 0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent);
+  --nl-rule: linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent);
+  --nl-lock-ground: radial-gradient(110% 70% at 0% 0%, var(--color-accent-900), transparent 60%), var(--color-bg);
+
+  --nl-ease-out: cubic-bezier(.2, .8, .2, 1);
+  --nl-ease-spring: cubic-bezier(.3, 1.6, .5, 1);
+}
+
+/* Tailwind v4 — expõe os tokens como utilitários (bg-surface, text-muted, bg-sent, rounded-bubble…) */
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-neutral-900);
+  --color-text: var(--color-text);
+  --color-muted: var(--color-neutral-500);
+  --color-divider: var(--color-divider);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-400);
+  --color-sent: var(--nl-msg-sent-bg);
+  --color-sent-fg: var(--nl-msg-sent-fg);
+  --color-received: var(--nl-msg-recv-bg);
+  --color-success: var(--nl-success);
+  --color-warning: var(--nl-warning);
+  --color-error: var(--nl-error);
+  --font-sans: var(--font-body);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-bubble: var(--nl-radius-bubble);
+  --radius-pill: var(--nl-radius-pill);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-glow: var(--nl-glow-accent);
+}
+
+@keyframes nl-msg-in { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+@keyframes nl-rise { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+@keyframes nl-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes nl-pop { from { opacity: 0; transform: scale(.6) } to { opacity: 1; transform: none } }
+@keyframes nl-shake { 0%,100% { transform: none } 20% { transform: translateX(-7px) } 40% { transform: translateX(6px) } 60% { transform: translateX(-4px) } 80% { transform: translateX(2px) } }
+@keyframes nl-unlock { 0% { transform: scale(1) } 40% { transform: scale(1.14) } 100% { transform: scale(1) } }
+@keyframes nl-pulse { 0% { box-shadow: 0 0 0 0 oklch(0.76 0.13 158 / .55) } 70% { box-shadow: 0 0 0 6px oklch(0.76 0.13 158 / 0) } 100% { box-shadow: 0 0 0 0 transparent } }
+@keyframes nl-dot { 0%,80%,100% { opacity: .25; transform: none } 40% { opacity: 1; transform: translateY(-3px) } }
+@keyframes nl-shimmer { 0%,100% { opacity: .45 } 50% { opacity: .9 } }
+@keyframes nl-spin { to { transform: rotate(360deg) } }
+@keyframes nl-blink { 50% { opacity: .25 } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+}

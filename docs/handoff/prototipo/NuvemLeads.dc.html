@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-61a34e02-506c-41a9-891c-51725493cf9f/styles.css">
+<script src="_ds/nocturne-61a34e02-506c-41a9-891c-51725493cf9f/_ds_bundle.js"></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<link rel="icon" href="assets/favicon.svg">
+<title>NuvemLeads</title>
+<style>
+html,body{height:100%;margin:0;overflow:hidden}
+a{color:var(--color-accent-300)} a:hover{color:var(--color-accent-200)}
+@keyframes nlMsgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes nlShakeA{0%,100%{transform:none}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+@keyframes nlShakeB{0%,100%{transform:none}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+@keyframes nlSpin{to{transform:rotate(360deg)}}
+@keyframes nlPulse{0%{box-shadow:0 0 0 0 oklch(0.76 0.13 158 / .55)}70%{box-shadow:0 0 0 6px oklch(0.76 0.13 158 / 0)}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes nlPop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+@keyframes nlFade{from{opacity:0}to{opacity:1}}
+@keyframes nlRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes nlDot{0%,80%,100%{opacity:.25;transform:none}40%{opacity:1;transform:translateY(-3px)}}
+@keyframes nlBlink{50%{opacity:.25}}
+@keyframes nlShimmer{0%,100%{opacity:.45}50%{opacity:.9}}
+@keyframes nlUnlock{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+</style>
+</helmet>
+<div style="height:100vh;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<sc-if value="{{ protoBar }}" hint-placeholder-val="{{ true }}">
+<div style="flex:none;position:relative;z-index:50;display:flex;align-items:center;gap:6px;height:46px;padding:0 12px;background:var(--color-bg);box-shadow:0 1px 0 var(--color-divider)">
+  <div style="flex:1;min-width:0;display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none">
+    <sc-for list="{{ protoNav }}" as="n" hint-placeholder-count="10">
+      <sc-if value="{{ n.isGroup }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-600);padding:0 6px 0 12px">{{ n.label }}</span></sc-if>
+      <sc-if value="{{ n.isItem }}" hint-placeholder-val="{{ true }}"><button onClick="{{ n.onClick }}" style="flex:none;border:0;cursor:pointer;font:inherit;font-size:12.5px;padding:5px 9px;border-radius:var(--radius-md);color:{{ n.color }};background:{{ n.bg }}" style-hover="color:var(--color-text)">{{ n.label }}</button></sc-if>
+    </sc-for>
+  </div>
+  <sc-if value="{{ showVp }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:none;display:flex;gap:2px;padding:2px;border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--color-divider)">
+      <sc-for list="{{ vpOpts }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" title="{{ o.label }}" style="width:30px;height:26px;border:0;border-radius:6px;cursor:pointer;display:grid;place-items:center;color:{{ o.color }};background:{{ o.bg }}"><i class="{{ o.icon }}" style="font-size:16px"></i></button></sc-for>
+    </div>
+  </sc-if>
+  <div style="flex:none;position:relative">
+    <button class="btn btn-secondary" onClick="{{ toggleSim }}" style="font-size:12.5px;padding:5px 10px"><i class="ph ph-flask" style="font-size:15px"></i>Simular</button>
+    <sc-if value="{{ simMenu }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeSim }}" style="position:fixed;inset:0;z-index:1"></div>
+      <div class="elev-md" style="position:absolute;right:0;top:38px;z-index:2;width:264px;padding:6px;border-radius:var(--radius-lg);background:var(--color-surface);animation:nlRise .16s ease-out">
+        <sc-for list="{{ simItems }}" as="si" hint-placeholder-count="6"><button onClick="{{ si.onClick }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;border:0;background:transparent;color:var(--color-text);font:inherit;font-size:13px;border-radius:var(--radius-md);cursor:pointer;text-align:left" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)"><i class="{{ si.icon }}" style="font-size:16px;color:var(--color-neutral-400)"></i>{{ si.label }}</button></sc-for>
+        <div style="margin:6px 4px 2px;padding:9px 8px 4px;font-size:11.5px;line-height:1.6;color:var(--color-neutral-500);background:linear-gradient(to right,transparent,var(--color-divider) 30px,var(--color-divider) calc(100% - 30px),transparent) no-repeat top / 100% 1px">PIN Allan <span style="color:var(--color-neutral-200)">246810</span> · Maria <span style="color:var(--color-neutral-200)">123456</span><br>Admin <span style="color:var(--color-neutral-200)">admin@nuvemleads.com</span> / <span style="color:var(--color-neutral-200)">nuvem2026</span></div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ notDoc }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:{{ L.stagePad }};background:{{ L.stageBg }};overflow:hidden">
+<div style="position:relative;width:{{ L.frameW }};height:{{ L.frameH }};max-width:100%;border-radius:{{ L.frameR }};box-shadow:{{ L.frameShadow }};overflow:hidden;background:var(--color-bg);display:flex;flex-direction:column">
+
+<sc-if value="{{ isAccess }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Acesso" style="height:100%;display:flex;flex-direction:column;background:radial-gradient(110% 70% at 0% 0%, var(--color-accent-900), transparent 60%), var(--color-bg);animation:nlFade .3s">
+  <div style="display:flex;align-items:center;gap:9px;padding:20px 24px">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M10 25h12.5a5.5 5.5 0 0 0 .9-10.93A7.5 7.5 0 0 0 9.2 12.6 6.2 6.2 0 0 0 10 25Z" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round"></path><path d="M11.5 25 9.6 28.6 15.5 25" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="16" cy="17.6" r="1.7" fill="var(--color-accent)"></circle><rect x="15.25" y="18.6" width="1.5" height="3.2" rx="0.75" fill="var(--color-accent)"></rect></svg>
+    <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Nuvem<span style="color:var(--color-accent-300)">Leads</span></span>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:20px;animation:nlRise .35s ease-out">
+      <div>
+        <h3 style="margin:0 0 6px">Quem está acessando?</h3>
+        <p style="margin:0;font-size:14px;color:var(--color-neutral-500)">Esta é uma conversa privada entre duas pessoas.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ accessUsers }}" as="u" hint-placeholder-count="2">
+          <button onClick="{{ u.pick }}" class="elev-sm" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:0;border-radius:var(--radius-lg);background:var(--color-surface);color:var(--color-text);font:inherit;cursor:pointer;text-align:left" style-hover="box-shadow:0 0 0 1px var(--color-accent)">
+            <span style="width:{{ u.size }};height:{{ u.size }};flex:none;border-radius:50%;background:{{ u.bg }};color:{{ u.fg }};display:grid;place-items:center;font-size:{{ u.font }};font-weight:500;overflow:hidden">{{ u.initials }}</span>
+            <span style="flex:1;font-size:15px;font-weight:500">{{ u.name }}</span>
+            <i class="ph ph-caret-right" style="color:var(--color-neutral-500)"></i>
+          </button>
+        </sc-for>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-neutral-500)"><i class="ph ph-shield-check" style="font-size:14px"></i>A conversa é ocultada sempre que você sair da janela.</div>
+    </div>
+  </div>
+  <div style="padding:16px 24px;display:flex;justify-content:flex-start"><button class="btn btn-ghost" onClick="{{ goAdmin }}" style="font-size:12.5px;color:var(--color-neutral-400)"><i class="ph ph-user-gear"></i>Acesso administrativo</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isGate }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="{{ gateLabel }}" style="position:relative;height:100%;display:flex;flex-direction:column;background:radial-gradient(110% 70% at 0% 0%, var(--color-accent-900), transparent 60%), var(--color-bg);animation:nlFade .3s">
+  <div style="display:flex;align-items:center;gap:9px;padding:20px 24px">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M10 25h12.5a5.5 5.5 0 0 0 .9-10.93A7.5 7.5 0 0 0 9.2 12.6 6.2 6.2 0 0 0 10 25Z" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round"></path><path d="M11.5 25 9.6 28.6 15.5 25" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="16" cy="17.6" r="1.7" fill="var(--color-accent)"></circle><rect x="15.25" y="18.6" width="1.5" height="3.2" rx="0.75" fill="var(--color-accent)"></rect></svg>
+    <span style="font-size:17px;font-weight:500;letter-spacing:-0.02em">Nuvem<span style="color:var(--color-accent-300)">Leads</span></span>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:18px;animation:nlRise .35s ease-out">
+      <sc-if value="{{ isLocked }}" hint-placeholder-val="{{ false }}">
+        <div style="width:56px;height:56px;border-radius:var(--radius-lg);display:grid;place-items:center;border:1px solid {{ lockGlow }};color:{{ lockColor }};box-shadow:0 0 34px color-mix(in srgb, {{ lockGlow }} 28%, transparent);animation:{{ lockAnim }};transition:all .3s"><i class="{{ lockIcon }}" style="font-size:26px"></i></div>
+        <div>
+          <h3 style="margin:0 0 6px">Sessão bloqueada</h3>
+          <p style="margin:0;font-size:14px;color:var(--color-neutral-400)">Por segurança, sua conversa foi ocultada.</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isPin }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:14px">
+          <span style="position:relative;width:{{ me.size }};height:{{ me.size }};flex:none;border-radius:50%;background:{{ me.bg }};color:{{ me.fg }};display:grid;place-items:center;font-size:{{ me.font }};font-weight:500;box-shadow:0 0 0 1px {{ lockGlow }}, 0 0 28px color-mix(in srgb, {{ lockGlow }} 25%, transparent);transition:box-shadow .3s">{{ me.initials }}</span>
+          <div><div style="font-size:16px;font-weight:500">{{ me.name }}</div><button class="btn btn-ghost" onClick="{{ switchUser }}" style="font-size:12.5px;margin-left:-3px">Não é você? Trocar</button></div>
+        </div>
+        <div>
+          <h3 style="margin:0 0 6px">Digite seu PIN</h3>
+          <p style="margin:0;font-size:14px;color:var(--color-neutral-400)">Use os 6 dígitos definidos pelo administrador.</p>
+        </div>
+      </sc-if>
+      <div onClick="{{ focusPin }}" style="position:relative;display:flex;gap:8px;animation:{{ pinAnim }};cursor:text">
+        <sc-for list="{{ pinBoxes }}" as="b" hint-placeholder-count="6">
+          <div style="width:{{ L.pinBox }};height:54px;border-radius:var(--radius-md);background:var(--color-surface);border:1px solid {{ b.border }};box-shadow:{{ b.glow }};display:grid;place-items:center;transition:border-color .15s, box-shadow .2s">
+            <span style="width:11px;height:11px;border-radius:50%;background:{{ b.dot }};transform:scale({{ b.scale }});transition:transform .16s cubic-bezier(.3,1.6,.5,1), background .2s"></span>
+          </div>
+        </sc-for>
+        <input ref="{{ pinRef }}" value="{{ pin }}" onChange="{{ onPin }}" onKeyDown="{{ pinKey }}" onFocus="{{ pinFocusOn }}" onBlur="{{ pinFocusOff }}" type="password" inputMode="numeric" autoComplete="one-time-code" maxLength="6" aria-label="PIN de 6 dígitos" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;cursor:text">
+      </div>
+      <div style="min-height:20px;margin-top:-8px;font-size:13px;color:{{ pinMsgColor }};display:flex;align-items:center;gap:6px">{{ pinMsg }}</div>
+      <button class="btn btn-primary btn-block" onClick="{{ verify }}" disabled="{{ pinDisabled }}" style="height:42px;margin-top:-6px"><i class="{{ pinBtnIcon }}" style="font-size:16px"></i>{{ pinBtn }}</button>
+      <sc-if value="{{ isLocked }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--color-neutral-500)">
+          <span style="width:{{ meSmall.size }};height:{{ meSmall.size }};flex:none;border-radius:50%;background:{{ meSmall.bg }};color:{{ meSmall.fg }};display:grid;place-items:center;font-size:{{ meSmall.font }};font-weight:500">{{ meSmall.initials }}</span>
+          <span>Sessão de {{ me.name }} · bloqueada às {{ lockedAt }}<br>{{ lockReason }}</span>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Conversa" style="position:relative;height:100%;min-height:0;display:flex;flex-direction:column;animation:nlFade .25s">
+  <div style="flex:none;position:relative;z-index:5;display:flex;align-items:center;gap:12px;padding:{{ L.headPad }};background:linear-gradient(to right,transparent,var(--color-divider) 48px,var(--color-divider) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px">
+    <sc-if value="{{ L.showLogo }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:center;gap:8px;padding-right:16px;margin-right:2px;border-right:1px solid var(--color-divider)">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><path d="M10 25h12.5a5.5 5.5 0 0 0 .9-10.93A7.5 7.5 0 0 0 9.2 12.6 6.2 6.2 0 0 0 10 25Z" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round"></path><path d="M11.5 25 9.6 28.6 15.5 25" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="16" cy="17.6" r="1.7" fill="var(--color-accent)"></circle><rect x="15.25" y="18.6" width="1.5" height="3.2" rx="0.75" fill="var(--color-accent)"></rect></svg>
+        <span style="font-size:15px;font-weight:500;letter-spacing:-0.02em">Nuvem<span style="color:var(--color-accent-300)">Leads</span></span>
+      </div>
+    </sc-if>
+    <div style="position:relative;flex:none">
+      <span style="width:{{ other.size }};height:{{ other.size }};border-radius:50%;background:{{ other.bg }};color:{{ other.fg }};display:grid;place-items:center;font-size:{{ other.font }};font-weight:500">{{ other.initials }}</span>
+      <span style="position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:{{ presence.dot }};border:2px solid var(--color-bg);animation:{{ presence.anim }}"></span>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:15px;font-weight:500;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ other.name }}</div>
+      <div style="font-size:12px;line-height:1.3;color:{{ presence.color }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ presence.text }}</div>
+    </div>
+    <sc-if value="{{ L.showLockHint }}" hint-placeholder-val="{{ true }}">
+      <div title="Bloqueio automático" style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-neutral-500);margin-right:4px"><i class="ph ph-shield-check" style="font-size:15px"></i>Bloqueio em {{ autoLockLabel }} sem atividade</div>
+    </sc-if>
+    <button class="btn btn-secondary" onClick="{{ lockNow }}" title="Bloquear agora" style="height:36px"><i class="ph ph-lock-simple" style="font-size:16px"></i><sc-if value="{{ L.showLockLabel }}" hint-placeholder-val="{{ true }}"><span>Bloquear</span></sc-if></button>
+    <button class="btn btn-icon btn-secondary" onClick="{{ toggleMenu }}" title="Sessão"><i class="ph ph-dots-three-vertical" style="font-size:18px"></i></button>
+    <sc-if value="{{ menu }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeMenu }}" style="position:fixed;inset:0;z-index:1"></div>
+      <div class="elev-md" style="position:absolute;right:12px;top:calc(100% + 4px);z-index:2;width:250px;padding:6px;border-radius:var(--radius-lg);background:var(--color-surface);animation:nlRise .16s ease-out">
+        <div style="padding:8px 10px 6px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-500)">Sessão</div>
+        <button onClick="{{ lockNow }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;border:0;background:transparent;color:var(--color-text);font:inherit;font-size:13.5px;border-radius:var(--radius-md);cursor:pointer;text-align:left" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)"><i class="ph ph-lock-simple" style="font-size:16px;color:var(--color-neutral-400)"></i>Bloquear agora</button>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;font-size:13.5px"><i class="ph ph-timer" style="font-size:16px;color:var(--color-neutral-400);margin-top:2px"></i><span>Bloqueio automático<br><span style="font-size:12px;color:var(--color-neutral-500)">Após {{ autoLockLabel }} sem atividade ou ao sair da aba</span></span></div>
+        <button onClick="{{ leave }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;border:0;background:transparent;color:var(--color-text);font:inherit;font-size:13.5px;border-radius:var(--radius-md);cursor:pointer;text-align:left" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)"><i class="ph ph-sign-out" style="font-size:16px;color:var(--color-neutral-400)"></i>Encerrar sessão</button>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ offline }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none;display:flex;align-items:center;gap:8px;padding:8px {{ L.padX }};font-size:12.5px;color:var(--color-neutral-200);background:color-mix(in srgb, oklch(0.82 0.12 80) 10%, transparent);animation:nlFade .2s"><i class="ph ph-wifi-slash" style="font-size:15px;color:oklch(0.82 0.12 80)"></i>Sem conexão. As mensagens serão enviadas quando a conexão voltar.</div>
+  </sc-if>
+
+  <div ref="{{ msgsRef }}" data-nl-msgs="1" style="flex:1;min-height:0;overflow-y:auto;padding:12px {{ L.padX }} 10px">
+    <div style="max-width:{{ L.colMax }};margin:0 auto;display:flex;flex-direction:column">
+      <sc-if value="{{ chatLoading }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:10px;padding-top:20px">
+          <div style="align-self:flex-start;width:52%;height:34px;border-radius:14px;background:var(--color-surface);animation:nlShimmer 1.2s infinite"></div>
+          <div style="align-self:flex-start;width:34%;height:34px;border-radius:14px;background:var(--color-surface);animation:nlShimmer 1.2s .1s infinite"></div>
+          <div style="align-self:flex-end;width:44%;height:34px;border-radius:14px;background:var(--color-accent-900);animation:nlShimmer 1.2s .2s infinite"></div>
+          <div style="align-self:flex-start;width:300px;max-width:70%;height:180px;border-radius:14px;background:var(--color-surface);animation:nlShimmer 1.2s .3s infinite"></div>
+          <div style="align-self:flex-end;width:38%;height:34px;border-radius:14px;background:var(--color-accent-900);animation:nlShimmer 1.2s .4s infinite"></div>
+          <div style="font-size:12px;color:var(--color-neutral-500);display:flex;align-items:center;gap:6px;margin-top:6px"><i class="ph ph-circle-notch" style="animation:nlSpin 1s linear infinite"></i>Carregando conversa…</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ chatReady }}" hint-placeholder-val="{{ true }}">
+        <div style="align-self:center;display:flex;align-items:center;gap:6px;margin:6px 0 4px;padding:5px 11px;border-radius:var(--radius-md);font-size:11.5px;color:var(--color-neutral-500);box-shadow:inset 0 0 0 1px var(--color-divider);text-align:center"><i class="ph ph-lock-key" style="font-size:13px"></i>Conversa privada entre {{ meFirst }} e {{ otherFirst }}</div>
+        <sc-for list="{{ chatItems }}" as="it" hint-placeholder-count="6">
+          <sc-if value="{{ it.isDivider }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:12px;margin:18px 0 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-500)"><span style="flex:1;height:1px;background:linear-gradient(to right,transparent,var(--color-divider))"></span>{{ it.label }}<span style="flex:1;height:1px;background:linear-gradient(to left,transparent,var(--color-divider))"></span></div>
+          </sc-if>
+          <sc-if value="{{ it.isMsg }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;align-items:{{ it.align }};margin-top:{{ it.gap }};animation:nlMsgIn .28s ease-out">
+              <div style="max-width:{{ L.bubbleMax }};min-width:0;background:{{ it.bg }};color:{{ it.fg }};border-radius:{{ it.radius }};padding:{{ it.pad }};box-shadow:{{ it.edge }};display:flex;flex-direction:column;gap:{{ it.innerGap }}">
+                <sc-if value="{{ it.isText }}" hint-placeholder-val="{{ true }}"><div style="font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;text-wrap:pretty">{{ it.text }}</div></sc-if>
+                <sc-if value="{{ it.isImage }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ it.open }}" title="Abrir imagem" style="display:block;padding:0;border:0;background:var(--color-neutral-900);cursor:zoom-in;border-radius:10px;overflow:hidden;width:{{ L.mediaW }};max-width:100%"><img src="{{ it.url }}" alt="{{ it.name }}" onLoad="{{ scrollBottom }}" style="display:block;width:100%;aspect-ratio:4/3;object-fit:cover"></button>
+                </sc-if>
+                <sc-if value="{{ it.isVideo }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ it.open }}" title="Reproduzir vídeo" style="position:relative;display:block;padding:0;border:0;cursor:pointer;border-radius:10px;overflow:hidden;width:{{ L.mediaW }};max-width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,var(--color-neutral-800),var(--color-accent-900))">
+                    <sc-if value="{{ it.hasPoster }}" hint-placeholder-val="{{ true }}"><img src="{{ it.poster }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 85%;filter:brightness(.62)"></sc-if>
+                    <span style="position:absolute;inset:0;display:grid;place-items:center"><span style="width:46px;height:46px;border-radius:50%;background:color-mix(in srgb, var(--color-bg) 55%, transparent);border:1px solid var(--color-neutral-300);display:grid;place-items:center;color:var(--color-neutral-100)"><i class="ph-fill ph-play" style="font-size:17px"></i></span></span>
+                    <span style="position:absolute;left:8px;bottom:8px;display:flex;align-items:center;gap:4px;padding:2px 7px;border-radius:var(--radius-sm);background:color-mix(in srgb, var(--color-bg) 72%, transparent);font-size:11px;color:var(--color-neutral-100)"><i class="ph ph-video-camera"></i>{{ it.durLabel }}</span>
+                  </button>
+                </sc-if>
+                <sc-if value="{{ it.isAudio }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:10px;width:240px;max-width:100%;padding:4px 6px 0">
+                    <button onClick="{{ it.play }}" title="Reproduzir áudio" style="width:36px;height:36px;flex:none;border-radius:50%;border:1px solid {{ it.playBorder }};background:transparent;color:{{ it.playColor }};display:grid;place-items:center;cursor:pointer"><i class="{{ it.playIcon }}" style="font-size:15px"></i></button>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+                      <div onClick="{{ it.seek }}" style="position:relative;height:14px;cursor:pointer;display:flex;align-items:center">
+                        <div style="position:absolute;left:0;right:0;height:3px;border-radius:2px;background:{{ it.trackBg }}"></div>
+                        <div style="position:absolute;left:0;width:{{ it.audioPct }}%;height:3px;border-radius:2px;background:{{ it.fillBg }};transition:width .25s linear"></div>
+                        <div style="position:absolute;left:calc({{ it.audioPct }}% - 5px);width:10px;height:10px;border-radius:50%;background:{{ it.fillBg }};transition:left .25s linear"></div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;font-size:11px;color:{{ it.metaColor }}"><span>{{ it.audioCur }}</span><span>{{ it.audioDur }}</span></div>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ it.isFile }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:10px;width:264px;max-width:100%;padding:6px">
+                    <div style="width:40px;height:40px;flex:none;border-radius:var(--radius-md);background:{{ it.fileBg }};display:grid;place-items:center"><i class="{{ it.fileIcon }}" style="font-size:22px"></i></div>
+                    <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.name }}</div><div style="font-size:11.5px;color:{{ it.metaColor }}">{{ it.ext }} · {{ it.size }}</div></div>
+                    <button class="btn btn-icon" onClick="{{ it.download }}" title="Baixar" style="color:inherit;flex:none"><i class="ph ph-download-simple" style="font-size:18px"></i></button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ it.showUpload }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:5px;padding:2px 6px 0;min-width:200px">
+                    <div style="display:flex;justify-content:space-between;font-size:11.5px;color:{{ it.upColor }}"><span style="display:flex;align-items:center;gap:5px"><i class="{{ it.upIcon }}" style="animation:{{ it.upAnim }}"></i>{{ it.upLabel }}</span><span>{{ it.upPct }}</span></div>
+                    <div style="height:3px;border-radius:2px;background:color-mix(in srgb, var(--color-text) 14%, transparent);overflow:hidden"><div style="height:100%;width:{{ it.progress }}%;background:{{ it.upBar }};transition:width .22s"></div></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ it.hasCaption }}" hint-placeholder-val="{{ false }}"><div style="font-size:14px;line-height:1.45;padding:0 6px">{{ it.caption }}</div></sc-if>
+                <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:11px;color:{{ it.metaColor }};padding:{{ it.metaPad }}">{{ it.time }}<sc-if value="{{ it.mine }}" hint-placeholder-val="{{ false }}"><i class="{{ it.statusIcon }}" title="{{ it.statusLabel }}" style="font-size:14px;color:{{ it.statusColor }}"></i></sc-if></div>
+              </div>
+              <sc-if value="{{ it.failed }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:oklch(0.72 0.15 22);animation:nlFade .2s"><i class="ph ph-warning-circle" style="font-size:14px"></i>{{ it.failText }}<button class="btn btn-ghost" onClick="{{ it.retry }}" style="font-size:12px"><i class="ph ph-arrow-clockwise"></i>Tentar novamente</button></div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </sc-for>
+        <sc-if value="{{ typing }}" hint-placeholder-val="{{ false }}">
+          <div style="align-self:flex-start;margin-top:10px;display:flex;gap:4px;padding:12px 14px;border-radius:14px 14px 14px 4px;background:var(--color-surface);animation:nlMsgIn .25s ease-out">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--color-neutral-400);animation:nlDot 1.2s infinite"></span><span style="width:6px;height:6px;border-radius:50%;background:var(--color-neutral-400);animation:nlDot 1.2s .15s infinite"></span><span style="width:6px;height:6px;border-radius:50%;background:var(--color-neutral-400);animation:nlDot 1.2s .3s infinite"></span>
+          </div>
+        </sc-if>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="flex:none;position:relative;padding:8px {{ L.padX }} {{ L.composerBottom }}">
+    <div style="max-width:{{ L.colMax }};margin:0 auto;position:relative">
+      <sc-if value="{{ attachMenu }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeAttach }}" style="position:fixed;inset:0;z-index:1"></div>
+        <div class="elev-md" style="position:absolute;left:0;bottom:calc(100% + 8px);z-index:2;width:240px;padding:6px;border-radius:var(--radius-lg);background:var(--color-surface);animation:nlRise .16s ease-out">
+          <label style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-md);cursor:pointer;font-size:13.5px" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)"><input type="file" accept="image/jpeg,image/png,image/webp,video/*" onChange="{{ pickMedia }}" style="display:none"><i class="ph ph-image" style="font-size:17px;color:var(--color-accent)"></i><span>Foto ou vídeo<br><span style="font-size:11.5px;color:var(--color-neutral-500)">JPG, PNG, WEBP ou vídeo</span></span></label>
+          <sc-if value="{{ showCamera }}" hint-placeholder-val="{{ false }}"><label style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-md);cursor:pointer;font-size:13.5px" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)"><input type="file" accept="image/*,video/*" capture="environment" onChange="{{ pickMedia }}" style="display:none"><i class="ph ph-camera" style="font-size:17px;color:var(--color-accent)"></i>Câmera</label></sc-if>
+          <label style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-md);cursor:pointer;font-size:13.5px" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)"><input type="file" onChange="{{ pickAny }}" style="display:none"><i class="ph ph-file" style="font-size:17px;color:var(--color-accent)"></i><span>Arquivo<br><span style="font-size:11.5px;color:var(--color-neutral-500)">Até 25 MB</span></span></label>
+          <button onClick="{{ sample }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:9px 10px;border:0;background:transparent;color:var(--color-neutral-400);font:inherit;font-size:13px;border-radius:var(--radius-md);cursor:pointer;text-align:left" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)"><i class="ph ph-images" style="font-size:17px"></i>Usar imagem de exemplo</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ emoji }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeAttach }}" style="position:fixed;inset:0;z-index:1"></div>
+        <div class="elev-md" style="position:absolute;right:44px;bottom:calc(100% + 8px);z-index:2;width:264px;padding:8px;border-radius:var(--radius-lg);background:var(--color-surface);display:grid;grid-template-columns:repeat(8,1fr);gap:2px;animation:nlRise .16s ease-out">
+          <sc-for list="{{ emojis }}" as="em" hint-placeholder-count="24"><button onClick="{{ em.add }}" style="height:30px;border:0;background:transparent;border-radius:6px;cursor:pointer;font-size:18px;padding:0" style-hover="background:color-mix(in srgb, var(--color-text) 8%, transparent)">{{ em.c }}</button></sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ notRecording }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:flex-end;gap:6px">
+          <button class="btn btn-icon" onClick="{{ toggleAttach }}" title="Anexar" style="flex:none;height:42px;width:40px;color:var(--color-neutral-400)" style-hover="color:var(--color-text);background:color-mix(in srgb, var(--color-text) 7%, transparent)"><i class="ph ph-paperclip" style="font-size:20px"></i></button>
+          <div style="flex:1;min-width:0;display:flex;align-items:center;gap:2px;min-height:42px;padding:0 4px 0 14px;border-radius:21px;background:var(--color-surface);box-shadow:inset 0 0 0 1px var(--color-divider)">
+            <input ref="{{ inputRef }}" value="{{ text }}" onChange="{{ onText }}" onKeyDown="{{ textKey }}" onFocus="{{ onFocus }}" onBlur="{{ onBlur }}" placeholder="Digite uma mensagem..." style="flex:1;min-width:0;height:40px;border:0;outline:0;background:transparent;color:var(--color-text);font:inherit;font-size:14.5px;caret-color:var(--color-accent)">
+            <button class="btn btn-icon" onClick="{{ toggleEmoji }}" title="Emoji" style="flex:none;width:34px;height:34px;color:var(--color-neutral-400);border-radius:50%"><i class="ph ph-smiley" style="font-size:19px"></i></button>
+          </div>
+          <sc-if value="{{ hasText }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ send }}" title="Enviar" style="flex:none;width:42px;height:42px;border-radius:50%;border:1px solid var(--color-accent);background:color-mix(in srgb, var(--color-accent) 14%, transparent);color:var(--color-accent-200);display:grid;place-items:center;cursor:pointer;box-shadow:0 0 18px color-mix(in srgb, var(--color-accent) 35%, transparent);animation:nlPop .18s ease-out" style-hover="background:color-mix(in srgb, var(--color-accent) 24%, transparent)" style-active="transform:scale(.92)"><i class="ph-fill ph-paper-plane-right" style="font-size:18px"></i></button>
+          </sc-if>
+          <sc-if value="{{ noText }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ startRec }}" title="Gravar áudio" style="flex:none;width:42px;height:42px;border-radius:50%;border:1px solid var(--color-divider);background:transparent;color:var(--color-neutral-300);display:grid;place-items:center;cursor:pointer;animation:nlPop .18s ease-out" style-hover="border-color:var(--color-accent);color:var(--color-accent)"><i class="ph ph-microphone" style="font-size:19px"></i></button>
+          </sc-if>
+        </div>
+      </sc-if>
+      <sc-if value="{{ recording }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:10px;min-height:42px;animation:nlFade .2s">
+          <button class="btn btn-icon" onClick="{{ cancelRec }}" title="Descartar" style="flex:none;color:var(--color-neutral-400)"><i class="ph ph-trash" style="font-size:19px"></i></button>
+          <div style="flex:1;display:flex;align-items:center;gap:10px;height:42px;padding:0 16px;border-radius:21px;background:var(--color-surface);box-shadow:inset 0 0 0 1px var(--color-divider)">
+            <span style="width:9px;height:9px;border-radius:50%;background:oklch(0.72 0.15 22);animation:nlBlink 1s infinite"></span>
+            <span style="font-size:14px;font-variant-numeric:tabular-nums">{{ recTime }}</span>
+            <span style="font-size:12.5px;color:var(--color-neutral-500)">Gravando áudio…</span>
+          </div>
+          <button onClick="{{ sendRec }}" title="Enviar áudio" style="flex:none;width:42px;height:42px;border-radius:50%;border:1px solid var(--color-accent);background:color-mix(in srgb, var(--color-accent) 14%, transparent);color:var(--color-accent-200);display:grid;place-items:center;cursor:pointer;box-shadow:0 0 18px color-mix(in srgb, var(--color-accent) 35%, transparent)"><i class="ph-fill ph-paper-plane-right" style="font-size:18px"></i></button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <sc-if value="{{ showKeyboard }}" hint-placeholder-val="{{ false }}">
+    <div onMouseDown="{{ keepFocus }}" style="flex:none;padding:8px 4px 14px;background:var(--color-neutral-900);display:flex;flex-direction:column;gap:7px;animation:nlRise .2s ease-out">
+      <sc-for list="{{ keyRows }}" as="row" hint-placeholder-count="3">
+        <div style="display:flex;justify-content:center;gap:5px">
+          <sc-for list="{{ row.keys }}" as="k" hint-placeholder-count="10"><button onClick="{{ k.press }}" style="flex:0 1 32px;height:40px;border:0;border-radius:6px;background:var(--color-neutral-800);color:var(--color-neutral-100);font:inherit;font-size:16px;cursor:pointer;padding:0" style-active="background:var(--color-neutral-700)">{{ k.k }}</button></sc-for>
+        </div>
+      </sc-for>
+      <div style="display:flex;justify-content:center;gap:5px;padding:0 6px">
+        <button onClick="{{ kbSpace }}" style="flex:1;height:40px;border:0;border-radius:6px;background:var(--color-neutral-800);color:var(--color-neutral-400);font:inherit;font-size:13px;cursor:pointer">espaço</button>
+        <button onClick="{{ kbBack }}" style="width:52px;height:40px;border:0;border-radius:6px;background:var(--color-neutral-800);color:var(--color-neutral-200);cursor:pointer;display:grid;place-items:center"><i class="ph ph-backspace" style="font-size:18px"></i></button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasDraft }}" hint-placeholder-val="{{ false }}">
+    <div class="dialog-backdrop" style="position:absolute;z-index:20;backdrop-filter:blur(6px);animation:nlFade .18s">
+      <div class="dialog" style="width:min(480px,100%);animation:nlRise .2s ease-out">
+        <div style="display:flex;align-items:center;justify-content:space-between"><div class="dialog-title">{{ draft.title }}</div><button class="btn btn-icon" onClick="{{ cancelDraft }}" title="Fechar"><i class="ph ph-x" style="font-size:18px"></i></button></div>
+        <sc-if value="{{ draft.isImage }}" hint-placeholder-val="{{ true }}"><div style="border-radius:var(--radius-md);overflow:hidden;background:var(--color-neutral-900);display:grid;place-items:center"><img src="{{ draft.url }}" alt="Pré-visualização" style="max-width:100%;max-height:320px;object-fit:contain"></div></sc-if>
+        <sc-if value="{{ draft.isVideo }}" hint-placeholder-val="{{ false }}"><div style="position:relative;border-radius:var(--radius-md);overflow:hidden;background:var(--color-neutral-900)"><video src="{{ draft.url }}" muted="{{ true }}" style="display:block;width:100%;max-height:300px"></video><span style="position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--radius-sm);background:color-mix(in srgb, var(--color-bg) 72%, transparent);font-size:11.5px"><i class="ph ph-video-camera"></i>{{ draft.durLabel }}</span></div></sc-if>
+        <sc-if value="{{ draft.isOther }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-md);background:var(--color-neutral-900)"><div style="width:44px;height:44px;border-radius:var(--radius-md);background:var(--color-neutral-800);display:grid;place-items:center"><i class="{{ draft.icon }}" style="font-size:24px"></i></div><div style="min-width:0"><div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ draft.name }}</div><div style="font-size:12px;color:var(--color-neutral-500)">{{ draft.ext }} · {{ draft.size }}</div></div></div></sc-if>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-neutral-500)"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%">{{ draft.name }}</span><span>{{ draft.size }}</span></div>
+        <sc-if value="{{ draft.canCaption }}" hint-placeholder-val="{{ true }}"><input class="input" value="{{ draft.caption }}" onChange="{{ onCaption }}" onKeyDown="{{ captionKey }}" placeholder="Adicionar legenda…"></sc-if>
+        <div class="dialog-actions"><button class="btn btn-secondary" onClick="{{ cancelDraft }}">Cancelar</button><button class="btn btn-primary" onClick="{{ sendDraft }}"><i class="ph ph-paper-plane-right"></i>Enviar</button></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasViewer }}" hint-placeholder-val="{{ false }}">
+    <div ref="{{ viewerRef }}" style="position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;background:color-mix(in srgb, var(--color-bg) 96%, transparent);backdrop-filter:blur(10px);animation:nlFade .2s">
+      <div style="flex:none;display:flex;align-items:center;gap:8px;padding:10px 12px 10px 18px">
+        <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ viewer.name }}</div><div style="font-size:12px;color:var(--color-neutral-500)">{{ viewer.meta }}</div></div>
+        <sc-if value="{{ viewer.isImage }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:2px">
+            <button class="btn btn-icon" onClick="{{ zoomOut }}" title="Diminuir zoom"><i class="ph ph-magnifying-glass-minus" style="font-size:19px"></i></button>
+            <span style="width:44px;text-align:center;font-size:12px;color:var(--color-neutral-400);font-variant-numeric:tabular-nums">{{ viewer.zoomPct }}</span>
+            <button class="btn btn-icon" onClick="{{ zoomIn }}" title="Aumentar zoom"><i class="ph ph-magnifying-glass-plus" style="font-size:19px"></i></button>
+          </div>
+        </sc-if>
+        <button class="btn btn-icon" onClick="{{ viewerDownload }}" title="Baixar"><i class="ph ph-download-simple" style="font-size:19px"></i></button>
+        <button class="btn btn-icon btn-secondary" onClick="{{ closeViewer }}" title="Fechar (Esc)"><i class="ph ph-x" style="font-size:18px"></i></button>
+      </div>
+      <sc-if value="{{ viewer.isImage }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;min-height:0;overflow:auto;display:grid;place-items:center;padding:12px 16px 28px">
+          <img src="{{ viewer.url }}" alt="{{ viewer.name }}" onClick="{{ zoomToggle }}" style="max-width:100%;max-height:100%;border-radius:var(--radius-md);transform:{{ viewer.transform }};transition:transform .25s ease;cursor:{{ viewer.cursor }};animation:nlPop .22s ease-out">
+        </div>
+      </sc-if>
+      <sc-if value="{{ viewer.isVideo }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:8px 16px 24px">
+          <div style="width:100%;max-width:920px;display:flex;flex-direction:column;border-radius:var(--radius-lg);overflow:hidden;background:var(--color-neutral-900);box-shadow:var(--shadow-md)">
+            <div onClick="{{ vidToggle }}" style="position:relative;aspect-ratio:16/9;cursor:pointer;background:linear-gradient(135deg,var(--color-neutral-800),var(--color-accent-900))">
+              <sc-if value="{{ viewer.hasPoster }}" hint-placeholder-val="{{ true }}"><img src="{{ viewer.poster }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 85%;filter:brightness(.7)"></sc-if>
+              <sc-if value="{{ viewer.showBigPlay }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;inset:0;display:grid;place-items:center;animation:nlFade .2s"><span style="width:64px;height:64px;border-radius:50%;background:color-mix(in srgb, var(--color-bg) 55%, transparent);border:1px solid var(--color-neutral-300);display:grid;place-items:center"><i class="ph-fill ph-play" style="font-size:24px"></i></span></span></sc-if>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px">
+              <button class="btn btn-icon" onClick="{{ vidToggle }}" title="Reproduzir/pausar"><i class="{{ viewer.vidIcon }}" style="font-size:17px"></i></button>
+              <div onClick="{{ vidSeek }}" style="flex:1;position:relative;height:16px;display:flex;align-items:center;cursor:pointer">
+                <div style="position:absolute;left:0;right:0;height:3px;border-radius:2px;background:var(--color-neutral-800)"></div>
+                <div style="position:absolute;left:0;width:{{ viewer.vidPct }}%;height:3px;border-radius:2px;background:var(--color-accent);transition:width .25s linear"></div>
+                <div style="position:absolute;left:calc({{ viewer.vidPct }}% - 6px);width:12px;height:12px;border-radius:50%;background:var(--color-accent-200);transition:left .25s linear"></div>
+              </div>
+              <span style="font-size:12px;color:var(--color-neutral-400);font-variant-numeric:tabular-nums;white-space:nowrap">{{ viewer.vidTime }}</span>
+              <button class="btn btn-icon" onClick="{{ vidMute }}" title="Volume"><i class="{{ viewer.volIcon }}" style="font-size:18px"></i></button>
+              <input type="range" min="0" max="100" value="{{ viewer.vol }}" onChange="{{ vidVol }}" aria-label="Volume" style="width:70px;accent-color:var(--color-accent)">
+              <button class="btn btn-icon" onClick="{{ vidFull }}" title="Tela cheia"><i class="ph ph-corners-out" style="font-size:18px"></i></button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ isAdminLogin }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Login admin" style="height:100%;display:flex;flex-direction:column;background:radial-gradient(110% 70% at 0% 0%, var(--color-neutral-900), transparent 60%), var(--color-bg);animation:nlFade .3s">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px">
+    <form onSubmit="{{ adminSubmit }}" style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px;animation:nlRise .35s ease-out">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none"><path d="M10 25h12.5a5.5 5.5 0 0 0 .9-10.93A7.5 7.5 0 0 0 9.2 12.6 6.2 6.2 0 0 0 10 25Z" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round"></path><path d="M11.5 25 9.6 28.6 15.5 25" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="16" cy="17.6" r="1.7" fill="var(--color-accent)"></circle><rect x="15.25" y="18.6" width="1.5" height="3.2" rx="0.75" fill="var(--color-accent)"></rect></svg>
+        <span style="font-size:18px;font-weight:500;letter-spacing:-0.02em">Nuvem<span style="color:var(--color-accent-300)">Leads</span></span>
+        <span class="tag tag-neutral" style="margin-left:4px">Admin</span>
+      </div>
+      <h3 style="margin:0">Entrar no NuvemLeads</h3>
+      <sc-if value="{{ adminErr }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:var(--radius-md);font-size:13px;color:var(--color-neutral-100);background:color-mix(in srgb, oklch(0.72 0.15 22) 12%, transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb, oklch(0.72 0.15 22) 40%, transparent);animation:nlRise .2s"><i class="ph-fill ph-warning-circle" style="font-size:16px;color:oklch(0.72 0.15 22);margin-top:1px"></i>Não foi possível entrar. Verifique seus dados.</div>
+      </sc-if>
+      <div class="field"><label>E-mail</label><input class="input" type="email" value="{{ admin.email }}" onChange="{{ adminEmail }}" autoComplete="username" style="height:40px;border-color:{{ adminBorder }}"></div>
+      <div class="field"><label>Senha</label><input class="input" type="password" value="{{ admin.pass }}" onChange="{{ adminPass }}" autoComplete="current-password" placeholder="••••••••" style="height:40px;border-color:{{ adminBorder }}"></div>
+      <button type="submit" class="btn btn-primary btn-block" disabled="{{ adminLoading }}" style="height:42px">
+        <sc-if value="{{ adminLoading }}" hint-placeholder-val="{{ false }}"><i class="ph ph-circle-notch" style="font-size:16px;animation:nlSpin .9s linear infinite"></i>Entrando…</sc-if>
+        <sc-if value="{{ adminIdle }}" hint-placeholder-val="{{ true }}">Entrar</sc-if>
+      </button>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <button type="button" class="btn btn-ghost" onClick="{{ forgot }}" style="font-size:13px">Esqueci minha senha</button>
+        <button type="button" class="btn btn-ghost" onClick="{{ goAccess }}" style="font-size:12.5px;color:var(--color-neutral-500)">Acesso do participante</button>
+      </div>
+    </form>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Admin" style="height:100%;min-height:0;display:flex;flex-direction:{{ L.adminDir }};animation:nlFade .25s">
+  <sc-if value="{{ L.showSidebar }}" hint-placeholder-val="{{ true }}">
+    <aside style="flex:none;width:228px;display:flex;flex-direction:column;gap:4px;padding:20px 14px;background:linear-gradient(to bottom,transparent,var(--color-divider) 48px,var(--color-divider) calc(100% - 48px),transparent) no-repeat right / 1px 100%">
+      <div style="display:flex;align-items:center;gap:8px;padding:0 8px 20px">
+        <svg width="26" height="26" viewBox="0 0 32 32" fill="none"><path d="M10 25h12.5a5.5 5.5 0 0 0 .9-10.93A7.5 7.5 0 0 0 9.2 12.6 6.2 6.2 0 0 0 10 25Z" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round"></path><path d="M11.5 25 9.6 28.6 15.5 25" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="16" cy="17.6" r="1.7" fill="var(--color-accent)"></circle><rect x="15.25" y="18.6" width="1.5" height="3.2" rx="0.75" fill="var(--color-accent)"></rect></svg>
+        <span style="font-size:16px;font-weight:500;letter-spacing:-0.02em">Nuvem<span style="color:var(--color-accent-300)">Leads</span></span>
+      </div>
+      <sc-for list="{{ adminNav }}" as="n" hint-placeholder-count="3">
+        <button onClick="{{ n.onClick }}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:0;border-radius:var(--radius-md);background:{{ n.bg }};color:{{ n.color }};font:inherit;font-size:14px;cursor:pointer;text-align:left" style-hover="color:var(--color-text)"><i class="{{ n.icon }}" style="font-size:18px"></i>{{ n.label }}</button>
+      </sc-for>
+      <div style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 8px">
+        <span style="width:32px;height:32px;flex:none;border-radius:50%;background:var(--color-neutral-800);color:var(--color-neutral-200);display:grid;place-items:center;font-size:12px;font-weight:500">{{ adminInitials }}</span>
+        <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ adminName }}</div><div style="font-size:11.5px;color:var(--color-neutral-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ adminEmailV }}</div></div>
+        <button class="btn btn-icon" onClick="{{ logout }}" title="Sair" style="width:30px;height:30px;color:var(--color-neutral-400)"><i class="ph ph-sign-out" style="font-size:17px"></i></button>
+      </div>
+    </aside>
+  </sc-if>
+  <sc-if value="{{ L.isMobile }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none;display:flex;flex-direction:column;gap:8px;padding:12px 14px 8px;background:linear-gradient(to right,transparent,var(--color-divider) 48px,var(--color-divider) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><path d="M10 25h12.5a5.5 5.5 0 0 0 .9-10.93A7.5 7.5 0 0 0 9.2 12.6 6.2 6.2 0 0 0 10 25Z" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round"></path><path d="M11.5 25 9.6 28.6 15.5 25" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="16" cy="17.6" r="1.7" fill="var(--color-accent)"></circle><rect x="15.25" y="18.6" width="1.5" height="3.2" rx="0.75" fill="var(--color-accent)"></rect></svg>
+        <span style="flex:1;font-size:15px;font-weight:500;letter-spacing:-0.02em">Nuvem<span style="color:var(--color-accent-300)">Leads</span></span>
+        <button class="btn btn-icon" onClick="{{ logout }}" title="Sair" style="color:var(--color-neutral-400)"><i class="ph ph-sign-out" style="font-size:18px"></i></button>
+      </div>
+      <div style="display:flex;gap:4px">
+        <sc-for list="{{ adminNav }}" as="n" hint-placeholder-count="3"><button onClick="{{ n.onClick }}" style="display:flex;align-items:center;gap:6px;padding:6px 10px;border:0;border-radius:var(--radius-md);background:{{ n.bg }};color:{{ n.color }};font:inherit;font-size:13px;cursor:pointer"><i class="{{ n.icon }}" style="font-size:16px"></i>{{ n.label }}</button></sc-for>
+      </div>
+    </div>
+  </sc-if>
+  <main style="flex:1;min-width:0;min-height:0;overflow-y:auto;padding:{{ L.adminPad }}">
+    <div style="max-width:880px;display:flex;flex-direction:column;gap:24px">
+<sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="Painel" style="display:flex;flex-direction:column;gap:24px;animation:nlRise .3s ease-out">
+    <div>
+      <div style="font-size:12px;color:var(--color-neutral-500);margin-bottom:4px">NuvemLeads</div>
+      <h2 style="margin:0 0 4px;font-size:28px">Olá, {{ adminFirst }}</h2>
+      <p style="margin:0;font-size:14px;color:var(--color-neutral-400)">Resumo da sala privada.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+      <sc-for list="{{ stats }}" as="c" hint-placeholder-count="4">
+        <div class="card elev-sm" style="padding:16px;gap:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--color-neutral-400)">{{ c.label }}<i class="{{ c.icon }}" style="font-size:17px;color:var(--color-accent)"></i></div>
+          <div style="font-size:30px;font-weight:500;letter-spacing:-0.02em;line-height:1">{{ c.value }}</div>
+          <div class="card-meta">{{ c.sub }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <h5 style="margin:0 0 6px">Atividade recente</h5>
+      <sc-for list="{{ recent }}" as="r" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 4px;background:linear-gradient(to right,transparent,color-mix(in srgb, var(--color-text) 8%, transparent) 48px,color-mix(in srgb, var(--color-text) 8%, transparent) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px">
+          <span style="width:{{ r.size }};height:{{ r.size }};flex:none;border-radius:50%;background:{{ r.bg }};color:{{ r.fg }};display:grid;place-items:center;font-size:{{ r.font }};font-weight:500">{{ r.initials }}</span>
+          <div style="flex:1;font-size:14px"><span style="font-weight:500">{{ r.who }}</span> <span style="color:var(--color-neutral-300)">{{ r.what }}</span></div>
+          <div style="font-size:12px;color:var(--color-neutral-500);white-space:nowrap">{{ r.when }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isUsers }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Usuários" style="display:flex;flex-direction:column;gap:20px;animation:nlRise .3s ease-out">
+    <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:220px">
+        <h2 style="margin:0 0 4px;font-size:28px">Usuários</h2>
+        <p style="margin:0;font-size:14px;color:var(--color-neutral-400)">A conversa conecta exatamente duas pessoas ativas.</p>
+      </div>
+      <button class="btn btn-primary" onClick="{{ newUser }}" style="height:38px"><i class="ph ph-plus"></i>Novo usuário</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--color-neutral-400)">
+      <div style="display:flex;gap:4px"><sc-for list="{{ slots }}" as="sl" hint-placeholder-count="2"><span style="width:28px;height:4px;border-radius:2px;background:{{ sl.bg }}"></span></sc-for></div>
+      {{ activeN }} de 2 vagas ativas
+    </div>
+    <div class="card elev-sm" style="padding:4px 0;gap:0">
+      <sc-for list="{{ userRows }}" as="u" hint-placeholder-count="2">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;background:{{ u.rowBg }};transition:background .4s">
+          <span style="width:{{ u.size }};height:{{ u.size }};flex:none;border-radius:50%;background:{{ u.bg }};color:{{ u.fg }};display:grid;place-items:center;font-size:{{ u.font }};font-weight:500;overflow:hidden;opacity:{{ u.faded }}"><sc-if value="{{ u.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ u.photo }}" alt="" style="width:100%;height:100%;object-fit:cover"></sc-if><sc-if value="{{ u.noPhoto }}" hint-placeholder-val="{{ true }}">{{ u.initials }}</sc-if></span>
+          <div style="flex:1;min-width:150px">
+            <div style="display:flex;align-items:center;gap:8px"><span style="font-size:15px;font-weight:500">{{ u.name }}</span><span class="{{ u.tagClass }}">{{ u.status }}</span></div>
+            <div style="font-size:12.5px;color:var(--color-neutral-500)">Última atividade: {{ u.last }}</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-secondary" onClick="{{ u.onEdit }}"><i class="ph ph-pencil-simple"></i>Editar</button>
+            <button class="btn btn-ghost" onClick="{{ u.onToggle }}" style="padding-inline:10px"><i class="{{ u.toggleIcon }}"></i>{{ u.toggleLabel }}</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isForm }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Usuário — formulário" style="display:flex;flex-direction:column;gap:18px;max-width:540px;animation:nlRise .3s ease-out">
+    <button class="btn btn-ghost" onClick="{{ backUsers }}" style="align-self:flex-start;font-size:13px;color:var(--color-neutral-400)"><i class="ph ph-arrow-left"></i>Usuários</button>
+    <sc-if value="{{ formDone }}" hint-placeholder-val="{{ false }}">
+      <div class="card elev-sm" style="padding:24px;gap:14px;animation:nlRise .3s ease-out">
+        <div style="width:48px;height:48px;border-radius:var(--radius-lg);display:grid;place-items:center;border:1px solid oklch(0.76 0.13 158);color:oklch(0.76 0.13 158);box-shadow:0 0 28px color-mix(in srgb, oklch(0.76 0.13 158) 25%, transparent);animation:nlPop .3s ease-out"><i class="ph-bold ph-check" style="font-size:22px"></i></div>
+        <h3 style="margin:0">Usuário criado</h3>
+        <p style="margin:0;font-size:14px;color:var(--color-neutral-400)">{{ createdMsg }}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn btn-primary" onClick="{{ backUsers }}">Ver usuários</button><button class="btn btn-secondary" onClick="{{ createAnother }}">Criar outro</button></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ formOpen }}" hint-placeholder-val="{{ true }}">
+      <h2 style="margin:0;font-size:28px">{{ formTitle }}</h2>
+      <div class="card elev-sm" style="padding:22px;gap:18px">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <span style="width:64px;height:64px;flex:none;border-radius:50%;background:{{ fAv.bg }};color:{{ fAv.fg }};display:grid;place-items:center;font-size:22px;font-weight:500;overflow:hidden;box-shadow:inset 0 0 0 1px var(--color-divider)">
+            <sc-if value="{{ fHasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ form.photo }}" alt="" style="width:100%;height:100%;object-fit:cover"></sc-if>
+            <sc-if value="{{ fNoPhoto }}" hint-placeholder-val="{{ true }}"><sc-if value="{{ fHasInitials }}" hint-placeholder-val="{{ false }}">{{ fAv.initials }}</sc-if></sc-if>
+          </span>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:12px;color:color-mix(in srgb, var(--color-text) 70%, transparent)">Foto</div>
+            <div style="display:flex;gap:6px">
+              <label class="btn btn-secondary" style="cursor:pointer"><input type="file" accept="image/jpeg,image/png,image/webp" onChange="{{ fPhoto }}" style="display:none"><i class="ph ph-upload-simple"></i>Escolher foto</label>
+              <sc-if value="{{ fHasPhoto }}" hint-placeholder-val="{{ false }}"><button class="btn btn-ghost" onClick="{{ fRemovePhoto }}" style="padding-inline:10px">Remover</button></sc-if>
+            </div>
+          </div>
+        </div>
+        <div class="field"><label>Nome</label><input class="input" value="{{ form.name }}" onChange="{{ fName }}" placeholder="Nome completo" style="height:40px;border-color:{{ fb.name }}"><sc-if value="{{ fe.name }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:oklch(0.72 0.15 22);margin-top:5px">{{ fe.name }}</div></sc-if></div>
+        <sc-if value="{{ showPinLocked }}" hint-placeholder-val="{{ false }}">
+          <div class="field"><label>PIN</label>
+            <div style="display:flex;align-items:center;gap:10px"><div class="input" style="height:40px;display:flex;align-items:center;letter-spacing:.3em;color:var(--color-neutral-400);flex:1">••••••</div><button class="btn btn-secondary" onClick="{{ fChangePin }}" style="height:40px"><i class="ph ph-key"></i>Alterar PIN</button></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showPinFields }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
+            <div class="field"><label>PIN (6 dígitos)</label><input class="input" type="password" inputMode="numeric" maxLength="6" autoComplete="new-password" value="{{ form.pin }}" onChange="{{ fPin }}" placeholder="••••••" style="height:40px;letter-spacing:.3em;border-color:{{ fb.pin }}"><sc-if value="{{ fe.pin }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:oklch(0.72 0.15 22);margin-top:5px">{{ fe.pin }}</div></sc-if></div>
+            <div class="field"><label>Confirmar PIN</label><input class="input" type="password" inputMode="numeric" maxLength="6" autoComplete="new-password" value="{{ form.pin2 }}" onChange="{{ fPin2 }}" placeholder="••••••" style="height:40px;letter-spacing:.3em;border-color:{{ fb.pin2 }}"><sc-if value="{{ fe.pin2 }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:oklch(0.72 0.15 22);margin-top:5px">{{ fe.pin2 }}</div></sc-if></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-neutral-500);margin-top:-8px"><i class="ph ph-eye-slash"></i>O PIN nunca é exibido. Evite sequências e números repetidos.<sc-if value="{{ isChangingPin }}" hint-placeholder-val="{{ false }}"><button class="btn btn-ghost" onClick="{{ fCancelPin }}" style="font-size:12px;margin-left:auto">Manter PIN atual</button></sc-if></div>
+        </sc-if>
+        <div class="field"><label>Status</label>
+          <div class="seg"><sc-for list="{{ statusOpts }}" as="o" hint-placeholder-count="2"><label class="seg-opt"><input type="radio" name="nl-status" checked="{{ o.checked }}" onChange="{{ o.pick }}">{{ o.v }}</label></sc-for></div>
+          <sc-if value="{{ fe.status }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:oklch(0.72 0.15 22);margin-top:6px">{{ fe.status }}</div></sc-if>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:4px"><button class="btn btn-primary" onClick="{{ submitForm }}" style="height:38px">{{ formSubmit }}</button><button class="btn btn-secondary" onClick="{{ backUsers }}" style="height:38px">Cancelar</button></div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Configurações" style="display:flex;flex-direction:column;gap:20px;max-width:620px;animation:nlRise .3s ease-out">
+    <h2 style="margin:0;font-size:28px">Configurações</h2>
+    <div class="card elev-sm" style="padding:20px;gap:18px">
+      <div class="card-kicker">Segurança</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:14px;font-weight:500">Tempo para bloqueio automático</div>
+        <div style="font-size:12.5px;color:var(--color-neutral-500);margin-top:-4px">A conversa é ocultada após esse tempo sem atividade.</div>
+        <div class="seg" style="align-self:flex-start"><sc-for list="{{ lockOpts }}" as="o" hint-placeholder-count="4"><label class="seg-opt"><input type="radio" name="nl-autolock" checked="{{ o.checked }}" onChange="{{ o.pick }}">{{ o.label }}</label></sc-for></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="flex:1"><div style="font-size:14px;font-weight:500">Exigir PIN ao retornar à aba</div><div style="font-size:12.5px;color:var(--color-neutral-500)">Bloqueia ao trocar de aba ou quando a janela perde o foco.</div></div>
+        <button role="switch" aria-label="Exigir PIN ao retornar à aba" onClick="{{ toggleTab }}" style="width:40px;height:24px;flex:none;border-radius:12px;border:1px solid {{ swTab.border }};background:{{ swTab.bg }};position:relative;cursor:pointer;padding:0;transition:background .2s"><span style="position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:{{ swTab.knob }};transform:{{ swTab.tx }};transition:transform .2s"></span></button>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="flex:1"><div style="font-size:14px;font-weight:500">Exigir PIN ao reabrir sessão</div><div style="font-size:12.5px;color:var(--color-neutral-500)">Pede o PIN sempre que o navegador for reaberto.</div></div>
+        <button role="switch" aria-label="Exigir PIN ao reabrir sessão" onClick="{{ toggleReopen }}" style="width:40px;height:24px;flex:none;border-radius:12px;border:1px solid {{ swReopen.border }};background:{{ swReopen.bg }};position:relative;cursor:pointer;padding:0;transition:background .2s"><span style="position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:{{ swReopen.knob }};transform:{{ swReopen.tx }};transition:transform .2s"></span></button>
+      </div>
+    </div>
+    <div class="card elev-sm" style="padding:20px;gap:16px">
+      <div class="card-kicker">Conta</div>
+      <div class="field"><label>Nome do administrador</label><input class="input" value="{{ settings.name }}" onChange="{{ setName }}" style="height:40px"></div>
+      <div class="field"><label>E-mail</label><input class="input" type="email" value="{{ settings.email }}" onChange="{{ setEmail }}" style="height:40px"></div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="flex:1"><div style="font-size:14px;font-weight:500">Senha</div><div style="font-size:12.5px;color:var(--color-neutral-500)">Alterada há 3 meses</div></div>
+        <button class="btn btn-secondary" onClick="{{ openPw }}"><i class="ph ph-password"></i>Alterar senha</button>
+      </div>
+    </div>
+    <div><button class="btn btn-primary" onClick="{{ saveSettings }}" style="height:38px">Salvar configurações</button></div>
+  </div>
+</sc-if>
+    </div>
+  </main>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasConfirm }}" hint-placeholder-val="{{ false }}">
+  <div class="dialog-backdrop" style="position:absolute;z-index:40;backdrop-filter:blur(4px);animation:nlFade .18s">
+    <div class="dialog" style="animation:nlRise .2s ease-out">
+      <div style="width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;border:1px solid var(--color-accent);color:var(--color-accent)"><i class="{{ confirm.icon }}" style="font-size:20px"></i></div>
+      <div class="dialog-title">{{ confirm.title }}</div>
+      <div class="dialog-body">{{ confirm.body }}</div>
+      <div class="dialog-actions"><button class="btn btn-secondary" onClick="{{ confirmCancel }}">Cancelar</button><button class="btn btn-primary" onClick="{{ confirmOk }}">{{ confirm.label }}</button></div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ pwModal }}" hint-placeholder-val="{{ false }}">
+  <div class="dialog-backdrop" style="position:absolute;z-index:40;backdrop-filter:blur(4px);animation:nlFade .18s">
+    <div class="dialog" style="animation:nlRise .2s ease-out">
+      <div class="dialog-title">Alterar senha</div>
+      <div class="field"><label>Senha atual</label><input class="input" type="password"></div>
+      <div class="field"><label>Nova senha</label><input class="input" type="password"></div>
+      <div class="field"><label>Confirmar nova senha</label><input class="input" type="password"></div>
+      <div class="dialog-actions"><button class="btn btn-secondary" onClick="{{ closePw }}">Cancelar</button><button class="btn btn-primary" onClick="{{ savePw }}">Salvar senha</button></div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:50%;bottom:96px;transform:translateX(-50%);z-index:60;max-width:calc(100% - 32px)">
+    <div class="elev-md" style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:var(--radius-md);background:var(--color-surface);font-size:13.5px;animation:nlRise .2s ease-out"><i class="{{ toast.icon }}" style="font-size:17px;color:{{ toast.color }}"></i>{{ toast.text }}</div>
+  </div>
+</sc-if>
+
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isDoc }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;overflow-y:auto">
+<sc-if value="{{ isDS }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Design system" style="max-width:1120px;padding:40px 32px 80px;display:flex;flex-direction:column;gap:48px">
+  <div>
+    <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-bottom:8px">NuvemLeads · Design system</div>
+    <h1 style="margin:0 0 8px">Sistema visual</h1>
+    <p style="margin:0;max-width:560px;color:var(--color-neutral-400)">Construído sobre o Nocturne: fundo azul-acinzentado, Inter 500, raio 8px e o acento usado como linha e brilho. Todos os valores abaixo são tokens do stylesheet.</p>
+  </div>
+
+  <section style="display:flex;flex-direction:column;gap:16px">
+    <h6 style="color:var(--color-neutral-500)">Identidade</h6>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:stretch">
+      <div class="card elev-sm" style="flex:2 1 360px;padding:32px;justify-content:center;gap:16px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <svg width="64" height="64" viewBox="0 0 32 32" fill="none"><path d="M10 25h12.5a5.5 5.5 0 0 0 .9-10.93A7.5 7.5 0 0 0 9.2 12.6 6.2 6.2 0 0 0 10 25Z" stroke="var(--color-accent)" stroke-width="1.6" stroke-linejoin="round"></path><path d="M11.5 25 9.6 28.6 15.5 25" stroke="var(--color-accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="16" cy="17.6" r="1.7" fill="var(--color-accent)"></circle><rect x="15.25" y="18.6" width="1.5" height="3.2" rx="0.75" fill="var(--color-accent)"></rect></svg>
+          <span style="font-size:40px;font-weight:500;letter-spacing:-0.03em">Nuvem<span style="color:var(--color-accent-300)">Leads</span></span>
+        </div>
+        <p style="margin:0;font-size:13px;color:var(--color-neutral-400);max-width:440px">Uma nuvem que também é um balão de conversa. O ponto com haste no centro sugere uma fechadura sem desenhar um cadeado.</p>
+      </div>
+      <div class="card elev-sm" style="flex:1 1 260px;padding:24px;gap:16px">
+        <div class="card-kicker">Símbolo e favicon</div>
+        <div style="display:flex;align-items:flex-end;gap:20px">
+          <div style="width:72px;height:72px;border-radius:16px;background:var(--color-bg);box-shadow:var(--shadow-sm);display:grid;place-items:center"><svg width="48" height="48" viewBox="0 0 32 32" fill="none"><path d="M10 25h12.5a5.5 5.5 0 0 0 .9-10.93A7.5 7.5 0 0 0 9.2 12.6 6.2 6.2 0 0 0 10 25Z" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round"></path><path d="M11.5 25 9.6 28.6 15.5 25" stroke="var(--color-accent)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="16" cy="17.6" r="1.7" fill="var(--color-accent)"></circle><rect x="15.25" y="18.6" width="1.5" height="3.2" rx="0.75" fill="var(--color-accent)"></rect></svg></div>
+          <img src="assets/favicon.svg" alt="" style="width:32px;height:32px">
+          <img src="assets/favicon.svg" alt="" style="width:16px;height:16px">
+        </div>
+        <div class="card-meta">72 · 32 · 16 px — assets/favicon.svg</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:16px">
+    <h6 style="color:var(--color-neutral-500)">Cores</h6>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px">
+      <sc-for list="{{ swatches }}" as="c" hint-placeholder-count="14">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="height:64px;border-radius:var(--radius-md);background:{{ c.css }};box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--color-text) 10%, transparent)"></div>
+          <div><div style="font-size:13px;font-weight:500">{{ c.name }}</div><div style="font-size:11.5px;color:var(--color-neutral-500)">{{ c.token }}</div><div style="font-size:11.5px;color:var(--color-neutral-600)">{{ c.hex }}</div></div>
+        </div>
+      </sc-for>
+    </div>
+    <p style="margin:0;font-size:12.5px;color:var(--color-neutral-500);max-width:640px">Success, Warning e Error são os únicos tons fora do Nocturne, definidos em OKLCH na mesma luminosidade do acento. Aparecem só em pontos, ícones e textos curtos de estado.</p>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <h6 style="color:var(--color-neutral-500)">Tipografia — Inter</h6>
+    <div style="display:grid;grid-template-columns:140px 1fr;gap:14px 24px;align-items:baseline">
+      <div style="font-size:12px;color:var(--color-neutral-500)">Display · 42/500</div><div style="font-size:42px;font-weight:500;letter-spacing:-0.015em;line-height:1.1">Sessão bloqueada</div>
+      <div style="font-size:12px;color:var(--color-neutral-500)">Heading · 25/500</div><div style="font-size:25px;font-weight:500;letter-spacing:-0.015em">Digite seu PIN</div>
+      <div style="font-size:12px;color:var(--color-neutral-500)">Body · 15/400</div><div style="font-size:15px">Por segurança, sua conversa foi ocultada.</div>
+      <div style="font-size:12px;color:var(--color-neutral-500)">Caption · 12/400</div><div style="font-size:12px;color:var(--color-neutral-400)">Visto por último hoje às 09:40</div>
+      <div style="font-size:12px;color:var(--color-neutral-500)">Label · 11/500 caps</div><div style="font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-400)">Hoje</div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:16px">
+    <h6 style="color:var(--color-neutral-500)">Componentes</h6>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+
+      <div class="card elev-sm" style="padding:18px;gap:14px"><div class="card-kicker">Button</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary">Desbloquear</button><button class="btn btn-secondary">Cancelar</button><button class="btn btn-ghost">Esqueci minha senha</button></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" disabled="{{ true }}"><i class="ph ph-circle-notch" style="animation:nlSpin .9s linear infinite"></i>Entrando…</button><button class="btn btn-primary" disabled="{{ true }}">Desativado</button></div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:14px"><div class="card-kicker">Icon Button · Tooltip</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-icon btn-secondary"><i class="ph ph-dots-three-vertical" style="font-size:18px"></i></button>
+          <button class="btn btn-icon"><i class="ph ph-paperclip" style="font-size:19px"></i></button>
+          <div style="position:relative;display:flex;flex-direction:column;align-items:center">
+            <div style="position:absolute;bottom:calc(100% + 6px);white-space:nowrap;padding:4px 8px;border-radius:var(--radius-sm);background:var(--color-neutral-800);font-size:11.5px">Bloquear agora</div>
+            <button class="btn btn-icon btn-secondary"><i class="ph ph-lock-simple" style="font-size:17px"></i></button>
+          </div>
+          <button style="width:42px;height:42px;border-radius:50%;border:1px solid var(--color-accent);background:color-mix(in srgb, var(--color-accent) 14%, transparent);color:var(--color-accent-200);display:grid;place-items:center;box-shadow:0 0 18px color-mix(in srgb, var(--color-accent) 35%, transparent)"><i class="ph-fill ph-paper-plane-right" style="font-size:18px"></i></button>
+          <button style="width:42px;height:42px;border-radius:50%;border:1px solid var(--color-divider);background:transparent;color:var(--color-neutral-300);display:grid;place-items:center"><i class="ph ph-microphone" style="font-size:19px"></i></button>
+        </div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:12px"><div class="card-kicker">Input</div>
+        <div class="field"><label>E-mail</label><input class="input" value="admin@nuvemleads.com" readOnly="{{ true }}"></div>
+        <div class="field"><label>Nome</label><input class="input" value="" placeholder="Nome completo" style="border-color:oklch(0.72 0.15 22)"><div style="font-size:12px;color:oklch(0.72 0.15 22);margin-top:5px">Informe o nome da pessoa.</div></div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:12px"><div class="card-kicker">PIN Input</div>
+        <div style="display:flex;gap:6px"><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid var(--color-neutral-600);display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:50%;background:var(--color-text)"></span></div><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid var(--color-neutral-600);display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:50%;background:var(--color-text)"></span></div><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid var(--color-accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent)"></div><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid var(--color-divider)"></div><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid var(--color-divider)"></div><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid var(--color-divider)"></div></div>
+        <div style="display:flex;gap:6px"><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid oklch(0.72 0.15 22);display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:50%;background:oklch(0.72 0.15 22)"></span></div><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid oklch(0.72 0.15 22);display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:50%;background:oklch(0.72 0.15 22)"></span></div><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid oklch(0.72 0.15 22);display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:50%;background:oklch(0.72 0.15 22)"></span></div><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid oklch(0.72 0.15 22);display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:50%;background:oklch(0.72 0.15 22)"></span></div><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid oklch(0.72 0.15 22);display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:50%;background:oklch(0.72 0.15 22)"></span></div><div style="width:38px;height:46px;border-radius:var(--radius-md);background:var(--color-bg);border:1px solid oklch(0.72 0.15 22);display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:50%;background:oklch(0.72 0.15 22)"></span></div></div>
+        <div class="card-meta">Padrão · foco · erro (com tremor de 420 ms)</div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:14px"><div class="card-kicker">Avatar · Badge</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="width:24px;height:24px;border-radius:50%;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:9px;font-weight:500">MC</span>
+          <span style="position:relative;width:38px;height:38px;border-radius:50%;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:14px;font-weight:500">MC<span style="position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:oklch(0.76 0.13 158);border:2px solid var(--color-surface)"></span></span>
+          <span style="position:relative;width:38px;height:38px;border-radius:50%;background:var(--color-neutral-800);color:var(--color-neutral-200);display:grid;place-items:center;font-size:14px;font-weight:500">AS<span style="position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:var(--color-neutral-700);border:2px solid var(--color-surface)"></span></span>
+          <span style="width:56px;height:56px;border-radius:50%;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:20px;font-weight:500">MC</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag tag-accent">Ativo</span><span class="tag tag-neutral">Inativo</span><span class="tag tag-outline">Admin</span><span class="tag" style="background:color-mix(in srgb, oklch(0.76 0.13 158) 16%, transparent);color:oklch(0.86 0.09 158)">Online</span></div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:10px"><div class="card-kicker">Toast</div>
+        <div class="elev-md" style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:var(--radius-md);background:var(--color-bg);font-size:13.5px"><i class="ph-fill ph-check-circle" style="font-size:17px;color:oklch(0.76 0.13 158)"></i>Alterações salvas.</div>
+        <div class="elev-md" style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:var(--radius-md);background:var(--color-bg);font-size:13.5px"><i class="ph-fill ph-warning-circle" style="font-size:17px;color:oklch(0.72 0.15 22)"></i>O arquivo excede o limite de 25 MB.</div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:10px"><div class="card-kicker">Dropdown</div>
+        <div class="elev-md" style="padding:6px;border-radius:var(--radius-lg);background:var(--color-bg);max-width:240px">
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-md);font-size:13.5px;background:color-mix(in srgb, var(--color-text) 7%, transparent)"><i class="ph ph-lock-simple" style="color:var(--color-neutral-400)"></i>Bloquear agora</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;font-size:13.5px"><i class="ph ph-timer" style="color:var(--color-neutral-400)"></i>Bloqueio automático</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;font-size:13.5px"><i class="ph ph-sign-out" style="color:var(--color-neutral-400)"></i>Encerrar sessão</div>
+        </div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:10px"><div class="card-kicker">Modal</div>
+        <div class="dialog" style="width:100%;background:var(--color-bg)"><div class="dialog-title" style="font-size:17px">Alterar o PIN de Maria?</div><div class="dialog-body" style="font-size:13px">O PIN atual deixa de funcionar imediatamente.</div><div class="dialog-actions"><button class="btn btn-secondary">Cancelar</button><button class="btn btn-primary">Alterar PIN</button></div></div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:6px;background:var(--color-bg)"><div class="card-kicker">Message Bubble · Group · Date Divider</div>
+        <div style="display:flex;align-items:center;gap:12px;margin:6px 0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-neutral-500)"><span style="flex:1;height:1px;background:linear-gradient(to right,transparent,var(--color-divider))"></span>Hoje<span style="flex:1;height:1px;background:linear-gradient(to left,transparent,var(--color-divider))"></span></div>
+        <div style="align-self:flex-start;max-width:80%;padding:7px 11px 5px;border-radius:14px;background:var(--color-surface);font-size:14px">Consegue me mandar o vídeo?<div style="font-size:11px;color:var(--color-neutral-500);text-align:right">09:15</div></div>
+        <div style="align-self:flex-start;max-width:80%;padding:7px 11px 5px;border-radius:14px 14px 14px 4px;background:var(--color-surface);font-size:14px;margin-top:-3px">É o de ontem.<div style="font-size:11px;color:var(--color-neutral-500);text-align:right">09:15</div></div>
+        <div style="align-self:flex-end;max-width:80%;padding:7px 11px 5px;border-radius:14px 14px 4px 14px;background:var(--color-accent-800);color:var(--color-accent-100);font-size:14px;margin-top:8px">Aqui está.<div style="display:flex;justify-content:flex-end;gap:4px;font-size:11px;color:var(--color-accent-300)">09:31<i class="ph-bold ph-checks" style="font-size:14px;color:var(--color-accent-200)"></i></div></div>
+        <div style="display:flex;gap:14px;justify-content:flex-end;font-size:11.5px;color:var(--color-neutral-500);margin-top:6px"><span><i class="ph ph-clock"></i> enviando</span><span><i class="ph ph-check"></i> enviada</span><span><i class="ph ph-checks"></i> entregue</span><span><i class="ph-bold ph-checks" style="color:var(--color-accent-200)"></i> lida</span></div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:10px;background:var(--color-bg)"><div class="card-kicker">Attachment · Audio · File</div>
+        <div style="align-self:flex-start;padding:4px;border-radius:14px;background:var(--color-surface)"><div style="display:flex;align-items:center;gap:10px;width:230px;padding:4px 6px"><span style="width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--color-accent);color:var(--color-accent);display:grid;place-items:center"><i class="ph-fill ph-play" style="font-size:14px"></i></span><div style="flex:1;display:flex;flex-direction:column;gap:5px"><div style="position:relative;height:3px;border-radius:2px;background:var(--color-neutral-800)"><div style="width:35%;height:100%;border-radius:2px;background:var(--color-accent)"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-neutral-500)"><span>0:15</span><span>0:42</span></div></div></div></div>
+        <div style="align-self:flex-end;padding:4px;border-radius:14px;background:var(--color-accent-800);color:var(--color-accent-100)"><div style="display:flex;align-items:center;gap:10px;width:240px;padding:6px"><div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--color-accent-700);display:grid;place-items:center"><i class="ph ph-file-pdf" style="font-size:22px"></i></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Contrato_revisado_v3.pdf</div><div style="font-size:11.5px;color:var(--color-accent-300)">PDF · 2,4 MB</div></div><i class="ph ph-download-simple" style="font-size:18px"></i></div></div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:10px;background:var(--color-bg)"><div class="card-kicker">Image · Video Preview</div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;border-radius:10px;overflow:hidden;aspect-ratio:4/3"><img src="assets/photo.jpg" alt="" style="width:100%;height:100%;object-fit:cover"></div>
+          <div style="flex:1;position:relative;border-radius:10px;overflow:hidden;aspect-ratio:4/3"><img src="assets/photo.jpg" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 85%;filter:brightness(.62)"><span style="position:absolute;inset:0;display:grid;place-items:center"><span style="width:38px;height:38px;border-radius:50%;border:1px solid var(--color-neutral-300);background:color-mix(in srgb, var(--color-bg) 55%, transparent);display:grid;place-items:center"><i class="ph-fill ph-play"></i></span></span><span style="position:absolute;left:6px;bottom:6px;padding:1px 6px;border-radius:var(--radius-sm);background:color-mix(in srgb, var(--color-bg) 72%, transparent);font-size:10.5px">1:28</span></div>
+        </div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:12px"><div class="card-kicker">Upload Progress</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--color-neutral-400)"><span><i class="ph ph-circle-notch"></i> Enviando arquivo…</span><span>82%</span></div><div style="height:3px;border-radius:2px;background:var(--color-neutral-800)"><div style="width:82%;height:100%;border-radius:2px;background:var(--color-accent)"></div></div></div>
+        <div style="display:flex;flex-direction:column;gap:5px"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:oklch(0.76 0.13 158)"><span><i class="ph-bold ph-check"></i> Concluído</span><span>100%</span></div><div style="height:3px;border-radius:2px;background:oklch(0.76 0.13 158)"></div></div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:oklch(0.72 0.15 22)"><i class="ph ph-warning-circle"></i>Não foi possível enviar o arquivo.<button class="btn btn-ghost" style="font-size:12px">Tentar novamente</button></div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:12px"><div class="card-kicker">User Card</div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-lg);background:var(--color-bg);box-shadow:var(--shadow-sm)"><span style="width:44px;height:44px;border-radius:50%;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:16px;font-weight:500">MC</span><div style="flex:1"><div style="font-size:15px;font-weight:500">Maria Clara</div><div style="font-size:12px;color:var(--color-neutral-500)">Hoje, 09:40</div></div><span class="tag tag-accent">Ativo</span></div>
+      </div>
+
+      <div class="card elev-sm" style="padding:18px;gap:12px;grid-column:1 / -1"><div class="card-kicker">Header · Chat Composer</div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--radius-md);background:var(--color-bg)">
+          <span style="position:relative;width:36px;height:36px;border-radius:50%;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:13px;font-weight:500">MC<span style="position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:oklch(0.76 0.13 158);border:2px solid var(--color-bg)"></span></span>
+          <div style="flex:1"><div style="font-size:15px;font-weight:500">Maria Clara</div><div style="font-size:12px;color:oklch(0.76 0.13 158)">Online</div></div>
+          <button class="btn btn-secondary"><i class="ph ph-lock-simple"></i>Bloquear</button><button class="btn btn-icon btn-secondary"><i class="ph ph-dots-three-vertical"></i></button>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius-md);background:var(--color-bg)">
+          <button class="btn btn-icon" style="color:var(--color-neutral-400)"><i class="ph ph-paperclip" style="font-size:20px"></i></button>
+          <div style="flex:1;display:flex;align-items:center;height:42px;padding:0 6px 0 14px;border-radius:21px;background:var(--color-surface);box-shadow:inset 0 0 0 1px var(--color-divider);font-size:14.5px;color:var(--color-neutral-500)"><span style="flex:1">Digite uma mensagem...</span><i class="ph ph-smiley" style="font-size:19px;padding:0 6px"></i></div>
+          <span style="width:42px;height:42px;border-radius:50%;border:1px solid var(--color-divider);color:var(--color-neutral-300);display:grid;place-items:center"><i class="ph ph-microphone" style="font-size:19px"></i></span>
+        </div>
+        <div class="card-meta">Campo vazio mostra o microfone; ao digitar, o botão de enviar entra com brilho do acento.</div>
+      </div>
+    </div>
+  </section>
+</div>
+</sc-if>
+<sc-if value="{{ isStates }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Estados" style="max-width:1120px;padding:40px 32px 80px;display:flex;flex-direction:column;gap:28px">
+  <div>
+    <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-bottom:8px">NuvemLeads · Estados</div>
+    <h1 style="margin:0 0 8px">Estados do produto</h1>
+    <p style="margin:0;max-width:600px;color:var(--color-neutral-400)">Referência para implementação. Todos também acontecem no protótipo: use o menu Simular para ficar offline, falhar um envio ou bloquear a sessão.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px">
+
+    <div class="card elev-sm" style="padding:0;gap:0;overflow:hidden"><div style="padding:12px 16px" class="card-kicker">Loading · conversa</div>
+      <div style="height:200px;padding:16px;background:var(--color-bg);display:flex;flex-direction:column;gap:8px">
+        <div style="width:55%;height:30px;border-radius:14px;background:var(--color-surface);animation:nlShimmer 1.2s infinite"></div>
+        <div style="width:35%;height:30px;border-radius:14px;background:var(--color-surface);animation:nlShimmer 1.2s .1s infinite"></div>
+        <div style="align-self:flex-end;width:45%;height:30px;border-radius:14px;background:var(--color-accent-900);animation:nlShimmer 1.2s .2s infinite"></div>
+        <div style="margin-top:auto;font-size:12px;color:var(--color-neutral-500);display:flex;align-items:center;gap:6px"><i class="ph ph-circle-notch" style="animation:nlSpin 1s linear infinite"></i>Carregando conversa…</div>
+      </div>
+    </div>
+
+    <div class="card elev-sm" style="padding:0;gap:0;overflow:hidden"><div style="padding:12px 16px" class="card-kicker">Empty state</div>
+      <div style="height:200px;padding:20px 24px;background:var(--color-bg);display:flex;flex-direction:column;justify-content:center;gap:8px">
+        <i class="ph ph-chat-circle-dots" style="font-size:30px;color:var(--color-accent)"></i>
+        <div style="font-size:16px;font-weight:500">Nenhuma mensagem ainda</div>
+        <div style="font-size:13px;color:var(--color-neutral-400);max-width:260px">Tudo o que for enviado aqui fica visível apenas para Allan e Maria.</div>
+      </div>
+    </div>
+
+    <div class="card elev-sm" style="padding:0;gap:0;overflow:hidden"><div style="padding:12px 16px" class="card-kicker">Erro ao carregar</div>
+      <div style="height:200px;padding:20px 24px;background:var(--color-bg);display:flex;flex-direction:column;justify-content:center;gap:8px">
+        <i class="ph ph-warning-circle" style="font-size:30px;color:oklch(0.72 0.15 22)"></i>
+        <div style="font-size:16px;font-weight:500">Não foi possível carregar a conversa</div>
+        <div style="font-size:13px;color:var(--color-neutral-400)">Verifique sua conexão e tente de novo.</div>
+        <button class="btn btn-primary" style="align-self:flex-start;margin-top:4px"><i class="ph ph-arrow-clockwise"></i>Tentar novamente</button>
+      </div>
+    </div>
+
+    <div class="card elev-sm" style="padding:0;gap:0;overflow:hidden"><div style="padding:12px 16px" class="card-kicker">Sem conexão</div>
+      <div style="height:200px;background:var(--color-bg);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:12.5px;background:color-mix(in srgb, oklch(0.82 0.12 80) 10%, transparent)"><i class="ph ph-wifi-slash" style="color:oklch(0.82 0.12 80)"></i>Sem conexão. As mensagens serão enviadas quando a conexão voltar.</div>
+        <div style="flex:1;padding:14px;display:flex;flex-direction:column;justify-content:flex-end">
+          <div style="align-self:flex-end;padding:7px 11px 5px;border-radius:14px 14px 4px 14px;background:var(--color-accent-800);color:var(--color-accent-100);font-size:14px">Te ligo quando chegar.<div style="display:flex;justify-content:flex-end;gap:4px;font-size:11px;color:var(--color-accent-300)">10:02<i class="ph ph-clock" style="font-size:13px"></i></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card elev-sm" style="padding:0;gap:0;overflow:hidden"><div style="padding:12px 16px" class="card-kicker">Mensagem enviando · enviada · falhou</div>
+      <div style="height:200px;padding:14px;background:var(--color-bg);display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end;gap:4px">
+        <div style="padding:7px 11px 5px;border-radius:14px;background:var(--color-accent-800);color:var(--color-accent-100);font-size:14px;opacity:.8">Já estou saindo<div style="display:flex;justify-content:flex-end;gap:4px;font-size:11px;color:var(--color-accent-300)">10:04<i class="ph ph-clock" style="font-size:13px"></i></div></div>
+        <div style="padding:7px 11px 5px;border-radius:14px;background:var(--color-accent-800);color:var(--color-accent-100);font-size:14px">Chego em 20 minutos<div style="display:flex;justify-content:flex-end;gap:4px;font-size:11px;color:var(--color-accent-300)">10:04<i class="ph ph-check" style="font-size:13px"></i></div></div>
+        <div style="padding:7px 11px 5px;border-radius:14px 14px 4px 14px;background:var(--color-accent-800);color:var(--color-accent-100);font-size:14px">Pode abrir o portão?<div style="display:flex;justify-content:flex-end;gap:4px;font-size:11px;color:var(--color-accent-300)">10:05<i class="ph-fill ph-warning-circle" style="font-size:13px;color:oklch(0.72 0.15 22)"></i></div></div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:oklch(0.72 0.15 22)">Não foi possível enviar.<span style="color:var(--color-accent)">Tentar novamente</span></div>
+      </div>
+    </div>
+
+    <div class="card elev-sm" style="padding:0;gap:0;overflow:hidden"><div style="padding:12px 16px" class="card-kicker">Upload em andamento · falhou</div>
+      <div style="height:200px;padding:14px;background:var(--color-bg);display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:10px">
+        <div style="width:250px;padding:6px 10px 8px;border-radius:14px;background:var(--color-accent-800);color:var(--color-accent-100);display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:8px;font-size:13px"><i class="ph ph-file-pdf" style="font-size:20px"></i>Proposta_final.pdf</div><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--color-accent-200)"><span>Enviando arquivo…</span><span>82%</span></div><div style="height:3px;border-radius:2px;background:color-mix(in srgb, var(--color-accent-100) 22%, transparent)"><div style="width:82%;height:100%;border-radius:2px;background:var(--color-accent-300)"></div></div></div>
+        <div style="width:250px;padding:6px 10px;border-radius:14px;background:var(--color-accent-800);color:var(--color-accent-100);display:flex;align-items:center;gap:8px;font-size:13px"><i class="ph ph-image" style="font-size:20px"></i>praia.jpg<i class="ph-fill ph-warning-circle" style="margin-left:auto;color:oklch(0.72 0.15 22)"></i></div>
+        <div style="font-size:12px;color:oklch(0.72 0.15 22)">Não foi possível enviar o arquivo. <span style="color:var(--color-accent)">Tentar novamente</span></div>
+      </div>
+    </div>
+
+    <div class="card elev-sm" style="padding:0;gap:0;overflow:hidden"><div style="padding:12px 16px" class="card-kicker">Sessão bloqueada</div>
+      <div style="height:200px;padding:20px 24px;background:radial-gradient(110% 80% at 0% 0%, var(--color-accent-900), transparent 60%), var(--color-bg);display:flex;flex-direction:column;justify-content:center;gap:10px">
+        <div style="width:40px;height:40px;border-radius:var(--radius-md);display:grid;place-items:center;border:1px solid var(--color-accent);color:var(--color-accent);box-shadow:0 0 24px color-mix(in srgb, var(--color-accent) 28%, transparent)"><i class="ph ph-lock-simple" style="font-size:20px"></i></div>
+        <div style="font-size:18px;font-weight:500">Sessão bloqueada</div>
+        <div style="font-size:13px;color:var(--color-neutral-400)">Por segurança, sua conversa foi ocultada.</div>
+      </div>
+    </div>
+
+    <div class="card elev-sm" style="padding:0;gap:0;overflow:hidden"><div style="padding:12px 16px" class="card-kicker">PIN incorreto · muitas tentativas</div>
+      <div style="height:200px;padding:20px 24px;background:var(--color-bg);display:flex;flex-direction:column;justify-content:center;gap:10px">
+        <div style="display:flex;gap:6px"><span style="width:34px;height:42px;border-radius:var(--radius-md);border:1px solid oklch(0.72 0.15 22)"></span><span style="width:34px;height:42px;border-radius:var(--radius-md);border:1px solid oklch(0.72 0.15 22)"></span><span style="width:34px;height:42px;border-radius:var(--radius-md);border:1px solid oklch(0.72 0.15 22)"></span><span style="width:34px;height:42px;border-radius:var(--radius-md);border:1px solid oklch(0.72 0.15 22)"></span><span style="width:34px;height:42px;border-radius:var(--radius-md);border:1px solid oklch(0.72 0.15 22)"></span><span style="width:34px;height:42px;border-radius:var(--radius-md);border:1px solid oklch(0.72 0.15 22)"></span></div>
+        <div style="font-size:13px;color:oklch(0.72 0.15 22)">PIN incorreto. Tente novamente.</div>
+        <div style="font-size:13px;color:oklch(0.82 0.12 80)">Muitas tentativas. Aguarde alguns segundos. (12s)</div>
+      </div>
+    </div>
+
+    <div class="card elev-sm" style="padding:0;gap:0;overflow:hidden"><div style="padding:12px 16px" class="card-kicker">Usuário offline · digitando</div>
+      <div style="height:200px;padding:16px;background:var(--color-bg);display:flex;flex-direction:column;justify-content:center;gap:18px">
+        <div style="display:flex;align-items:center;gap:12px"><span style="position:relative;width:38px;height:38px;border-radius:50%;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:14px;font-weight:500">MC<span style="position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:var(--color-neutral-700);border:2px solid var(--color-bg)"></span></span><div><div style="font-size:15px;font-weight:500">Maria Clara</div><div style="font-size:12px;color:var(--color-neutral-500)">Visto por último hoje às 09:40</div></div></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="position:relative;width:38px;height:38px;border-radius:50%;background:var(--color-accent-800);color:var(--color-accent-200);display:grid;place-items:center;font-size:14px;font-weight:500">MC<span style="position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:oklch(0.76 0.13 158);border:2px solid var(--color-bg)"></span></span><div><div style="font-size:15px;font-weight:500">Maria Clara</div><div style="font-size:12px;color:var(--color-accent-300)">digitando…</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;protoBar&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;access&quot;,&quot;pin&quot;,&quot;chat&quot;,&quot;locked&quot;,&quot;admin-login&quot;,&quot;admin-dash&quot;,&quot;admin-users&quot;,&quot;admin-settings&quot;,&quot;ds&quot;,&quot;states&quot;],&quot;default&quot;:&quot;access&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const PHOTO = 'assets/photo.jpg';
+const OK = 'oklch(0.76 0.13 158)', WARN = 'oklch(0.82 0.12 80)', ERR = 'oklch(0.72 0.15 22)';
+const EMOJI = ['😊','😂','❤️','👍','🙏','😍','😉','👏','🔥','✨','😅','🤔','😢','😮','👀','✅','🎉','☕','🌙','☁️','💬','🙌','😴','👋'];
+const REPLIES = ['Recebi, obrigada.', 'Combinado. Falamos mais tarde.', 'Vou olhar agora mesmo.', 'Perfeito, ficou ótimo.'];
+const pad = n => String(n).padStart(2, '0');
+const nowT = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + pad(s % 60); };
+const fsize = b => b > 1048576 ? (b / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB';
+const initials = n => n.trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+const KIND = { text: 'uma mensagem', image: 'uma imagem', video: 'um vídeo', audio: 'um áudio', file: 'um arquivo' };
+const FICON = { PDF: 'ph ph-file-pdf', DOC: 'ph ph-file-doc', DOCX: 'ph ph-file-doc', XLS: 'ph ph-file-xls', XLSX: 'ph ph-file-xls', ZIP: 'ph ph-file-zip', TXT: 'ph ph-file-text', CSV: 'ph ph-file-csv' };
+const DIV = 'linear-gradient(to right,transparent,var(--color-divider) 48px,var(--color-divider) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px';
+let uid = 100;
+const SEED = [
+  { id: 'm1', from: 'maria', kind: 'text', text: 'Chegou o contrato revisado?', time: '18:02', day: 'Ontem', status: 'read' },
+  { id: 'm2', from: 'allan', kind: 'text', text: 'Chegou sim. Vou ler com calma hoje à noite.', time: '18:05', day: 'Ontem', status: 'read' },
+  { id: 'm3', from: 'allan', kind: 'file', name: 'Contrato_revisado_v3.pdf', ext: 'PDF', size: '2,4 MB', time: '18:05', day: 'Ontem', status: 'read' },
+  { id: 'm4', from: 'maria', kind: 'audio', dur: 42, time: '18:20', day: 'Ontem', status: 'read' },
+  { id: 'm5', from: 'maria', kind: 'image', url: PHOTO, name: 'vista.jpg', caption: 'A vista daqui de cima', time: '09:14', day: 'Hoje' },
+  { id: 'm6', from: 'maria', kind: 'text', text: 'Consegue me mandar o vídeo de ontem?', time: '09:15', day: 'Hoje' },
+  { id: 'm7', from: 'allan', kind: 'video', poster: PHOTO, dur: 88, name: 'ontem.mp4', time: '09:31', day: 'Hoje', status: 'read' },
+  { id: 'm8', from: 'allan', kind: 'text', text: 'Aqui está. Ficou um pouco escuro no final.', time: '09:31', day: 'Hoje', status: 'read' },
+  { id: 'm9', from: 'maria', kind: 'text', text: 'Perfeito, obrigada.', time: '09:40', day: 'Hoje' }
+];
+
+class Component extends DCLogic {
+  state = {
+    route: this.props.startScreen || 'access', vp: 'desktop', ww: window.innerWidth, me: 'allan',
+    users: [
+      { id: 'maria', name: 'Maria Clara', first: 'Maria', initials: 'MC', status: 'Ativo', last: 'Hoje, 09:40', pin: '123456', photo: null, tone: 'accent' },
+      { id: 'allan', name: 'Allan Souza', first: 'Allan', initials: 'AS', status: 'Ativo', last: 'Hoje, 09:31', pin: '246810', photo: null, tone: 'neutral' }
+    ],
+    messages: SEED, pin: '', pinState: 'idle', attempts: 0, lockUntil: 0, shake: 0, lockReason: 'manual', lockedAt: '',
+    pinFocus: false, chatLoading: false,
+    text: '', draft: null, attachMenu: false, emoji: false, recording: false, recStart: 0,
+    typing: false, otherOnline: true, offline: false, failNext: false, replyIdx: 0,
+    viewer: null, zoom: 1, vid: { playing: false, t: 0, muted: false, vol: 80 },
+    audio: { id: null, t: 0, playing: false },
+    menu: false, simMenu: false, toast: null, focused: false, tick: 0,
+    admin: { email: 'admin@nuvemleads.com', pass: '', err: false, loading: false },
+    form: null, formErr: {}, confirm: null, pwModal: false, highlight: null,
+    settings: { autoLock: 5, lockOnTab: true, lockOnReopen: true, name: 'Renata Alves', email: 'admin@nuvemleads.com' }
+  };
+  pinRef = el => { this.pinEl = el; }; msgsRef = el => { this.msgsEl = el; }; viewerRef = el => { this.viewerEl = el; }; inputRef = el => { this.inputEl = el; };
+  lastAct = Date.now();
+
+  componentDidMount() {
+    this.onAct = () => { this.lastAct = Date.now(); };
+    ['mousemove', 'keydown', 'pointerdown', 'touchstart', 'wheel'].forEach(e => window.addEventListener(e, this.onAct, { passive: true }));
+    this.onVis = () => { if (document.hidden && this.state.route === 'chat' && this.state.settings.lockOnTab) this.lock('tab'); };
+    document.addEventListener('visibilitychange', this.onVis);
+    this.onOff = () => this.setOffline(true); this.onOn = () => this.setOffline(false);
+    window.addEventListener('offline', this.onOff); window.addEventListener('online', this.onOn);
+    this.onKey = e => { if (e.key === 'Escape') this.setState({ viewer: null, draft: null, menu: false, attachMenu: false, emoji: false, simMenu: false, confirm: null, pwModal: false }); };
+    window.addEventListener('keydown', this.onKey);
+    this.onResize = () => this.setState({ ww: window.innerWidth });
+    window.addEventListener('resize', this.onResize);
+    this.iv = setInterval(() => this.tickFn(), 250);
+  }
+  componentWillUnmount() {
+    ['mousemove', 'keydown', 'pointerdown', 'touchstart', 'wheel'].forEach(e => window.removeEventListener(e, this.onAct));
+    document.removeEventListener('visibilitychange', this.onVis);
+    window.removeEventListener('offline', this.onOff); window.removeEventListener('online', this.onOn);
+    window.removeEventListener('keydown', this.onKey); window.removeEventListener('resize', this.onResize);
+    clearInterval(this.iv);
+  }
+  componentDidUpdate(pp, ps) {
+    const s = this.state;
+    if ((s.route === 'pin' || s.route === 'locked') && ps.route !== s.route) setTimeout(() => this.pinEl && this.pinEl.focus(), 60);
+    if (s.route === 'chat' && (ps.route !== 'chat' || ps.messages.length !== s.messages.length || ps.typing !== s.typing || ps.chatLoading !== s.chatLoading || ps.vp !== s.vp || ps.focused !== s.focused)) {
+      const go = () => { const el = this.msgsEl || document.querySelector('[data-nl-msgs]'); if (el) el.scrollTop = el.scrollHeight; };
+      requestAnimationFrame(go); setTimeout(go, 120);
+    }
+    if (ps.route !== 'chat' && s.route === 'chat') this.lastAct = Date.now();
+  }
+  tickFn() {
+    const s = this.state, up = {}, now = Date.now();
+    if (s.audio.playing) { const m = s.messages.find(x => x.id === s.audio.id); const t = s.audio.t + 0.25; up.audio = (!m || t >= m.dur) ? { id: null, t: 0, playing: false } : { ...s.audio, t }; }
+    if (s.viewer && s.vid.playing) { const m = s.messages.find(x => x.id === s.viewer); const t = s.vid.t + 0.25; up.vid = (!m || t >= (m.dur || 30)) ? { ...s.vid, t: 0, playing: false } : { ...s.vid, t }; }
+    if (s.recording) up.tick = now;
+    if (s.lockUntil) { if (now >= s.lockUntil) { up.lockUntil = 0; up.pinState = 'idle'; } else up.tick = now; }
+    if (s.route === 'chat' && !s.chatLoading && now - this.lastAct > s.settings.autoLock * 60000) { this.lock('idle'); return; }
+    if (Object.keys(up).length) this.setState(up);
+  }
+  lock(reason) {
+    this.setState({ route: 'locked', lockReason: reason, lockedAt: nowT(), pin: '', pinState: 'idle', menu: false, viewer: null, attachMenu: false, emoji: false, draft: null, recording: false, simMenu: false, focused: false, audio: { id: null, t: 0, playing: false } });
+  }
+  go(route, extra) { this.setState({ route, menu: false, simMenu: false, pin: '', pinState: route === 'pin' || route === 'locked' ? 'idle' : this.state.pinState, ...(extra || {}) }); }
+  toast(text, kind) { clearTimeout(this.tt); this.setState({ toast: { text, kind: kind || 'ok' } }); this.tt = setTimeout(() => this.setState({ toast: null }), 2800); }
+  otherUser() { const s = this.state; return s.users.find(u => u.id !== s.me && u.status === 'Ativo') || s.users.find(u => u.id !== s.me); }
+
+  // PIN
+  onPin(e) { if (this.state.lockUntil > Date.now() || this.state.pinState === 'success') return; const v = e.target.value.replace(/\D/g, '').slice(0, 6); this.setState({ pin: v, pinState: 'idle' }); }
+  verify() {
+    const s = this.state; if (s.pin.length < 6 || s.lockUntil > Date.now() || s.pinState === 'success') return;
+    const me = s.users.find(u => u.id === s.me);
+    if (me && s.pin === me.pin) {
+      const fromPin = s.route === 'pin';
+      this.setState({ pinState: 'success' });
+      setTimeout(() => { this.setState({ route: 'chat', pin: '', pinState: 'idle', attempts: 0, chatLoading: fromPin }); if (fromPin) setTimeout(() => this.setState({ chatLoading: false }), 900); }, 800);
+    } else {
+      const a = s.attempts + 1;
+      if (a >= 3) this.setState({ attempts: 0, pinState: 'blocked', lockUntil: Date.now() + 15000, shake: s.shake + 1, pin: '' });
+      else { this.setState({ attempts: a, pinState: 'error', shake: s.shake + 1 }); setTimeout(() => this.setState({ pin: '' }), 420); }
+    }
+  }
+
+  // messages
+  addMsg(m) { this.setState(s => ({ messages: [...s.messages, m] })); }
+  upd(id, p) { this.setState(s => ({ messages: s.messages.map(m => m.id === id ? { ...m, ...p } : m) })); }
+  sendText() {
+    const t = this.state.text.trim(); if (!t) return;
+    const id = 'u' + (uid++), fail = this.state.failNext;
+    this.addMsg({ id, from: this.state.me, kind: 'text', text: t, time: nowT(), day: 'Hoje', status: 'sending' });
+    this.setState({ text: '', emoji: false, failNext: false });
+    this.after(id, fail);
+  }
+  after(id, fail) {
+    if (this.state.offline) return;
+    setTimeout(() => {
+      if (fail) { this.upd(id, { status: 'failed' }); return; }
+      this.upd(id, { status: 'sent' });
+      setTimeout(() => this.upd(id, { status: 'delivered' }), 600);
+      if (this.state.otherOnline) this.replyFlow(id);
+    }, 700);
+  }
+  replyFlow(id) {
+    setTimeout(() => {
+      this.upd(id, { status: 'read' }); this.setState({ typing: true });
+      setTimeout(() => {
+        const s = this.state, other = this.otherUser(), msg = s.messages.find(m => m.id === id);
+        const text = msg && msg.kind === 'image' ? 'Que foto bonita.' : msg && msg.kind === 'audio' ? 'Ouvi seu áudio. Combinado.' : REPLIES[s.replyIdx % REPLIES.length];
+        this.setState(st => ({ typing: false, replyIdx: st.replyIdx + 1, messages: [...st.messages, { id: 'r' + (uid++), from: other.id, kind: 'text', text, time: nowT(), day: 'Hoje' }] }));
+      }, 1800);
+    }, 1400);
+  }
+  setOffline(v) {
+    this.setState({ offline: v });
+    if (!v) setTimeout(() => this.state.messages.filter(m => m.status === 'sending' && m.kind === 'text').forEach(m => this.after(m.id, false)), 50);
+  }
+  retry(m) { if (m.kind === 'text') { this.upd(m.id, { status: 'sending' }); this.after(m.id, false); } else this.startUpload(m.id, false); }
+  startUpload(id, fail) {
+    this.upd(id, { uploadState: 'preparing', progress: 0, status: 'sending' });
+    setTimeout(() => {
+      if (this.state.offline) { this.upd(id, { uploadState: 'error', status: 'failed' }); return; }
+      this.upd(id, { uploadState: 'uploading', progress: 4 });
+      const iv = setInterval(() => {
+        const m = this.state.messages.find(x => x.id === id); if (!m) { clearInterval(iv); return; }
+        const p = Math.min(100, Math.round(m.progress + 5 + Math.random() * 11));
+        if (fail && p >= 62) { clearInterval(iv); this.upd(id, { uploadState: 'error', status: 'failed', progress: 62 }); return; }
+        if (p >= 100) {
+          clearInterval(iv); this.upd(id, { uploadState: 'done', progress: 100, status: 'sent' });
+          setTimeout(() => this.upd(id, { uploadState: null, status: 'delivered' }), 900);
+          if (this.state.otherOnline) this.replyFlow(id);
+          return;
+        }
+        this.upd(id, { progress: p });
+      }, 220);
+    }, 700);
+  }
+  sendDraft() {
+    const d = this.state.draft; if (!d) return;
+    const id = 'u' + (uid++), fail = this.state.failNext;
+    this.addMsg({ id, from: this.state.me, kind: d.kind, url: d.url, name: d.name, ext: d.ext, size: d.size, dur: d.dur || 12, poster: d.poster, caption: (d.caption || '').trim(), time: nowT(), day: 'Hoje', status: 'sending', uploadState: 'preparing', progress: 0 });
+    this.setState({ draft: null, failNext: false });
+    this.startUpload(id, fail);
+  }
+  pickFile(e, mode) {
+    const f = e.target.files && e.target.files[0]; e.target.value = ''; this.setState({ attachMenu: false }); if (!f) return;
+    const ext = (f.name.split('.').pop() || '').toUpperCase(); let kind = 'file';
+    if (f.type.startsWith('image/')) { if (/jpe?g|png|webp/i.test(f.type)) kind = 'image'; else if (mode === 'media') { this.toast('Formato não suportado. Use JPG, PNG ou WEBP.', 'error'); return; } }
+    else if (f.type.startsWith('video/')) kind = 'video';
+    else if (f.type.startsWith('audio/')) kind = 'audio';
+    if (f.size > 25 * 1048576) { this.toast('O arquivo excede o limite de 25 MB.', 'error'); return; }
+    const url = URL.createObjectURL(f);
+    this.setState({ draft: { kind, url, name: f.name, ext, size: fsize(f.size), dur: 0, caption: '' } });
+    if (kind === 'video' || kind === 'audio') {
+      const el = document.createElement(kind); el.preload = 'metadata';
+      el.onloadedmetadata = () => { const dur = Math.round(el.duration) || 0; this.setState(s => s.draft && s.draft.url === url ? { draft: { ...s.draft, dur } } : null); };
+      el.src = url;
+    }
+  }
+  sampleImage() { this.setState({ attachMenu: false, draft: { kind: 'image', url: PHOTO, name: 'vista_da_janela.jpg', ext: 'JPG', size: '1,8 MB', caption: '' } }); }
+  sendRec() {
+    const dur = Math.max(1, Math.round((Date.now() - this.state.recStart) / 1000)), id = 'u' + (uid++), fail = this.state.failNext;
+    this.addMsg({ id, from: this.state.me, kind: 'audio', dur, time: nowT(), day: 'Hoje', status: 'sending', uploadState: 'preparing', progress: 0 });
+    this.setState({ recording: false, failNext: false }); this.startUpload(id, fail);
+  }
+  toggleAudio(m) { const a = this.state.audio; this.setState({ audio: a.id === m.id ? { ...a, playing: !a.playing } : { id: m.id, t: 0, playing: true } }); }
+  seek(e, dur) { const r = e.currentTarget.getBoundingClientRect(); return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * dur; }
+  download(m) {
+    if (!m.url) { this.toast('Download iniciado: ' + (m.name || 'arquivo')); return; }
+    const a = document.createElement('a'); a.href = m.url; a.download = m.name || 'arquivo'; document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  // admin
+  activeCount(ex) { return this.state.users.filter(u => u.status === 'Ativo' && u.id !== ex).length; }
+  adminSubmit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const a = this.state.admin; if (a.loading) return;
+    this.setState({ admin: { ...a, loading: true, err: false } });
+    setTimeout(() => {
+      const ok = /^\S+@\S+\.\S+$/.test(a.email) && a.pass === 'nuvem2026';
+      if (ok) this.setState({ admin: { ...this.state.admin, loading: false, err: false, pass: '' }, route: 'admin-dash' });
+      else this.setState({ admin: { ...this.state.admin, loading: false, err: true } });
+    }, 1100);
+  }
+  newUser() { this.setState({ route: 'admin-form', formErr: {}, form: { mode: 'create', name: '', pin: '', pin2: '', status: this.activeCount() >= 2 ? 'Inativo' : 'Ativo', photo: null, done: false } }); }
+  editUser(u) { this.setState({ route: 'admin-form', formErr: {}, form: { mode: 'edit', id: u.id, name: u.name, pin: '', pin2: '', changePin: false, status: u.status, photo: u.photo, done: false } }); }
+  setF(k, v) { this.setState(s => ({ form: { ...s.form, [k]: v }, formErr: { ...s.formErr, [k]: null } })); }
+  validate(f) {
+    const e = {};
+    if (f.name.trim().length < 2) e.name = 'Informe o nome da pessoa.';
+    if (f.mode === 'create' || f.changePin) {
+      if (!/^\d{6}$/.test(f.pin)) e.pin = 'O PIN deve ter exatamente 6 números.';
+      else if (/^(\d)\1{5}$/.test(f.pin) || ['123456', '654321', '012345'].includes(f.pin)) e.pin = 'Escolha um PIN menos previsível.';
+      if (!e.pin && f.pin !== f.pin2) e.pin2 = 'Os PINs não coincidem.';
+    }
+    if (f.status === 'Ativo' && this.activeCount(f.id) >= 2) e.status = 'A sala já tem duas pessoas ativas. Desative alguém ou salve como Inativo.';
+    return e;
+  }
+  submitForm() {
+    const f = this.state.form, e = this.validate(f);
+    Object.keys(e).forEach(k => { if (!e[k]) delete e[k]; });
+    this.setState({ formErr: e }); if (Object.keys(e).length) return;
+    if (f.mode === 'create') {
+      const name = f.name.trim();
+      const u = { id: 'p' + (uid++), name, first: name.split(' ')[0], initials: initials(name), status: f.status, last: 'Ainda não acessou', pin: f.pin, photo: f.photo, tone: 'neutral' };
+      this.setState(s => ({ users: [...s.users, u], form: { ...s.form, done: true, createdName: u.first, createdStatus: u.status }, highlight: u.id }));
+    } else if (f.changePin) this.setState({ confirm: { type: 'pin', id: f.id } });
+    else this.applyEdit();
+  }
+  applyEdit() {
+    const f = this.state.form, name = f.name.trim();
+    this.setState(s => ({ users: s.users.map(u => u.id === f.id ? { ...u, name, first: name.split(' ')[0], initials: initials(name), status: f.status, photo: f.photo, pin: f.changePin ? f.pin : u.pin } : u), route: 'admin-users', confirm: null, highlight: f.id }));
+    this.toast(f.changePin ? 'PIN alterado e alterações salvas.' : 'Alterações salvas.');
+  }
+  setStatus(id, status) { this.setState(s => ({ users: s.users.map(u => u.id === id ? { ...u, status } : u), highlight: id })); }
+  askToggle(u) {
+    if (u.status === 'Ativo') this.setState({ confirm: { type: 'deactivate', id: u.id } });
+    else if (this.activeCount() >= 2) this.toast('A sala já tem duas pessoas ativas.', 'error');
+    else { this.setStatus(u.id, 'Ativo'); this.toast(u.first + ' foi reativado(a).'); }
+  }
+  confirmOk() {
+    const c = this.state.confirm; if (!c) return;
+    if (c.type === 'pin') this.applyEdit();
+    else { const u = this.state.users.find(x => x.id === c.id); this.setStatus(c.id, 'Inativo'); this.setState({ confirm: null }); this.toast(u.first + ' foi desativado(a).'); }
+  }
+  setSetting(k, v) { this.setState(s => ({ settings: { ...s.settings, [k]: v } })); }
+
+  av(u, size) {
+    if (!u) return { initials: '?', bg: 'var(--color-neutral-800)', fg: 'var(--color-neutral-200)', photo: '', hasPhoto: false, noPhoto: true, size: size + 'px', font: Math.round(size * 0.36) + 'px' };
+    const acc = u.tone === 'accent';
+    return { initials: u.initials, bg: acc ? 'var(--color-accent-800)' : 'var(--color-neutral-800)', fg: acc ? 'var(--color-accent-200)' : 'var(--color-neutral-200)', photo: u.photo || '', hasPhoto: !!u.photo, noPhoto: !u.photo, size: size + 'px', font: Math.round(size * 0.36) + 'px' };
+  }
+
+  syncEffects() {
+    const s = this.state;
+    const gate = s.route === 'pin' || s.route === 'locked';
+    if (gate && this._lastRoute !== s.route) setTimeout(() => this.pinEl && this.pinEl.focus(), 80);
+    if (s.route === 'chat') {
+      const sig = [s.route, s.messages.length, s.typing, s.chatLoading, s.vp, s.focused].join('|');
+      if (sig !== this._lastSig) {
+        this._lastSig = sig;
+        const go = () => { const el = this.msgsEl || document.querySelector('[data-nl-msgs]'); if (el) el.scrollTop = el.scrollHeight; };
+        requestAnimationFrame(go); setTimeout(go, 120); setTimeout(go, 400);
+      }
+      if (this._lastRoute !== 'chat') this.lastAct = Date.now();
+    } else this._lastSig = null;
+    this._lastRoute = s.route;
+  }
+  renderVals() {
+    this.syncEffects();
+    const s = this.state, now = Date.now();
+    const narrow = s.ww < 700;
+    const vp = narrow ? 'mobile' : s.vp;
+    const isMobile = vp === 'mobile', isTablet = vp === 'tablet';
+    const isDoc = s.route === 'ds' || s.route === 'states';
+    const L = {
+      frameW: narrow || vp === 'desktop' ? '100%' : isTablet ? '834px' : '390px',
+      frameH: narrow || vp === 'desktop' ? '100%' : isTablet ? '100%' : 'min(820px, 100%)',
+      frameR: narrow || vp === 'desktop' ? '0' : isTablet ? '18px' : '34px',
+      frameShadow: narrow || vp === 'desktop' ? 'none' : 'var(--shadow-md)',
+      stagePad: narrow || vp === 'desktop' ? '0' : '20px',
+      stageBg: narrow || vp === 'desktop' ? 'var(--color-bg)' : 'color-mix(in srgb, var(--color-bg) 70%, black)',
+      headPad: isMobile ? '8px 10px' : '10px 20px',
+      padX: isMobile ? '10px' : isTablet ? '24px' : '24px',
+      colMax: vp === 'desktop' ? '780px' : '100%',
+      bubbleMax: isMobile ? '86%' : '70%',
+      mediaW: isMobile ? '232px' : '300px',
+      showLogo: !isMobile, showLockHint: vp === 'desktop', showLockLabel: !isMobile,
+      showSidebar: !isMobile, adminDir: isMobile ? 'column' : 'row', adminPad: isMobile ? '18px 14px 40px' : '32px 40px 56px',
+      pinBox: isMobile ? '42px' : '46px', composerBottom: isMobile ? '12px' : '16px',
+      isMobile
+    };
+    const me = s.users.find(u => u.id === s.me), other = this.otherUser();
+    const auto = s.settings.autoLock + ' min';
+
+    // proto nav
+    const R = (label, route, fn) => ({ label, isItem: true, onClick: fn || (() => this.go(route)), color: s.route === route ? 'var(--color-accent)' : 'var(--color-neutral-400)', bg: s.route === route ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)' : 'transparent' });
+    const protoNav = [
+      { isGroup: true, label: 'Participante' }, R('Acesso', 'access'), R('PIN', 'pin'), R('Conversa', 'chat'), R('Bloqueio', 'locked', () => this.lock('manual')),
+      { isGroup: true, label: 'Admin' }, R('Login', 'admin-login'), R('Painel', 'admin-dash'), R('Usuários', 'admin-users'), R('Configurações', 'admin-settings'),
+      { isGroup: true, label: 'Sistema' }, R('Design system', 'ds'), R('Estados', 'states')
+    ].map(x => ({ ...x, isGroup: !!x.isGroup, isItem: !!x.isItem }));
+    const vpOpts = [['desktop', 'ph ph-desktop', 'Desktop'], ['tablet', 'ph ph-device-tablet', 'Tablet'], ['mobile', 'ph ph-device-mobile', 'Mobile']].map(([k, icon, label]) => ({ icon, label, onClick: () => this.setState({ vp: k }), color: vp === k ? 'var(--color-accent)' : 'var(--color-neutral-500)', bg: vp === k ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)' : 'transparent' }));
+    const simItems = [
+      { icon: s.offline ? 'ph ph-wifi-high' : 'ph ph-wifi-slash', label: s.offline ? 'Voltar a ficar online' : 'Simular sem conexão', onClick: () => { this.setOffline(!s.offline); this.setState({ simMenu: false }); } },
+      { icon: 'ph ph-user-circle', label: s.otherOnline ? 'Contato fica offline' : 'Contato fica online', onClick: () => this.setState({ otherOnline: !s.otherOnline, simMenu: false }) },
+      { icon: 'ph ph-warning', label: s.failNext ? 'Falha no próximo envio: ativa' : 'Falhar o próximo envio', onClick: () => this.setState({ failNext: !s.failNext, simMenu: false }) },
+      { icon: 'ph ph-browsers', label: 'Simular troca de aba', onClick: () => this.lock('tab') },
+      { icon: 'ph ph-app-window', label: 'Simular janela sem foco', onClick: () => this.lock('blur') },
+      { icon: 'ph ph-hourglass-medium', label: 'Simular inatividade', onClick: () => this.lock('idle') },
+      { icon: 'ph ph-arrows-left-right', label: 'Entrar como ' + (s.me === 'allan' ? 'Maria' : 'Allan'), onClick: () => this.go('pin', { me: s.me === 'allan' ? 'maria' : 'allan', attempts: 0 }) }
+    ];
+
+    // presence
+    const presence = s.typing ? { text: 'digitando…', color: 'var(--color-accent-300)', dot: OK, anim: 'nlPulse 2s infinite' }
+      : s.otherOnline ? { text: 'Online', color: OK, dot: OK, anim: 'nlPulse 2.4s infinite' }
+      : { text: 'Visto por último hoje às 09:40', color: 'var(--color-neutral-500)', dot: 'var(--color-neutral-700)', anim: 'none' };
+
+    // chat items
+    const msgs = s.messages, items = [];
+    msgs.forEach((m, i) => {
+      const prev = msgs[i - 1], next = msgs[i + 1];
+      const newDay = !prev || prev.day !== m.day;
+      if (newDay) items.push({ isDivider: true, isMsg: false, label: m.day });
+      const mine = m.from === s.me;
+      const gStart = newDay || prev.from !== m.from, gEnd = !next || next.from !== m.from || next.day !== m.day;
+      const media = m.kind === 'image' || m.kind === 'video';
+      const playing = s.audio.id === m.id, at = playing ? s.audio.t : 0;
+      const up = m.uploadState;
+      const st = m.status || 'read';
+      const statusMap = { sending: ['ph ph-clock', 'Enviando'], sent: ['ph ph-check', 'Enviada'], delivered: ['ph ph-checks', 'Entregue'], read: ['ph-bold ph-checks', 'Lida'], failed: ['ph-fill ph-warning-circle', 'Falhou'] };
+      items.push({
+        isDivider: false, isMsg: true, mine, id: m.id,
+        isText: m.kind === 'text', isImage: m.kind === 'image', isVideo: m.kind === 'video', isAudio: m.kind === 'audio', isFile: m.kind === 'file',
+        text: m.text, url: m.url || '', name: m.name || '', ext: m.ext || '', size: m.size || '', caption: m.caption || '', hasCaption: !!m.caption,
+        poster: m.poster || '', hasPoster: !!m.poster, durLabel: fmt(m.dur),
+        time: m.time, align: mine ? 'flex-end' : 'flex-start', gap: gStart ? '14px' : '3px',
+        bg: mine ? 'var(--color-accent-800)' : 'var(--color-surface)', fg: mine ? 'var(--color-accent-100)' : 'var(--color-text)',
+        edge: mine ? 'none' : '0 0 0 1px color-mix(in srgb, var(--color-text) 6%, transparent)',
+        radius: gEnd ? (mine ? '14px 14px 4px 14px' : '14px 14px 14px 4px') : '14px',
+        pad: m.kind === 'text' ? '7px 11px 5px' : '4px', innerGap: m.kind === 'text' ? '1px' : '6px',
+        metaColor: mine ? 'var(--color-accent-300)' : 'var(--color-neutral-500)', metaPad: m.kind === 'text' ? '0' : '0 6px 2px',
+        statusIcon: statusMap[st][0], statusLabel: statusMap[st][1],
+        statusColor: st === 'failed' ? ERR : st === 'read' ? 'var(--color-accent-200)' : 'var(--color-accent-300)',
+        failed: st === 'failed', failText: m.kind === 'text' ? 'Não foi possível enviar.' : 'Não foi possível enviar o arquivo.',
+        showUpload: !!up && up !== 'error',
+        upLabel: up === 'preparing' ? 'Preparando envio…' : up === 'done' ? 'Concluído' : 'Enviando arquivo…',
+        upPct: up === 'uploading' ? (m.progress || 0) + '%' : up === 'done' ? '100%' : '',
+        progress: up === 'preparing' ? 0 : (m.progress || 0),
+        upIcon: up === 'done' ? 'ph-bold ph-check' : 'ph ph-circle-notch', upAnim: up === 'done' ? 'none' : 'nlSpin 1s linear infinite',
+        upColor: up === 'done' ? OK : (mine ? 'var(--color-accent-200)' : 'var(--color-neutral-400)'), upBar: up === 'done' ? OK : (mine ? 'var(--color-accent-300)' : 'var(--color-accent)'),
+        playIcon: playing && s.audio.playing ? 'ph-fill ph-pause' : 'ph-fill ph-play',
+        playBorder: mine ? 'var(--color-accent-300)' : 'var(--color-accent)', playColor: mine ? 'var(--color-accent-100)' : 'var(--color-accent)',
+        trackBg: mine ? 'color-mix(in srgb, var(--color-accent-100) 22%, transparent)' : 'var(--color-neutral-800)',
+        fillBg: mine ? 'var(--color-accent-200)' : 'var(--color-accent)',
+        audioPct: m.dur ? Math.round(at / m.dur * 1000) / 10 : 0, audioCur: fmt(at), audioDur: fmt(m.dur),
+        fileIcon: FICON[m.ext] || 'ph ph-file', fileBg: mine ? 'var(--color-accent-700)' : 'var(--color-neutral-800)',
+        open: () => this.setState({ viewer: m.id, zoom: 1, vid: { playing: false, t: 0, muted: false, vol: 80 } }),
+        play: () => this.toggleAudio(m),
+        seek: e => { const t = this.seek(e, m.dur); this.setState({ audio: { id: m.id, t, playing: s.audio.id === m.id ? s.audio.playing : true } }); },
+        retry: () => this.retry(m), download: () => this.download(m)
+      });
+    });
+
+    // viewer
+    const vm = s.viewer ? msgs.find(m => m.id === s.viewer) : null;
+    const vFrom = vm ? s.users.find(u => u.id === vm.from) : null;
+    const viewer = vm ? {
+      isImage: vm.kind === 'image', isVideo: vm.kind === 'video', url: vm.url || '', poster: vm.poster || '', hasPoster: !!vm.poster,
+      name: vm.name || '', meta: (vFrom ? vFrom.name : '') + ' · ' + vm.day + ', ' + vm.time,
+      zoomPct: Math.round(s.zoom * 100) + '%', transform: 'scale(' + s.zoom + ')', cursor: s.zoom > 1 ? 'zoom-out' : 'zoom-in',
+      vidIcon: s.vid.playing ? 'ph-fill ph-pause' : 'ph-fill ph-play', vidPct: Math.round(s.vid.t / (vm.dur || 30) * 1000) / 10,
+      vidTime: fmt(s.vid.t) + ' / ' + fmt(vm.dur || 30), volIcon: s.vid.muted || s.vid.vol == 0 ? 'ph ph-speaker-slash' : 'ph ph-speaker-high', vol: s.vid.muted ? 0 : s.vid.vol,
+      showBigPlay: !s.vid.playing
+    } : {};
+
+    // pin
+    const blocked = s.lockUntil > now;
+    const remain = blocked ? Math.ceil((s.lockUntil - now) / 1000) : 0;
+    const pst = blocked ? 'blocked' : s.pinState;
+    const pinBoxes = [0, 1, 2, 3, 4, 5].map(i => {
+      const filled = i < s.pin.length, active = i === Math.min(s.pin.length, 5) && s.pinFocus && pst !== 'success' && !blocked;
+      const border = pst === 'error' ? ERR : pst === 'success' ? OK : blocked ? 'var(--color-neutral-800)' : active ? 'var(--color-accent)' : filled ? 'var(--color-neutral-600)' : 'var(--color-divider)';
+      return { border, dot: pst === 'success' ? OK : pst === 'error' ? ERR : 'var(--color-text)', scale: filled || pst === 'success' ? '1' : '0',
+        glow: active ? '0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent)' : pst === 'success' ? '0 0 14px color-mix(in srgb, ' + OK + ' 30%, transparent)' : 'none' };
+    });
+    const pinMsg = pst === 'error' ? 'PIN incorreto. Tente novamente.' : pst === 'blocked' ? 'Muitas tentativas. Aguarde alguns segundos. (' + remain + 's)' : pst === 'success' ? 'PIN correto. Abrindo conversa…' : (s.attempts > 0 ? '' : '');
+    const pinMsgColor = pst === 'error' ? ERR : pst === 'blocked' ? WARN : OK;
+    const reasons = { tab: 'Você saiu da aba do navegador.', blur: 'A janela do navegador perdeu o foco.', idle: 'Sem atividade por ' + auto + '.', manual: 'Bloqueada manualmente.' };
+
+    // admin
+    const f = s.form || { name: '', pin: '', pin2: '', status: 'Ativo' }, fe = s.formErr || {};
+    const fUser = f.mode === 'edit' ? s.users.find(u => u.id === f.id) : null;
+    const fAv = this.av({ initials: f.name ? initials(f.name) : '', photo: f.photo, tone: fUser ? fUser.tone : 'neutral' }, 64);
+    const bc = k => fe[k] ? ERR : 'var(--color-divider)';
+    const activeN = this.activeCount();
+    const attach = msgs.filter(m => m.kind !== 'text').length;
+    const last = msgs[msgs.length - 1];
+    const recent = msgs.slice(-5).reverse().map(m => { const u = s.users.find(x => x.id === m.from); return { ...this.av(u, 30), who: u ? u.first : '', what: 'enviou ' + KIND[m.kind], when: m.day + ', ' + m.time }; });
+    const adminNav = [['admin-dash', 'ph ph-squares-four', 'Painel'], ['admin-users', 'ph ph-users', 'Usuários'], ['admin-settings', 'ph ph-gear-six', 'Configurações']].map(([r, icon, label]) => {
+      const on = s.route === r || (r === 'admin-users' && s.route === 'admin-form');
+      return { icon, label, onClick: () => this.go(r), color: on ? 'var(--color-accent)' : 'var(--color-neutral-400)', bg: on ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)' : 'transparent' };
+    });
+    const sw = on => ({ bg: on ? 'var(--color-accent-700)' : 'var(--color-neutral-800)', border: on ? 'var(--color-accent)' : 'var(--color-neutral-700)', knob: on ? 'var(--color-accent-100)' : 'var(--color-neutral-400)', tx: on ? 'translateX(16px)' : 'none', label: on ? 'Ativado' : 'Desativado' });
+    const cu = s.confirm ? s.users.find(u => u.id === s.confirm.id) : null;
+    const confirm = s.confirm ? (s.confirm.type === 'pin'
+      ? { title: 'Alterar o PIN de ' + (cu ? cu.first : '') + '?', body: 'O PIN atual deixa de funcionar imediatamente. ' + (cu ? cu.first : 'A pessoa') + ' precisará do novo PIN no próximo desbloqueio.', label: 'Alterar PIN', icon: 'ph ph-key' }
+      : { title: 'Desativar ' + (cu ? cu.first : '') + '?', body: 'Essa pessoa perde o acesso à conversa até ser reativada. As mensagens são mantidas.', label: 'Desativar', icon: 'ph ph-user-minus' }) : {};
+
+    const keyRows = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'].map(r => ({ keys: r.split('').map(k => ({ k, press: () => this.setState(st => ({ text: st.text + k })) })) }));
+
+    return {
+      L, isDoc, notDoc: !isDoc, protoBar: this.props.protoBar !== false, protoNav, vpOpts, showVp: !narrow, simItems, simMenu: s.simMenu,
+      toggleSim: () => this.setState({ simMenu: !s.simMenu }), closeSim: () => this.setState({ simMenu: false }),
+      failNextOn: s.failNext,
+      isAccess: s.route === 'access', isGate: s.route === 'pin' || s.route === 'locked', isPin: s.route === 'pin', isLocked: s.route === 'locked',
+      isChat: s.route === 'chat', isAdminLogin: s.route === 'admin-login',
+      isAdmin: s.route.startsWith('admin-') && s.route !== 'admin-login', isDash: s.route === 'admin-dash', isUsers: s.route === 'admin-users', isForm: s.route === 'admin-form', isSettings: s.route === 'admin-settings',
+      isDS: s.route === 'ds', isStates: s.route === 'states',
+      me: { ...me, ...this.av(me, 64) }, meSmall: this.av(me, 28), other: { ...other, ...this.av(other, 38) },
+      accessUsers: s.users.filter(u => u.status === 'Ativo').map(u => ({ ...u, ...this.av(u, 44), pick: () => this.go('pin', { me: u.id, attempts: 0 }) })),
+      goAdmin: () => this.go('admin-login'), goAccess: () => this.go('access'), switchUser: () => this.go('access'),
+      // gate
+      pin: s.pin, pinBoxes, pinRef: this.pinRef, pinAnim: s.shake ? (s.shake % 2 ? 'nlShakeA .42s' : 'nlShakeB .42s') : 'none',
+      onPin: e => this.onPin(e), pinKey: e => { if (e.key === 'Enter') this.verify(); }, verify: () => this.verify(),
+      pinFocusOn: () => this.setState({ pinFocus: true }), pinFocusOff: () => this.setState({ pinFocus: false }), focusPin: () => this.pinEl && this.pinEl.focus(),
+      pinMsg, pinMsgColor, pinDisabled: s.pin.length < 6 || blocked || pst === 'success', pinBtn: pst === 'success' ? 'Desbloqueado' : 'Desbloquear',
+      pinBtnIcon: pst === 'success' ? 'ph-bold ph-check' : 'ph ph-lock-simple-open', pinSuccess: pst === 'success', pinNotSuccess: pst !== 'success',
+      lockIcon: pst === 'success' ? 'ph ph-lock-simple-open' : 'ph ph-lock-simple', lockColor: pst === 'success' ? OK : 'var(--color-accent)',
+      lockAnim: pst === 'success' ? 'nlUnlock .5s ease-out' : 'none', lockGlow: pst === 'success' ? OK : 'var(--color-accent)',
+      lockReason: reasons[s.lockReason] || '', lockedAt: s.lockedAt, gateLabel: s.route === 'pin' ? 'PIN do usuário' : 'Sessão bloqueada',
+      // chat
+      scrollBottom: () => { if (this.msgsEl && this.msgsEl.scrollHeight - this.msgsEl.scrollTop - this.msgsEl.clientHeight < 400) this.msgsEl.scrollTop = this.msgsEl.scrollHeight; },
+      presence, chatItems: items, msgsRef: this.msgsRef, typing: s.typing, chatLoading: s.chatLoading, chatReady: !s.chatLoading,
+      offline: s.offline, autoLockLabel: auto, otherFirst: other ? other.first : '', meFirst: me ? me.first : '',
+      lockNow: () => this.lock('manual'), toggleMenu: () => this.setState({ menu: !s.menu }), menu: s.menu, closeMenu: () => this.setState({ menu: false }),
+      leave: () => this.go('access'),
+      text: s.text, hasText: !!s.text.trim(), noText: !s.text.trim(), inputRef: this.inputRef,
+      onText: e => this.setState({ text: e.target.value }), textKey: e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendText(); } },
+      send: () => this.sendText(), onFocus: () => this.setState({ focused: true }), onBlur: () => setTimeout(() => this.setState({ focused: false }), 120),
+      showKeyboard: L.isMobile && s.focused && !s.recording, keyRows,
+      keepFocus: e => e.preventDefault(), kbSpace: () => this.setState(st => ({ text: st.text + ' ' })), kbBack: () => this.setState(st => ({ text: st.text.slice(0, -1) })),
+      attachMenu: s.attachMenu, toggleAttach: () => this.setState({ attachMenu: !s.attachMenu, emoji: false }), closeAttach: () => this.setState({ attachMenu: false, emoji: false }),
+      pickMedia: e => this.pickFile(e, 'media'), pickAny: e => this.pickFile(e, 'any'), sample: () => this.sampleImage(), showCamera: L.isMobile,
+      emoji: s.emoji, toggleEmoji: () => this.setState({ emoji: !s.emoji, attachMenu: false }),
+      emojis: EMOJI.map(c => ({ c, add: () => this.setState(st => ({ text: st.text + c })) })),
+      recording: s.recording, notRecording: !s.recording, recTime: fmt((now - s.recStart) / 1000),
+      startRec: () => this.setState({ recording: true, recStart: Date.now(), emoji: false, attachMenu: false }), cancelRec: () => this.setState({ recording: false }), sendRec: () => this.sendRec(),
+      draft: s.draft ? { ...s.draft, isImage: s.draft.kind === 'image', isVideo: s.draft.kind === 'video', isOther: s.draft.kind === 'audio' || s.draft.kind === 'file', canCaption: s.draft.kind === 'image' || s.draft.kind === 'video', title: { image: 'Enviar imagem', video: 'Enviar vídeo', audio: 'Enviar áudio', file: 'Enviar arquivo' }[s.draft.kind], icon: s.draft.kind === 'audio' ? 'ph ph-music-notes' : (FICON[s.draft.ext] || 'ph ph-file'), durLabel: s.draft.dur ? fmt(s.draft.dur) : '—', hasPoster: false } : null,
+      hasDraft: !!s.draft, cancelDraft: () => this.setState({ draft: null }), sendDraft: () => this.sendDraft(),
+      onCaption: e => this.setState({ draft: { ...s.draft, caption: e.target.value } }), captionKey: e => { if (e.key === 'Enter') this.sendDraft(); },
+      hasViewer: !!vm, viewer, viewerRef: this.viewerRef, closeViewer: () => this.setState({ viewer: null }),
+      zoomIn: () => this.setState({ zoom: Math.min(3, s.zoom + 0.5) }), zoomOut: () => this.setState({ zoom: Math.max(1, s.zoom - 0.5) }), zoomToggle: () => this.setState({ zoom: s.zoom > 1 ? 1 : 2 }),
+      viewerDownload: () => vm && this.download(vm),
+      vidToggle: () => this.setState({ vid: { ...s.vid, playing: !s.vid.playing } }), vidSeek: e => vm && this.setState({ vid: { ...s.vid, t: this.seek(e, vm.dur || 30) } }),
+      vidMute: () => this.setState({ vid: { ...s.vid, muted: !s.vid.muted } }), vidVol: e => this.setState({ vid: { ...s.vid, vol: +e.target.value, muted: false } }),
+      vidFull: () => { const el = this.viewerEl; if (document.fullscreenElement) document.exitFullscreen(); else if (el && el.requestFullscreen) el.requestFullscreen(); },
+      toast: s.toast ? { text: s.toast.text, icon: s.toast.kind === 'error' ? 'ph-fill ph-warning-circle' : 'ph-fill ph-check-circle', color: s.toast.kind === 'error' ? ERR : OK } : null, hasToast: !!s.toast,
+      // admin login
+      admin: s.admin, adminEmail: e => this.setState({ admin: { ...s.admin, email: e.target.value, err: false } }), adminPass: e => this.setState({ admin: { ...s.admin, pass: e.target.value, err: false } }),
+      adminSubmit: e => this.adminSubmit(e), adminLoading: s.admin.loading, adminIdle: !s.admin.loading, adminErr: s.admin.err,
+      adminBorder: s.admin.err ? ERR : 'var(--color-divider)', forgot: () => this.toast('Enviamos um link de redefinição para ' + s.admin.email + '.'),
+      adminNav, adminName: s.settings.name, adminFirst: s.settings.name.split(' ')[0], adminEmailV: s.settings.email, adminInitials: initials(s.settings.name),
+      logout: () => this.go('admin-login'),
+      stats: [
+        { label: 'Usuários', value: String(activeN), icon: 'ph ph-users', sub: activeN + ' de 2 vagas ativas' },
+        { label: 'Mensagens', value: String(239 + msgs.length), icon: 'ph ph-chat-circle-text', sub: 'Desde a criação da sala' },
+        { label: 'Arquivos', value: String(27 + attach), icon: 'ph ph-paperclip', sub: 'Imagens, vídeos, áudios e arquivos' },
+        { label: 'Última atividade', value: last ? last.time : '—', icon: 'ph ph-clock', sub: last ? (last.day + ' · ' + (s.users.find(u => u.id === last.from) || {}).first) : '' }
+      ],
+      recent,
+      userRows: s.users.map(u => ({ ...u, ...this.av(u, 44), tagClass: u.status === 'Ativo' ? 'tag tag-accent' : 'tag tag-neutral', toggleLabel: u.status === 'Ativo' ? 'Desativar' : 'Ativar', toggleIcon: u.status === 'Ativo' ? 'ph ph-user-minus' : 'ph ph-user-plus',
+        rowBg: s.highlight === u.id ? 'color-mix(in srgb, var(--color-accent) 7%, transparent)' : 'transparent', faded: u.status === 'Ativo' ? '1' : '0.6',
+        onEdit: () => this.editUser(u), onToggle: () => this.askToggle(u) })),
+      slots: [0, 1].map(i => ({ bg: i < activeN ? 'var(--color-accent)' : 'var(--color-neutral-800)' })), activeN, roomFull: activeN >= 2,
+      newUser: () => this.newUser(), backUsers: () => this.go('admin-users'),
+      form: f, fe, fb: { name: bc('name'), pin: bc('pin'), pin2: bc('pin2') }, fAv, fHasPhoto: !!f.photo, fNoPhoto: !f.photo, fHasInitials: !!(f.name || '').trim(),
+      isCreate: f.mode === 'create', isEdit: f.mode === 'edit', formDone: !!f.done, formOpen: !f.done,
+      formTitle: f.mode === 'edit' ? 'Editar usuário' : 'Novo usuário', formSubmit: f.mode === 'edit' ? 'Salvar alterações' : 'Criar usuário',
+      showPinFields: f.mode === 'create' || !!f.changePin, showPinLocked: f.mode === 'edit' && !f.changePin, isChangingPin: f.mode === 'edit' && !!f.changePin,
+      fName: e => this.setF('name', e.target.value), fPin: e => this.setF('pin', e.target.value.replace(/\D/g, '').slice(0, 6)), fPin2: e => this.setF('pin2', e.target.value.replace(/\D/g, '').slice(0, 6)),
+      fPhoto: e => { const x = e.target.files && e.target.files[0]; e.target.value = ''; if (x) this.setF('photo', URL.createObjectURL(x)); }, fRemovePhoto: () => this.setF('photo', null),
+      fChangePin: () => this.setF('changePin', true), fCancelPin: () => this.setState({ form: { ...s.form, changePin: false, pin: '', pin2: '' }, formErr: { ...fe, pin: null, pin2: null } }),
+      statusOpts: ['Ativo', 'Inativo'].map(v => ({ v, checked: f.status === v, pick: () => this.setF('status', v) })),
+      submitForm: () => this.submitForm(), createAnother: () => this.newUser(),
+      createdMsg: f.createdStatus === 'Ativo' ? (f.createdName + ' já pode acessar a conversa com o PIN definido.') : (f.createdName + ' foi criado(a) como Inativo. Ative quando houver uma vaga na sala.'),
+      hasConfirm: !!s.confirm, confirm, confirmOk: () => this.confirmOk(), confirmCancel: () => this.setState({ confirm: null }),
+      settings: s.settings, swTab: sw(s.settings.lockOnTab), swReopen: sw(s.settings.lockOnReopen),
+      toggleTab: () => this.setSetting('lockOnTab', !s.settings.lockOnTab), toggleReopen: () => this.setSetting('lockOnReopen', !s.settings.lockOnReopen),
+      lockOpts: [1, 5, 15, 30].map(n => ({ label: n + ' min', checked: s.settings.autoLock === n, pick: () => this.setSetting('autoLock', n) })),
+      setName: e => this.setSetting('name', e.target.value), setEmail: e => this.setSetting('email', e.target.value),
+      saveSettings: () => this.toast('Configurações salvas.'),
+      pwModal: s.pwModal, openPw: () => this.setState({ pwModal: true }), closePw: () => this.setState({ pwModal: false }), savePw: () => { this.setState({ pwModal: false }); this.toast('Senha alterada.'); },
+      // docs
+      swatches: [
+        ['Primary', '--color-accent', 'var(--color-accent)', '#9184D9'], ['Primary Hover', '--color-accent-400', 'var(--color-accent-400)', '#B5ABFC'],
+        ['Background', '--color-bg', 'var(--color-bg)', '#161826'], ['Surface', '--color-surface', 'var(--color-surface)', '#232532'],
+        ['Surface Secondary', '--color-neutral-900', 'var(--color-neutral-900)', '#292B31'], ['Text Primary', '--color-text', 'var(--color-text)', '#E9E9ED'],
+        ['Text Secondary', '--color-neutral-500', 'var(--color-neutral-500)', '#9397AB'], ['Border', '--color-divider', 'var(--color-divider)', 'text · 16%'],
+        ['Success', '--nl-success', OK, 'oklch .76 .13 158'], ['Warning', '--nl-warning', WARN, 'oklch .82 .12 80'],
+        ['Error', '--nl-error', ERR, 'oklch .72 .15 22'], ['Online', '--nl-online', OK, '= Success'],
+        ['Message Sent', '--color-accent-800', 'var(--color-accent-800)', '#423A6A'], ['Message Received', '--color-surface', 'var(--color-surface)', '#232532']
+      ].map(([name, token, css, hex]) => ({ name, token, css, hex })),
+      OK, ERR, WARN
+    };
+  }
+}
+</script>
+</body>
+</html>

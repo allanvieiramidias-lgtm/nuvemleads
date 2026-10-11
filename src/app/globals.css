@@ -1,0 +1,15 @@
+/* Ordem obrigatória (DECISOES §2): Tailwind → Nocturne em layer(components) → extras NuvemLeads */
+@import "tailwindcss";
+@import "../styles/tokens/nocturne.css" layer(components);
+@import "../styles/tokens/nuvemleads.css";
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}

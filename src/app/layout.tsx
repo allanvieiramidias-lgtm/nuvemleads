@@ -1,0 +1,37 @@
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
+import "./globals.css";
+
+// Inter hospedada junto com o app (sem chamadas ao Google). O subconjunto latin cobre o português.
+const inter = localFont({
+  src: [
+    { path: "./fonts/inter-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/inter-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/inter-latin-600-normal.woff2", weight: "600", style: "normal" },
+  ],
+  display: "swap",
+  variable: "--font-body",
+  fallback: ["system-ui", "sans-serif"],
+});
+
+// Título fixo e neutro: nunca nome do contato nem prévia de mensagem (ARQUITETURA §7)
+export const metadata: Metadata = {
+  title: "NuvemLeads",
+  robots: { index: false, follow: false },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+  themeColor: "#161826",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="pt-BR" className={inter.variable}>
+      <body>{children}</body>
+    </html>
+  );
+}
