@@ -18,7 +18,7 @@ Ainda não crie telas. Mostre a árvore final e os comandos para rodar.
 ```
 Aceite: `npm run dev` abre uma página vazia; `npm run build` passa; Postgres local sobe.
 
-## Etapa 1 — Tokens e componentes de UI
+## Etapa 1 — Tokens e componentes de UI ✅ concluída em 11/10/2026
 ```
 Copie docs/handoff/tokens/nocturne.css e nuvemleads.css para src/styles/tokens/ e importe em globals.css na ordem de DECISOES §2 (Tailwind primeiro, nocturne em layer(components)). A Inter já está configurada via next/font/local (DECISOES §18).
 Crie os componentes de src/components/ui e src/components/brand seguindo README.md §4.2 (PIN Input), §4.11 e §8, usando somente tokens: Button (primary/secondary/ghost, loading, disabled, block), IconButton, Input (com estado de erro e mensagem), PinInput (6 caixas, input invisível, estados idle/focus/filled/error/success/blocked, tremor), Avatar (tons accent/neutral, tamanhos, foto ou iniciais, ponto de presença com pulso), Badge, Toast (provider + hook), Modal (Radix Dialog), Dropdown (Radix), Tooltip (Radix), Switch (Radix), Segmented, Logo e LogoMark (SVG de docs/handoff/prototipo/assets/favicon.svg).

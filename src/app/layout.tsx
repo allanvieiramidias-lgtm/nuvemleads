@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { Providers } from "@/components/Providers";
 import "./globals.css";
 
 // Inter hospedada junto com o app (sem chamadas ao Google). O subconjunto latin cobre o português.
@@ -25,13 +26,15 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   interactiveWidget: "resizes-content",
-  themeColor: "#161826",
+  themeColor: "#161826", // = --color-bg (a meta theme-color não aceita variáveis CSS)
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={inter.variable}>
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

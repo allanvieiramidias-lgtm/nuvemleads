@@ -1,0 +1,495 @@
+/* Componentes do NuvemLeads (README §4.2, §4.11, §8). Só tokens — nada de hex solto. */
+
+/* — rótulos, textos — */
+.nl-kicker {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+.nl-rule {
+  height: 1px;
+  border: 0;
+  background: var(--nl-rule);
+}
+
+/* — botões — */
+.btn {
+  white-space: nowrap;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s,
+    box-shadow 0.15s;
+}
+.btn-block {
+  min-height: 42px;
+}
+.btn-lg {
+  min-height: 42px;
+}
+.btn-icon.btn-plain {
+  color: var(--color-neutral-400);
+}
+.btn-icon.btn-plain:hover {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+.btn[aria-busy="true"] {
+  cursor: progress;
+}
+.nl-spin {
+  animation: nl-spin 1s linear infinite;
+}
+
+/* botões redondos do composer (README §4.3) */
+.nl-round {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    transform 0.1s;
+}
+.nl-round-mic {
+  border: 1px solid var(--color-divider);
+  color: var(--color-neutral-300);
+}
+.nl-round-mic:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.nl-round-send {
+  border: 1px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  color: var(--color-accent-200);
+  box-shadow: var(--nl-glow-accent);
+  animation: nl-pop 0.18s var(--nl-ease-out);
+}
+.nl-round:active {
+  transform: scale(0.92);
+}
+
+/* — campos — */
+.field {
+  display: flex;
+  flex-direction: column;
+}
+.input {
+  min-height: 40px;
+  transition: border-color 0.15s;
+}
+.input[aria-invalid="true"],
+.input[aria-invalid="true"]:hover {
+  border-color: var(--nl-error);
+}
+.input::placeholder {
+  color: var(--color-neutral-600);
+}
+.input-pin {
+  letter-spacing: 0.3em;
+}
+.nl-field-error {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--nl-error);
+}
+.nl-field-hint {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--color-neutral-500);
+}
+
+/* — PIN Input (README §4.2) — */
+.nl-pin {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  cursor: text;
+}
+.nl-pin[data-shake="a"] {
+  animation: nl-shake-a 0.42s;
+}
+.nl-pin[data-shake="b"] {
+  animation: nl-shake-b 0.42s;
+}
+.nl-pin-box {
+  width: 46px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.2s;
+}
+@media (max-width: 699px) {
+  .nl-pin-box {
+    width: 42px;
+  }
+}
+.nl-pin-box[data-filled] {
+  border-color: var(--color-neutral-600);
+}
+.nl-pin-box[data-active] {
+  border-color: var(--color-accent);
+  box-shadow: var(--nl-ring-accent);
+}
+.nl-pin[data-state="error"] .nl-pin-box {
+  border-color: var(--nl-error);
+  box-shadow: none;
+}
+.nl-pin[data-state="success"] .nl-pin-box {
+  border-color: var(--nl-success);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--nl-success) 30%, transparent);
+}
+.nl-pin[data-state="blocked"] .nl-pin-box {
+  border-color: var(--color-neutral-800);
+  box-shadow: none;
+}
+.nl-pin[data-state="blocked"] {
+  cursor: not-allowed;
+}
+.nl-pin-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--color-text);
+  transform: scale(0);
+  transition:
+    transform 0.16s var(--nl-ease-spring),
+    background-color 0.2s;
+}
+.nl-pin-box[data-filled] .nl-pin-dot,
+.nl-pin[data-state="success"] .nl-pin-dot {
+  transform: scale(1);
+}
+.nl-pin[data-state="error"] .nl-pin-dot {
+  background: var(--nl-error);
+}
+.nl-pin[data-state="success"] .nl-pin-dot {
+  background: var(--nl-success);
+}
+.nl-pin-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border: 0;
+  padding: 0;
+  font-size: 16px; /* evita zoom no iOS */
+  color: transparent;
+  background: transparent;
+  caret-color: transparent;
+  cursor: inherit;
+}
+.nl-pin-message {
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+.nl-pin-message[data-tone="error"] {
+  color: var(--nl-error);
+}
+.nl-pin-message[data-tone="warning"] {
+  color: var(--nl-warning);
+}
+.nl-pin-message[data-tone="success"] {
+  color: var(--nl-success);
+}
+/* foco visível vai para a fileira de caixas, já que o input é invisível */
+.nl-pin:has(.nl-pin-input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
+
+/* — Avatar (README §4.11) — */
+.nl-avatar {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-weight: 500;
+  line-height: 1;
+  user-select: none;
+}
+.nl-avatar[data-tone="accent"] {
+  background: var(--color-accent-800);
+  color: var(--color-accent-200);
+}
+.nl-avatar[data-tone="neutral"] {
+  background: var(--color-neutral-800);
+  color: var(--color-neutral-200);
+}
+.nl-avatar[data-dim] {
+  opacity: 0.6;
+}
+.nl-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.nl-presence {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--nl-presence-ring, var(--color-bg));
+  background: var(--color-neutral-700);
+}
+.nl-presence[data-online] {
+  background: var(--nl-online);
+  animation: nl-pulse 2.4s infinite;
+}
+
+/* — Tag "Online" — */
+.tag-online {
+  background: color-mix(in srgb, var(--nl-success) 16%, transparent);
+  color: var(--nl-success-text);
+}
+
+/* — Toast (README §4.11) — */
+.nl-toast-region {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 32px);
+  pointer-events: none;
+}
+.nl-toast {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  font-size: 13.5px;
+  animation: nl-rise 0.2s ease-out;
+  pointer-events: auto;
+}
+.nl-toast[data-tone="success"] svg {
+  color: var(--nl-success);
+}
+.nl-toast[data-tone="error"] svg {
+  color: var(--nl-error);
+}
+
+/* — Modal (README §4.11) — */
+.nl-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+  backdrop-filter: blur(4px);
+  animation: nl-fade 0.2s ease-out;
+}
+.nl-dialog-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 71;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  pointer-events: none;
+}
+.nl-dialog-wrap > .dialog {
+  pointer-events: auto;
+  animation: nl-rise 0.2s ease-out;
+}
+.dialog-title {
+  margin: 0;
+}
+.dialog-body {
+  margin: 0;
+}
+
+/* — Dropdown (README §4.3, menu de sessão) — */
+.nl-menu {
+  z-index: 75;
+  min-width: 220px;
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  animation: nl-rise 0.16s ease-out;
+}
+.nl-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+.nl-menu-item svg {
+  color: var(--color-neutral-400);
+  flex: none;
+}
+.nl-menu-item[data-highlighted] {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+.nl-menu-item[data-disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.nl-menu-info {
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  font-size: 13.5px;
+}
+.nl-menu-info svg {
+  color: var(--color-neutral-400);
+  flex: none;
+  margin-top: 2px;
+}
+.nl-menu-info small {
+  display: block;
+  font-size: 12px;
+  color: var(--color-neutral-500);
+}
+.nl-menu-sep {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--nl-rule);
+}
+
+/* — Tooltip (README §4.11) — */
+.nl-tooltip {
+  z-index: 90;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-800);
+  color: var(--color-text);
+  font-size: 11.5px;
+  line-height: 1.3;
+  animation: nl-fade 0.12s ease-out;
+}
+
+/* — Switch (README §4.10) — */
+.nl-switch {
+  position: relative;
+  width: 40px;
+  height: 24px;
+  flex: none;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid var(--color-neutral-700);
+  background: var(--color-neutral-800);
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+.nl-switch[data-state="checked"] {
+  background: var(--color-accent-700);
+  border-color: var(--color-accent);
+}
+.nl-switch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.nl-switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-neutral-400);
+  transition:
+    transform 0.2s,
+    background-color 0.2s;
+}
+.nl-switch[data-state="checked"] .nl-switch-thumb {
+  transform: translateX(16px);
+  background: var(--color-accent-100);
+}
+
+/* — Segmented — */
+.seg {
+  align-self: flex-start;
+}
+.seg-opt {
+  position: relative;
+  user-select: none;
+}
+.seg[aria-disabled="true"] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* — Logo — */
+.nl-wordmark {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--color-text);
+}
+.nl-wordmark > span {
+  color: var(--color-accent-300);
+}
+
+/* duas versões do tremor para reiniciar a animação a cada erro */
+@keyframes nl-shake-a {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-7px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+@keyframes nl-shake-b {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-7px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}

@@ -2,6 +2,7 @@
 @import "tailwindcss";
 @import "../styles/tokens/nocturne.css" layer(components);
 @import "../styles/tokens/nuvemleads.css";
+@import "../styles/components.css" layer(components);
 
 :focus-visible {
   outline: 2px solid var(--color-accent);
