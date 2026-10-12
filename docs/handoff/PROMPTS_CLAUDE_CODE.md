@@ -43,7 +43,7 @@ Proteja /admin/* com proxy.ts (Next 16) (redireciona para /admin/login sem sess�
 Adicione teste Playwright do login com erro e com sucesso.
 ```
 
-## Etapa 4 — Painel, Usuários, Criar/Editar, Configurações
+## Etapa 4 — Painel, Usuários, Criar/Editar, Configurações ✅ concluída em 12/10/2026
 ```
 Implemente README.md §4.6 a §4.10 e as rotas admin de ARQUITETURA.md §5.
 - AdminShell com sidebar (desktop/tablet) e pílulas (mobile).

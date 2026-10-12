@@ -6,6 +6,7 @@ import { hashSecret } from "@/lib/auth/hash";
 import { newSlug } from "@/lib/auth/tokens";
 import { MSG, pinSchema, userNameSchema } from "@/lib/validators";
 import { DomainError } from "./errors";
+import { emit } from "./events";
 
 /** Tudo o que pode sair do serviço — nunca o hash do PIN. */
 export type PublicUser = Omit<User, "pinHash">;
@@ -106,7 +107,7 @@ export async function setUserStatus(
   userId: string,
   status: "ACTIVE" | "INACTIVE",
 ): Promise<PublicUser> {
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     await lockActiveUsers(tx);
     const [current] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
     if (!current) throw new DomainError("NOT_FOUND", "Usuário não encontrado.");
@@ -123,6 +124,9 @@ export async function setUserStatus(
     if (status === "INACTIVE") await tx.delete(userSessions).where(eq(userSessions.userId, userId));
     return toPublicUser(updated!);
   });
+  if (status === "INACTIVE") emit("session:revoked", { userId, reason: "DEACTIVATED" });
+  emit("room:changed", {});
+  return result;
 }
 
 export async function updateUserProfile(
@@ -146,7 +150,7 @@ export async function updateUserProfile(
 export async function changeUserPin(db: Db, userId: string, newPin: string): Promise<PublicUser> {
   const pin = validate(pinSchema, newPin, "pin");
   const pinHash = await hashSecret(pin);
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     const [updated] = await tx
       .update(users)
       .set({
@@ -161,6 +165,19 @@ export async function changeUserPin(db: Db, userId: string, newPin: string): Pro
     await tx.delete(userSessions).where(eq(userSessions.userId, userId));
     return toPublicUser(updated);
   });
+  emit("session:revoked", { userId, reason: "PIN_CHANGED" });
+  return result;
+}
+
+/** Lista para o admin (sem hash do PIN), na ordem de criação. */
+export async function listUsers(db: Db): Promise<PublicUser[]> {
+  const rows = await db.select().from(users).orderBy(asc(users.createdAt));
+  return rows.map(toPublicUser);
+}
+
+export async function getUser(db: Db, userId: string): Promise<PublicUser | null> {
+  const [row] = await db.select().from(users).where(eq(users.id, userId));
+  return row ? toPublicUser(row) : null;
 }
 
 /** "Gerar novo link": o link antigo para de funcionar (DECISOES §13). */

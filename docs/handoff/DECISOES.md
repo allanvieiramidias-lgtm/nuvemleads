@@ -146,3 +146,13 @@ Inter é servida pelo próprio app (`next/font/local`, arquivos em `src/app/font
 - Em desenvolvimento e nos testes, sem `SMTP_PASS`, os e-mails vão para `MAIL_OUTBOX` (JSON). Em produção, sem SMTP, o envio falha no log e a tela continua com a resposta genérica.
 - Os testes no navegador usam um banco próprio (`nuvemleads_e2e`), recriado a cada execução.
 - O `proxy.ts` só redireciona quem não tem cookie e renova o prazo dele; o layout do painel valida a sessão no banco.
+
+## 22. Painel do administrador (Etapa 4)
+
+- Contadores e "Atividade recente" contam só a conversa do par ativo (§3). Sem par ativo, ficam zerados; a atividade mostra "Nenhuma atividade ainda."
+- Foto de perfil: JPG/PNG/WEBP até 5 MB, conferida pelos bytes, recortada em 256×256 WEBP sem EXIF/GPS. Servida em `/api/avatars/<uuid>` — o id aleatório muda a cada troca e é a própria permissão (a foto também aparece na tela de PIN de quem tem o link).
+- Tom do avatar de quem é criado: o oposto do da outra pessoa ativa (accent/neutral), para as duas se distinguirem.
+- Link pessoal no formulário de edição, com "Copiar link" e "Gerar novo link" (confirmação: "O link atual deixa de funcionar imediatamente."); toast "Link copiado.".
+- Textos que o README não definia: "Ainda não acessou" (lista), "Tentativas liberadas.", "Novo link gerado. O anterior deixou de funcionar.", "A senha atual não confere.", "Este e-mail já está em uso.".
+- Mudança de status é aplicada antes do resto do formulário: com a sala cheia, nada é salvo pela metade.
+- As rotas avisam o barramento interno (`session:revoked`, `settings:updated`); a Etapa 6 liga isso ao Socket.IO.

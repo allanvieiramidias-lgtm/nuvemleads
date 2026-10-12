@@ -28,6 +28,7 @@ export default async function setup() {
     ["Renata Alves", E2E.adminEmail],
     ["Reset Desktop", "reset-desktop@e2e.test"],
     ["Reset Mobile", "reset-mobile@e2e.test"],
+    ["Paula Painel", "painel@e2e.test"],
   ]) {
     await pool.query("insert into admins (name, email, password_hash) values ($1, $2, $3)", [
       name,
