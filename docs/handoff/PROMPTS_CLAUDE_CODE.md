@@ -35,7 +35,7 @@ Use src/db/index.ts (já existe) e crie src/lib/auth (hash argon2id, tokens opac
 Escreva testes Vitest para a regra de no máximo 2 usuários ativos, para a validação de PIN fraco e para a escolha da conversa do par ativo.
 ```
 
-## Etapa 3 — Login do administrador
+## Etapa 3 — Login do administrador ✅ concluída em 12/10/2026
 ```
 Implemente README.md §4.5, a tela de redefinir senha (DECISOES §13) e as rotas /api/admin/login, logout, password/forgot e password/reset de ARQUITETURA.md §5, com rate limit de §7 e envio de e-mail via nodemailer (SMTP_*).
 Estados obrigatórios: erro "Não foi possível entrar. Verifique seus dados.", botão com loading "Entrando…", link "Esqueci minha senha" (tela com envio e confirmação genérica).

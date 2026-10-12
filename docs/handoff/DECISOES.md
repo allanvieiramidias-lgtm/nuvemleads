@@ -138,3 +138,11 @@ Inter é servida pelo próprio app (`next/font/local`, arquivos em `src/app/font
 - Restrições no próprio banco: par da conversa em ordem e sem repetir a pessoa, mensagem de texto exige corpo e mídia exige anexo, `settings` com linha única e tempo de bloqueio só 1/5/15/30.
 - Link pessoal: 12 caracteres de um alfabeto sem `0 o 1 i l` (≈ 59 bits).
 - Seed: recusa rodar em produção com a senha de exemplo do admin e recusa `SEED_DEMO=true` em produção. A demonstração usa os PINs do protótipo (123456 e 246810), gravados direto pelo seed — o formulário recusaria 123456 por ser previsível. Gera PDF, áudio e vídeo reais de exemplo quando há `ffmpeg`.
+
+## 21. Login do administrador (Etapa 3)
+
+- Bloqueio por tentativas mostra "Muitas tentativas. Tente novamente em alguns minutos." (o README só define a mensagem genérica de erro).
+- "Esqueci minha senha": confirmação genérica "Se este e-mail estiver cadastrado, você vai receber um link para criar uma nova senha. O link vale por 30 minutos."; até 5 pedidos por IP em 15 min; pedir de novo invalida o link anterior; trocar a senha encerra todas as sessões de admin.
+- Em desenvolvimento e nos testes, sem `SMTP_PASS`, os e-mails vão para `MAIL_OUTBOX` (JSON). Em produção, sem SMTP, o envio falha no log e a tela continua com a resposta genérica.
+- Os testes no navegador usam um banco próprio (`nuvemleads_e2e`), recriado a cada execução.
+- O `proxy.ts` só redireciona quem não tem cookie e renova o prazo dele; o layout do painel valida a sessão no banco.

@@ -176,14 +176,12 @@ describe("restrições no banco", () => {
     await mk("Allan Souza");
     const conv = (await getActiveConversation(db))!;
     await expect(
-      db
-        .insert(messages)
-        .values({
-          conversationId: conv.id,
-          clientId: crypto.randomUUID(),
-          senderId: maria.id,
-          kind: "TEXT",
-        }),
+      db.insert(messages).values({
+        conversationId: conv.id,
+        clientId: crypto.randomUUID(),
+        senderId: maria.id,
+        kind: "TEXT",
+      }),
     ).rejects.toThrow();
   });
 

@@ -493,3 +493,63 @@
     transform: translateX(2px);
   }
 }
+
+/* — Telas de acesso do admin (README §4.5) — */
+.nl-admin-ground {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(110% 70% at 0% 0%, var(--color-neutral-900), transparent 60%), var(--color-bg);
+  animation: nl-fade 0.3s;
+}
+.nl-auth-form {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: nl-rise 0.35s ease-out;
+}
+.nl-auth-form .input {
+  height: 40px;
+}
+.nl-banner-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-neutral-100);
+  background: color-mix(in srgb, var(--nl-error) 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nl-error) 40%, transparent);
+  animation: nl-rise 0.2s;
+}
+.nl-banner-error svg {
+  color: var(--nl-error);
+  flex: none;
+  margin-top: 1px;
+}
+.nl-banner-success {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-neutral-100);
+  background: color-mix(in srgb, var(--nl-success) 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nl-success) 40%, transparent);
+  animation: nl-rise 0.2s;
+}
+.nl-banner-success svg {
+  color: var(--nl-success);
+  flex: none;
+  margin-top: 1px;
+}
+.nl-muted-link {
+  color: var(--color-neutral-500);
+}

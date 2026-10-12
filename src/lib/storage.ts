@@ -3,7 +3,10 @@ import path from "node:path";
 
 /** Raiz do volume de uploads (fora da pasta pública; servido só por rota autenticada). */
 export function uploadRoot(): string {
-  return path.resolve(process.env.UPLOAD_DIR ?? "./.data/uploads");
+  return path.resolve(
+    /* turbopackIgnore: true */ process.cwd(),
+    process.env.UPLOAD_DIR ?? ".data/uploads",
+  );
 }
 
 /** Chave relativa: AAAA/MM/<id>.<ext> — o nome original fica só no banco (ARQUITETURA §7). */
