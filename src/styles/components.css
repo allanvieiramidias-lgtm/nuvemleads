@@ -208,11 +208,12 @@
 .nl-pin-message[data-tone="success"] {
   color: var(--nl-success);
 }
-/* foco visível vai para a fileira de caixas, já que o input é invisível */
-.nl-pin:has(.nl-pin-input:focus-visible) {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 4px;
-  border-radius: var(--radius-md);
+/* foco: a caixa ativa já mostra borda accent + anel (README §4.2); sem contorno extra na fileira */
+.nl-pin-input:focus-visible {
+  outline: none;
+}
+.nl-pin {
+  width: max-content;
 }
 
 /* — Avatar (README §4.11) — */
@@ -797,4 +798,78 @@
 .nl-alert-warning > svg {
   color: var(--nl-warning);
   flex: none;
+}
+
+/* — Telas do participante (README §4.1, §4.2, §4.4) — */
+.nl-gate {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--nl-lock-ground);
+  animation: nl-fade 0.3s;
+}
+.nl-gate-top {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px;
+}
+.nl-gate-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.nl-gate-col {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  animation: nl-rise 0.35s ease-out;
+}
+.nl-gate-foot {
+  padding: 16px 24px calc(16px + env(safe-area-inset-bottom));
+}
+.nl-person-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: box-shadow 0.15s;
+}
+.nl-person-card:hover {
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+.nl-person-card > svg {
+  color: var(--color-neutral-500);
+}
+.nl-me-ring {
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px var(--color-accent),
+    0 0 28px color-mix(in srgb, var(--color-accent) 25%, transparent);
+  transition: box-shadow 0.3s;
+}
+.nl-me-ring[data-success] {
+  box-shadow:
+    0 0 0 1px var(--nl-success),
+    0 0 28px color-mix(in srgb, var(--nl-success) 25%, transparent);
+}
+.nl-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-neutral-500);
+}
+.nl-notice-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--nl-warning);
 }

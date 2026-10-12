@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const isProd = process.env.NODE_ENV === "production";
 const ADMIN_COOKIE = isProd ? "__Host-nl_admin" : "nl_admin";
+const USER_COOKIE = isProd ? "__Host-nl_user" : "nl_user";
 const ADMIN_SESSION_SECONDS = 8 * 3600;
 
 // Telas do admin abertas sem sessão
@@ -13,6 +14,16 @@ const PUBLIC_ADMIN = ["/admin/login", "/admin/esqueci-senha", "/admin/redefinir-
  */
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // Conversa sem cookie de participante → tela de acesso
+  if (pathname === "/chat" || pathname.startsWith("/chat/")) {
+    if (req.cookies.get(USER_COOKIE)?.value) return NextResponse.next();
+    const url = req.nextUrl.clone();
+    url.pathname = "/";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
   const token = req.cookies.get(ADMIN_COOKIE)?.value;
   const isPublic = PUBLIC_ADMIN.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
@@ -37,4 +48,4 @@ export function proxy(req: NextRequest) {
   return res;
 }
 
-export const config = { matcher: ["/admin/:path*"] };
+export const config = { matcher: ["/admin/:path*", "/chat", "/chat/:path*"] };

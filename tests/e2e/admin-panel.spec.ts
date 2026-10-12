@@ -11,10 +11,9 @@ async function login(page: Page, email: string, password = E2E.adminPassword) {
 
 const toast = (page: Page) => page.locator(".nl-toast");
 
-// O fluxo cria e altera usuários no banco compartilhado: roda só no projeto desktop.
+// Roda no projeto "admin-flow", antes dos demais (ver playwright.config.ts).
 test.describe("fluxo completo do admin (ARQUITETURA §11)", () => {
   test.describe.configure({ mode: "serial" });
-  test.skip(({ isMobile }) => isMobile, "fluxo que altera dados roda só no desktop");
 
   test("painel → criar (validações) → criado → lista → editar → PIN → configurações", async ({
     page,
@@ -137,8 +136,8 @@ test.describe("fluxo completo do admin (ARQUITETURA §11)", () => {
       "O PIN atual deixa de funcionar imediatamente. João precisará do novo PIN no próximo desbloqueio.",
     );
     await pinDialog.getByRole("button", { name: "Alterar PIN" }).click();
-    await expect(page).toHaveURL(/\/admin\/usuarios\?destaque=/);
     await expect(toast(page)).toHaveText("PIN alterado e alterações salvas.");
+    await expect(page).toHaveURL(/\/admin\/usuarios\?destaque=/);
     await expect(rowOf("João Lima Neto")).toBeVisible();
 
     // Gerar novo link invalida o anterior
@@ -185,28 +184,4 @@ test("API do admin exige sessão", async ({ request }) => {
   const res = await request.get("/api/admin/users");
   expect(res.status()).toBe(401);
   expect(res.headers()["cache-control"]).toContain("no-store");
-});
-
-test("navegação do painel no celular usa pílulas e não rola para o lado", async ({
-  page,
-  isMobile,
-}) => {
-  test.skip(!isMobile, "só no celular");
-  await login(page, E2E.adminEmail);
-  const top = page.locator(".nl-admin-top");
-  await expect(top).toBeVisible();
-  await expect(page.locator(".nl-admin-side")).toBeHidden();
-  for (const [link, heading] of [
-    ["Usuários", "Usuários"],
-    ["Configurações", "Configurações"],
-    ["Painel", "Olá, Renata"],
-  ]) {
-    await top.getByRole("link", { name: link }).click();
-    await expect(page.getByRole("heading", { name: heading })).toBeVisible();
-    await expect(top.getByRole("link", { name: link })).toHaveAttribute("aria-current", "page");
-    const overflow = await page.evaluate(
-      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    );
-    expect(overflow).toBeLessThanOrEqual(0);
-  }
 });

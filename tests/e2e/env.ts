@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import path from "node:path";
 
 export const E2E = {
@@ -8,3 +9,17 @@ export const E2E = {
   adminEmail: "renata@e2e.test",
   adminPassword: "senha-de-teste-123",
 };
+
+/** Pessoas dos testes do participante: desktop usa Maria, celular usa Allan. */
+export const PARTICIPANTS = [
+  { key: "maria", name: "Maria Clara", tone: "ACCENT", pin: "905317", pinChangedNotice: false },
+  { key: "allan", name: "Allan Souza", tone: "NEUTRAL", pin: "481526", pinChangedNotice: true },
+] as const;
+
+export const STATE_FILE = path.resolve(".data/e2e-state.json");
+
+export function participantFor(projectName: string) {
+  const p = projectName === "mobile" ? PARTICIPANTS[1] : PARTICIPANTS[0];
+  const slugs = JSON.parse(readFileSync(STATE_FILE, "utf8")) as Record<string, string>;
+  return { ...p, slug: slugs[p.key]! };
+}

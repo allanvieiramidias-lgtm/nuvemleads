@@ -5,18 +5,40 @@ export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
   globalSetup: "./tests/e2e/global-setup.ts",
+  // O servidor de desenvolvimento compila cada página na primeira visita: folga para isso.
+  expect: { timeout: 15_000 },
+  timeout: 90_000,
   use: {
     baseURL: `http://localhost:${E2E.port}`,
     trace: "retain-on-failure",
     // Opcional: aponta para um Chromium já instalado (ex.: ambientes sem download de navegador)
     launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH || undefined },
   },
+  // Ordem: 1) fluxo completo do admin (cria/altera pessoas) → 2) prepara Maria e Allan
+  // → 3) demais testes no desktop e no celular, em paralelo.
   projects: [
     {
-      name: "desktop",
+      name: "admin-flow",
+      testMatch: /admin-panel\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
-    { name: "mobile", use: { ...devices["Pixel 7"] } },
+    {
+      name: "seed-participants",
+      testMatch: /seed-participants\.setup\.ts/,
+      dependencies: ["admin-flow"],
+    },
+    {
+      name: "desktop",
+      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/],
+      dependencies: ["seed-participants"],
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
+    },
+    {
+      name: "mobile",
+      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/],
+      dependencies: ["seed-participants"],
+      use: { ...devices["Pixel 7"] },
+    },
   ],
   webServer: {
     command: "npm run dev",

@@ -145,13 +145,11 @@ describe("configurações (README §4.10)", () => {
 
 describe("conta do admin", () => {
   async function seedAdmin() {
-    await db
-      .insert(admins)
-      .values({
-        name: "Renata Alves",
-        email: "renata@ex.com",
-        passwordHash: await hashSecret("senha-antiga-1"),
-      });
+    await db.insert(admins).values({
+      name: "Renata Alves",
+      email: "renata@ex.com",
+      passwordHash: await hashSecret("senha-antiga-1"),
+    });
     const [a] = await db.select().from(admins);
     return a!;
   }

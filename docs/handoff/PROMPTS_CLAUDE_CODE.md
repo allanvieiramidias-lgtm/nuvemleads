@@ -55,7 +55,7 @@ Implemente README.md §4.6 a §4.10 e as rotas admin de ARQUITETURA.md §5.
 Use toasts com os textos do README. Inclua "Gerar novo link" e o aviso "Liberar tentativas" (DECISOES §8 e §13). Teste Playwright do fluxo admin completo de ARQUITETURA.md §11.
 ```
 
-## Etapa 5 — Acesso do participante e PIN
+## Etapa 5 — Acesso do participante e PIN ✅ concluída em 12/10/2026
 ```
 Implemente README.md §4.1 e §4.2 e as rotas /api/public/u/:slug, /api/auth/pin, /api/auth/logout e /api/me.
 - A tela / só aparece se PUBLIC_PICKER=true; senão usa o cookie nl_last ou pede o link pessoal (DECISOES §13).

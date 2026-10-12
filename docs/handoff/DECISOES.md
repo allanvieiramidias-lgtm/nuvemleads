@@ -156,3 +156,15 @@ Inter é servida pelo próprio app (`next/font/local`, arquivos em `src/app/font
 - Textos que o README não definia: "Ainda não acessou" (lista), "Tentativas liberadas.", "Novo link gerado. O anterior deixou de funcionar.", "A senha atual não confere.", "Este e-mail já está em uso.".
 - Mudança de status é aplicada antes do resto do formulário: com a sala cheia, nada é salvo pela metade.
 - As rotas avisam o barramento interno (`session:revoked`, `settings:updated`); a Etapa 6 liga isso ao Socket.IO.
+
+## 23. Acesso do participante e PIN (Etapa 5)
+
+- Espera por tentativas: até 60 s a mensagem é a do README com a contagem ("Muitas tentativas. Aguarde alguns segundos. (15s)"); acima disso, "Muitas tentativas. Tente novamente em N min.".
+- PIN certo zera o contador daquele IP e tira a espera por pessoa; a contagem de 24 h por pessoa continua, para o aviso do painel do admin não sumir.
+- Link inválido ou pessoa inativa: "Link inválido" / "Este link não é válido. Peça um novo link ao administrador.". Com `PUBLIC_PICKER=false` e sem link lembrado, a tela inicial mostra "Conversa privada" / "Abra o link pessoal que o administrador enviou para você.".
+- "Não é você? Trocar" esquece o link lembrado (`nl_last`) e volta ao início. "Encerrar sessão" apaga a sessão, mas mantém o link lembrado.
+- **Regra de reabrir (§7), refinada:** quem decide é o navegador, não a renderização da página. A conversa chama `POST /api/session/boot` uma única vez por carregamento completo da página; o primeiro depois do PIN entra, os seguintes começam bloqueados (`REOPEN`). Motivo: decidir na renderização do servidor bloqueava na hora, porque o Next renderiza a mesma página mais de uma vez (navegação + atualização interna). Isso é uma proteção de uso, não de segurança: as rotas de conteúdo continuam exigindo sessão desbloqueada (423).
+- Até a tela de bloqueio existir (Etapa 8), sessão bloqueada em `/chat` volta para a tela de PIN.
+- IP para os limites: primeiro valor de `X-Forwarded-For`. O Caddy substitui esse cabeçalho pelo IP real do cliente (não confia no que vem de fora), então não dá para burlar o limite por IP trocando o cabeçalho; o limite por pessoa vale de qualquer forma.
+- Foco no PIN: a caixa ativa mostra borda accent + anel; o campo invisível não ganha contorno próprio.
+- Testes no navegador em fases: fluxo do admin → preparação de Maria e Allan → demais testes no desktop e no celular.
