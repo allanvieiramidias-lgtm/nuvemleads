@@ -9,7 +9,7 @@ Nunca instalar com `@latest`. Versões exatas no `package.json` (sem `^`):
 
 | Pacote | Versão | Observação |
 |---|---|---|
-| next | 16.4.0 | Next 15 está só em manutenção. No 16: `middleware.ts` virou `proxy.ts` (roda em Node, pode usar Prisma); `params`/`cookies()` são assíncronos; Turbopack é o padrão. |
+| next | 16.4.0 | Next 15 está só em manutenção. No 16: `middleware.ts` virou `proxy.ts` (roda em Node, pode acessar o banco); `params`/`cookies()` são assíncronos; Turbopack é o padrão. |
 | react / react-dom | 19.3.0 | |
 | drizzle-orm / drizzle-kit | 0.45.4 / 0.31.11 | Substitui o Prisma (§17). |
 | pg | 8.23.1 | Driver do Postgres. |
@@ -130,3 +130,11 @@ Inter é servida pelo próprio app (`next/font/local`, arquivos em `src/app/font
 ## 19. Ambiente
 
 `NODE_ENV` não vai no `.env` (o servidor carrega o `.env` com dotenv; um `NODE_ENV=development` ali faria a produção subir em modo dev). Quem define é `npm start`, o `Dockerfile` e o `npm run dev`.
+
+## 20. Detalhes do banco (Etapa 2)
+
+- Ids são `uuid` gerados pelo Postgres (no lugar de `cuid`).
+- Regra dos 2 ativos: toda criação/ativação passa por uma trava de transação (`pg_advisory_xact_lock`) antes de contar os ativos; testado com ativações e criações simultâneas.
+- Restrições no próprio banco: par da conversa em ordem e sem repetir a pessoa, mensagem de texto exige corpo e mídia exige anexo, `settings` com linha única e tempo de bloqueio só 1/5/15/30.
+- Link pessoal: 12 caracteres de um alfabeto sem `0 o 1 i l` (≈ 59 bits).
+- Seed: recusa rodar em produção com a senha de exemplo do admin e recusa `SEED_DEMO=true` em produção. A demonstração usa os PINs do protótipo (123456 e 246810), gravados direto pelo seed — o formulário recusaria 123456 por ser previsível. Gera PDF, áudio e vídeo reais de exemplo quando há `ffmpeg`.

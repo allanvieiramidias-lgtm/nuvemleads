@@ -27,7 +27,7 @@ Respeite prefers-reduced-motion. Foco visível = outline 2px accent.
 ```
 Aceite: `/dev/ui` bate visualmente com a tela "Design system" do protótipo.
 
-## Etapa 2 — Banco e seed
+## Etapa 2 — Banco e seed ✅ concluída em 12/10/2026
 ```
 Implemente src/db/schema.ts (Drizzle) com o modelo de ARQUITETURA.md §3 (com Conversation, DECISOES §3) e gere a migração (npm run db:generate).
 Complete scripts/seed.ts: Settings padrão (5 min, true, true) e o admin a partir de ADMIN_SEED_*. Com SEED_DEMO=true, crie também Maria Clara (tom ACCENT, PIN 123456) e Allan Souza (tom NEUTRAL, PIN 246810) com slugs aleatórios e as 9 mensagens de exemplo do README §7 (sem mídia real, exceto a foto docs/handoff/prototipo/assets/photo.jpg copiada para UPLOAD_DIR).

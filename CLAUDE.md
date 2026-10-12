@@ -30,4 +30,5 @@ Next.js 16 App Router (versões exatas em DECISOES §1) · TypeScript estrito ·
 - `npm run db:dev` (Docker) — Postgres local; sem Docker, um Postgres 16 com usuário `nuvem`/`nuvem-dev` e banco `nuvemleads`
 - `npm run dev` — Next + Socket.IO
 - `npm run db:generate` (após mudar `src/db/schema.ts`) · `npm run db:migrate` · `npm run db:seed` (`SEED_DEMO=true` para dados de exemplo)
-- `npm test` · `npx playwright test` · `npm run build` · `npm run lint` · `npm run typecheck`
+- `npm test` roda unidade + integração; a integração usa um Postgres real no banco `nuvemleads_test` (criado e migrado sozinho; `TEST_DATABASE_URL` para mudar)
+- `npx playwright test` · `npm run build` · `npm run lint` · `npm run typecheck`
