@@ -168,3 +168,17 @@ Inter é servida pelo próprio app (`next/font/local`, arquivos em `src/app/font
 - IP para os limites: primeiro valor de `X-Forwarded-For`. O Caddy substitui esse cabeçalho pelo IP real do cliente (não confia no que vem de fora), então não dá para burlar o limite por IP trocando o cabeçalho; o limite por pessoa vale de qualquer forma.
 - Foco no PIN: a caixa ativa mostra borda accent + anel; o campo invisível não ganha contorno próprio.
 - Testes no navegador em fases: fluxo do admin → preparação de Maria e Allan → demais testes no desktop e no celular.
+
+## 24. Conversa em tempo real (Etapa 6)
+
+- **Horários com precisão de milissegundos** em todo o banco (migração `0001`). Com microssegundos, comparações feitas com datas vindas do JavaScript (cursor da paginação, "lida até") perdiam mensagens criadas no mesmo milissegundo.
+- Enviar texto é por `POST /api/messages` (a resposta é o "ack"); o servidor avisa a outra pessoa por `message:new`. O mesmo `clientId` nunca duplica.
+- Fila de envio: erro de rede deixa a mensagem "enviando" e ela sai sozinha quando a conexão volta; recusa do servidor deixa "falhou" + "Tentar novamente". A fila fica só na memória e é apagada ao bloquear ou sair.
+- "Lida": com a aba visível, o aparelho marca até a última mensagem da outra pessoa. "Entregue": quando chega pelo socket ou quando a lista é carregada.
+- "Digitando": aviso a cada 3 s enquanto digita; para depois de 3 s parado, ao enviar ou ao sair do campo; some sozinho em 6 s se o aviso de parar se perder.
+- Presença: online = ao menos uma conexão aberta e desbloqueada. Ao sair, grava "visto por último" (`users.last_active_at`). Textos: "Visto por último hoje/ontem às 09:40", "Visto por último em 12 de março às 18:20", "Offline" se nunca entrou.
+- Sem par ativo: "A conversa ainda não está disponível" / "Ela abre quando o administrador ativar a outra pessoa." (texto novo).
+- Quando o par ativo muda, o servidor avisa `room:changed`, desconecta todos e os aparelhos reconectam e recarregam a conversa.
+- O botão "Bloquear" e "Bloquear agora" já bloqueiam no servidor (`POST /api/session/lock`, rotas passam a responder 423). Até a Etapa 8, a pessoa volta para a tela de PIN.
+- Clipe de anexo e microfone aparecem desativados até a Etapa 7. Mensagens com anexo mostram o nome do arquivo até lá.
+- A conexão com o banco é aberta no primeiro uso (não ao carregar o módulo), para não depender da ordem de leitura do `.env` no código compilado.

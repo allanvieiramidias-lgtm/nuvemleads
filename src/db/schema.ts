@@ -15,8 +15,10 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-const createdAt = () => timestamp({ withTimezone: true }).notNull().defaultNow();
-const ts = () => timestamp({ withTimezone: true });
+// Precisão de milissegundos: igual ao Date do JavaScript. Com microssegundos, comparações
+// feitas com datas vindas do JS (cursor da paginação, "lida até") perdiam linhas.
+const createdAt = () => timestamp({ withTimezone: true, precision: 3 }).notNull().defaultNow();
+const ts = () => timestamp({ withTimezone: true, precision: 3 });
 
 export const userStatus = pgEnum("user_status", ["ACTIVE", "INACTIVE"]);
 export const avatarTone = pgEnum("avatar_tone", ["ACCENT", "NEUTRAL"]);

@@ -4,7 +4,17 @@ import { EventEmitter } from "node:events";
  * Barramento interno do processo. As rotas avisam o que mudou; o Socket.IO (Etapa 6)
  * escuta e repassa aos navegadores (session:revoked, settings:updated…).
  */
+import type { MessageDto } from "./messages";
+
 export type AppEvents = {
+  "message:new": { conversationId: string; message: MessageDto };
+  "message:status": {
+    conversationId: string;
+    senderId: string;
+    id: string;
+    status: "delivered" | "read";
+  };
+  "session:locked": { sessionId: string; reason: "IDLE" | "MANUAL" | "TAB" | "BLUR" | "REOPEN" };
   "session:revoked": { userId: string; reason: "PIN_CHANGED" | "DEACTIVATED" };
   "settings:updated": { autoLockMinutes: number; lockOnTabLeave: boolean; lockOnReopen: boolean };
   "room:changed": Record<string, never>;

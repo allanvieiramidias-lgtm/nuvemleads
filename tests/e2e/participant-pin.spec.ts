@@ -104,9 +104,8 @@ async function loginOk(page: Page, context: BrowserContext, projectName: string)
   await expect(page.getByText("PIN correto. Abrindo conversa…")).toBeVisible();
   await expect(page.getByRole("button", { name: "Desbloqueado" })).toBeVisible();
   await expect(page).toHaveURL(/\/chat$/);
-  await expect(page.getByText("Carregando conversa…")).toBeVisible();
-  // a abertura terminou (o servidor já registrou este carregamento)
-  await expect(page.locator('main[aria-busy="false"]')).toBeVisible();
+  // a conversa abriu (o servidor já registrou este carregamento)
+  await expect(page.getByLabel("Mensagem")).toBeVisible();
   const cookie = (await context.cookies()).find((c) => c.name === "nl_user");
   expect(cookie?.httpOnly).toBe(true);
   expect(cookie?.sameSite).toBe("Strict");
@@ -128,7 +127,8 @@ test("o link lembrado leva direto ao PIN; 'Trocar' esquece; 'Encerrar sessão' s
   context,
 }, info) => {
   const p = await loginOk(page, context, info.project.name);
-  await page.getByRole("button", { name: "Encerrar sessão" }).click();
+  await page.getByRole("button", { name: "Menu da sessão" }).click();
+  await page.getByRole("menuitem", { name: "Encerrar sessão" }).click();
   await expect(page).toHaveURL(new RegExp(`/u/${p.slug}$`)); // "/" lembra o link
   await page.getByRole("button", { name: "Não é você? Trocar" }).click();
   await expect(page).toHaveURL(/\/$/);

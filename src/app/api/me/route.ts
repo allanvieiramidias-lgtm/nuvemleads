@@ -5,8 +5,9 @@ import { getActiveConversation, otherParticipant } from "@/server/conversations"
 import { getSettings } from "@/server/settings";
 import { getUser } from "@/server/users";
 import { avatarUrl } from "@/server/avatars";
+import { isOnline } from "@/server/presence";
 
-/** Sessão, contato e configurações (ARQUITETURA §5). Presença em tempo real chega na Etapa 6. */
+/** Sessão, contato (com presença) e configurações (ARQUITETURA §5). */
 export async function GET() {
   const session = await getCurrentSession();
   if (!session) return apiError("REVOKED", "Sessão encerrada. Digite seu PIN.");
@@ -32,7 +33,7 @@ export async function GET() {
           name: contact.name,
           tone: contact.tone,
           avatarUrl: avatarUrl(contact.avatarKey),
-          online: false,
+          online: isOnline(contact.id),
           lastSeenAt: contact.lastActiveAt?.toISOString() ?? null,
         }
       : null,

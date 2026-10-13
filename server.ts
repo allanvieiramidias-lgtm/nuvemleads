@@ -3,6 +3,7 @@ import "dotenv/config";
 import { createServer } from "node:http";
 import next from "next";
 import { Server as SocketServer } from "socket.io";
+import { attachRealtime } from "./src/server/realtime";
 
 const dev = process.env.NODE_ENV !== "production";
 const port = Number(process.env.PORT ?? 3000);
@@ -20,14 +21,11 @@ const httpServer = createServer((req, res) => {
 const io = new SocketServer(httpServer, {
   path: "/socket.io",
   serveClient: false,
-  // mesma origem; o CSRF de handshake é feito na Etapa 6
   cors: { origin: false },
+  // reconexão rápida depois de quedas curtas (celular trocando de rede)
+  connectionStateRecovery: { maxDisconnectionDuration: 30_000 },
 });
-
-// Autenticação, salas por conversa e eventos chegam na Etapa 6.
-io.on("connection", (socket) => {
-  socket.disconnect(true);
-});
+attachRealtime(io);
 
 httpServer.listen(port, hostname, () => {
   console.log(`> NuvemLeads em http://localhost:${port} (${dev ? "dev" : "produção"})`);

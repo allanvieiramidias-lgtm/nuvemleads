@@ -31,6 +31,21 @@ import {
   useToast,
   type PinState,
 } from "@/components/ui";
+import { MessageBubble } from "@/components/chat/MessageBubble";
+import { EmptyState, ErrorState, LoadingState, OfflineBanner } from "@/components/chat/States";
+import type { ChatMessage } from "@/components/chat/types";
+
+const demoMsg = (over: Partial<ChatMessage>): ChatMessage => ({
+  id: crypto.randomUUID(),
+  clientId: crypto.randomUUID(),
+  senderId: "maria",
+  kind: "TEXT",
+  body: "",
+  attachment: null,
+  createdAt: "2026-10-13T12:15:00.000Z",
+  status: "read",
+  ...over,
+});
 
 function Card({
   kicker,
@@ -394,15 +409,76 @@ export function Showcase() {
         />
       </Card>
 
-      <Card kicker="Upload Progress · erro (prévia)">
-        <div className="flex items-center gap-1.5 text-[12px] text-[var(--nl-error)]">
-          Não foi possível enviar o arquivo.
-          <Button variant="ghost" className="text-[12px]" icon={<ArrowClockwiseIcon size={13} />}>
-            Tentar novamente
-          </Button>
+      <Card kicker="Message Bubble · Group · Date Divider" wide>
+        <div className="rounded-[var(--radius-md)] bg-[var(--color-bg)] p-3">
+          <div className="nl-day" role="separator">
+            Hoje
+          </div>
+          <MessageBubble
+            m={demoMsg({ body: "Consegue me mandar o vídeo?" })}
+            mine={false}
+            first
+            tail={false}
+            isNew={false}
+            onRetry={() => {}}
+          />
+          <MessageBubble
+            m={demoMsg({ body: "É o de ontem." })}
+            mine={false}
+            first={false}
+            tail
+            isNew={false}
+            onRetry={() => {}}
+          />
+          {(["sending", "sent", "delivered", "read"] as const).map((st, i) => (
+            <MessageBubble
+              key={st}
+              m={demoMsg({ senderId: "allan", body: `Status: ${st}`, status: st })}
+              mine
+              first={i === 0}
+              tail={st === "read"}
+              isNew={false}
+              onRetry={() => {}}
+            />
+          ))}
+          <MessageBubble
+            m={demoMsg({ senderId: "allan", body: "Esta falhou", status: "failed" })}
+            mine
+            first
+            tail
+            isNew={false}
+            onRetry={() => {}}
+          />
+          <div className="nl-msg" data-tail style={{ marginTop: 14 }}>
+            <div className="nl-bubble nl-typing" aria-hidden>
+              <span />
+              <span />
+              <span />
+            </div>
+          </div>
         </div>
         <div className="card-meta">
-          Bolhas, anexos, header e composer entram aqui nas Etapas 6 e 7.
+          Recebida · enviada (enviando, enviada, entregue, lida, falhou) · digitando
+        </div>
+      </Card>
+
+      <Card kicker="Estados da conversa" wide>
+        <div
+          className="grid gap-3"
+          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}
+        >
+          <div className="rounded-[var(--radius-md)] bg-[var(--color-bg)] px-4">
+            <LoadingState />
+          </div>
+          <div className="rounded-[var(--radius-md)] bg-[var(--color-bg)]">
+            <EmptyState me="Allan" contact="Maria" />
+          </div>
+          <div className="rounded-[var(--radius-md)] bg-[var(--color-bg)]">
+            <ErrorState onRetry={() => {}} />
+          </div>
+          <div className="overflow-hidden rounded-[var(--radius-md)] bg-[var(--color-bg)]">
+            <OfflineBanner />
+          </div>
         </div>
       </Card>
     </div>

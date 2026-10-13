@@ -64,7 +64,7 @@ Implemente README.md §4.1 e §4.2 e as rotas /api/public/u/:slug, /api/auth/pin
 - Sucesso → /chat com estado de loading (esqueleto).
 ```
 
-## Etapa 6 — Conversa: texto e tempo real
+## Etapa 6 — Conversa: texto e tempo real ✅ concluída em 13/10/2026
 ```
 Implemente README.md §4.3 (sem anexos ainda), ARQUITETURA.md §8 e DECISOES §6, §10 e §11.
 - ChatHeader (presença, digitando, visto por último, Bloquear, menu de sessão), OfflineBanner, MessageList com paginação reversa (cursor), DateDivider (Hoje/Ontem/data), MessageGroup, MessageBubble (todos os status), TypingIndicator, EmptyState, LoadingState, ErrorState.
