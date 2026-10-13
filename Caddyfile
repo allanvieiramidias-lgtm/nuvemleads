@@ -1,0 +1,17 @@
+# HTTPS automático (Let's Encrypt) + proxy com WebSocket. O domínio vem de APP_DOMAIN no .env.
+# A CSP (com nonce) é aplicada pelo app em src/proxy.ts (DECISOES §14).
+{$APP_DOMAIN} {
+	encode zstd gzip
+	request_body {
+		max_size 101MB
+	}
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		X-Frame-Options "DENY"
+		Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
+		-Server
+	}
+	reverse_proxy app:3000
+}

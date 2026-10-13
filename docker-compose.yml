@@ -1,0 +1,45 @@
+# Produção no VPS (HOSPEDAGEM_HOSTINGER.md §3). No servidor ficam só este arquivo, o Caddyfile e o .env.
+services:
+  app:
+    image: ghcr.io/allanvieiramidias-lgtm/nuvemleads:latest # gerada pelo GitHub Actions
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    expose: ["3000"]
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nuvemleads
+      POSTGRES_USER: nuvem
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuvem -d nuvemleads"]
+      interval: 5s
+      retries: 10
+    # sem "ports": o banco nunca fica exposto à internet
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN} # ex.: chat.seudominio.com.br (no .env)
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [app]
+
+volumes:
+  uploads:
+  pgdata:
+  caddy_data:
+  caddy_config:

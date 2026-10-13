@@ -217,3 +217,17 @@ Inter é servida pelo próprio app (`next/font/local`, arquivos em `src/app/font
 - Ícones: `icon.svg` (o símbolo do pacote), `apple-icon.png` 180 px com fundo até a borda (o iPhone arredonda), `icon-192.png` e `icon-512.png`; gerados por `node scripts/gen-icons.mjs`. Manifest mínimo (nome, cores, ícones), sem service worker.
 - O selo do modo de desenvolvimento do Next foi desligado: cobria o botão de anexo no celular.
 - Tablet (834 px): conversa em largura total e painel sem rolagem lateral, conferidos em teste.
+
+## 28. Segurança final e produção (Etapa 10)
+
+- **CSP com nonce** em toda página (`src/lib/csp.ts` + `src/proxy.ts`): nonce novo a cada resposta, `strict-dynamic`, sem `unsafe-eval` em produção, `worker-src 'none'` (sem service worker), `connect-src 'self'` + `wss://` do `APP_URL`. Sem `upgrade-insecure-requests` (o HSTS do Caddy já força HTTPS). Para cada resposta levar o próprio nonce, o layout raiz é montado a cada visita (`connection()`); só ícones e manifest ficam estáticos.
+- O `proxy.ts` agora roda em todas as páginas (antes só em `/admin` e `/chat`); rotas `/api` ficam de fora (JSON e mídia têm cabeçalhos próprios).
+- Teste de segurança no navegador: todo `<script>` sai com o nonce, nenhuma violação de CSP no painel, PIN, conversa, foto (prévia `blob:`), visualizador e bloqueio; HTML injetado com `onerror` não roda.
+- `E2E_PROD=1 npx playwright test` (depois de `npm run build`) roda a bateria inteira contra o build de produção (cookies `__Host-`, CSP sem eval). Pula só `/dev/ui` (não existe em produção) e o e-mail de redefinição (em produção sai por SMTP).
+- `/api/health`: `{"ok":true}` com 200, ou 503 se o banco não responder em 2 s. Sem nenhum dado.
+- Ajustes nos arquivos de deploy em relação a HOSPEDAGEM §3:
+  - `Dockerfile`: copia `next.config.ts` (o servidor lê na partida); define `HOSTNAME=0.0.0.0` (o Docker preenche com o id do contêiner) e `UPLOAD_DIR=/data/uploads`; apaga `.next/cache` (113 MB a menos); `HEALTHCHECK` na rota de saúde.
+  - `Caddyfile` usa `{$APP_DOMAIN}` do `.env` (nada para editar no arquivo); `docker-compose.yml` passa essa variável ao Caddy e já aponta para `ghcr.io/allanvieiramidias-lgtm/nuvemleads`.
+  - Modelo do `.env` do servidor em `.env.production.example` (inclui `APP_DOMAIN`). `SESSION_SECRET` não é usado (as sessões são tokens aleatórios com hash no banco) e saiu do modelo.
+  - Workflow `deploy.yml` em três passos: **check** (typecheck, lint, testes com Postgres) → **image** (GHCR, com cache) → **deploy** (SSH). Sem os segredos `VPS_HOST`/`VPS_SSH_KEY`, para depois de publicar a imagem, sem erro.
+- O Docker Hub é bloqueado no ambiente de desenvolvimento; a imagem é montada e conferida no GitHub Actions. Localmente, o conjunto de arquivos da imagem (só dependências de produção) foi ligado com migração, seed e servidor, e o login no painel funcionou.

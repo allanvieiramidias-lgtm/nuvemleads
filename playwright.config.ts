@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { E2E } from "./tests/e2e/env";
+import { E2E, PROD } from "./tests/e2e/env";
 
 export default defineConfig({
   testDir: "tests/e2e",
@@ -48,7 +48,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev",
+    // E2E_PROD=1 testa o build de produção (CSP sem eval, cookies __Host-, sem recarga automática)
+    command: PROD ? "npm start" : "npm run dev",
     url: `http://localhost:${E2E.port}`,
     reuseExistingServer: false,
     timeout: 120_000,

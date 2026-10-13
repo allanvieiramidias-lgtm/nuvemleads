@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { PROD } from "./env";
 
 // Página de referência /dev/ui (Etapa 1). PIN de demonstração: 246810.
+test.skip(PROD, "/dev/ui não existe em produção");
 test.beforeEach(async ({ page }) => {
   await page.goto("/dev/ui");
 });

@@ -107,7 +107,7 @@ Revise todas as telas contra o protótipo docs/handoff/prototipo/NuvemLeads.dc.h
 Não adicione nenhuma funcionalidade fora do README.
 ```
 
-## Etapa 10 — Segurança e produção
+## Etapa 10 — Segurança e produção ✅ concluída em 13/10/2026
 ```
 Aplique ARQUITETURA.md §7 e DECISOES §14 (CSP com nonce em proxy.ts, CSRF por Origin, cookies, rate limits) e crie /api/health.
 Crie Dockerfile, docker-compose.yml e Caddyfile exatamente como HOSPEDAGEM_HOSTINGER.md §3, e o workflow .github/workflows/deploy.yml de §5 (imagem no GHCR, DECISOES §15).

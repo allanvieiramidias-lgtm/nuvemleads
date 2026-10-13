@@ -145,6 +145,8 @@ test("só com o teclado: foco visível, ordem do campo e foco preso no modal", a
 
   const p = participantFor(info.project.name);
   await page.goto(`/u/${p.slug}`);
+  // o campo do PIN recebe o foco sozinho; só então digita (a página precisa ter carregado)
+  await expect(page.getByLabel("PIN de 6 dígitos")).toBeFocused();
   await page.keyboard.type(p.pin);
   const box = page.getByLabel("Mensagem");
   await expect(box).toBeVisible();

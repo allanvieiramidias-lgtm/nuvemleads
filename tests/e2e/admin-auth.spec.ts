@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
-import { E2E } from "./env";
+import { cookieName, E2E, PROD } from "./env";
 
 const GENERIC = "Não foi possível entrar. Verifique seus dados.";
 
@@ -56,7 +56,7 @@ test("login com sucesso, mostra 'Entrando…', abre o painel e sai", async ({ pa
 test("cookie de sessão é HttpOnly e SameSite=Strict", async ({ page, context }) => {
   await fillLogin(page, E2E.adminEmail, E2E.adminPassword);
   await expect(page).toHaveURL(/\/admin$/);
-  const cookie = (await context.cookies()).find((c) => c.name === "nl_admin");
+  const cookie = (await context.cookies()).find((c) => c.name === cookieName("nl_admin"));
   expect(cookie?.httpOnly).toBe(true);
   expect(cookie?.sameSite).toBe("Strict");
 });
@@ -71,6 +71,7 @@ test("API recusa login sem Origin do próprio site (CSRF)", async ({ request }) 
 });
 
 test("esqueci minha senha → e-mail → nova senha → login", async ({ page }, info) => {
+  test.skip(PROD, "em produção o e-mail sai por SMTP (sem pasta de teste)");
   const email = `reset-${info.project.name}@e2e.test`;
   await page.goto("/admin/login");
   await page.getByRole("link", { name: "Esqueci minha senha" }).click();

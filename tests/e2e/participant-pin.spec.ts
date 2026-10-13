@@ -1,6 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { Pool } from "pg";
-import { E2E, participantFor } from "./env";
+import { cookieName, E2E, participantFor } from "./env";
 
 // Em sequência dentro de cada projeto: as pessoas e os contadores são compartilhados.
 test.describe.configure({ mode: "serial" });
@@ -106,7 +106,7 @@ async function loginOk(page: Page, context: BrowserContext, projectName: string)
   await expect(page).toHaveURL(/\/chat$/);
   // a conversa abriu (o servidor já registrou este carregamento)
   await expect(page.getByLabel("Mensagem")).toBeVisible();
-  const cookie = (await context.cookies()).find((c) => c.name === "nl_user");
+  const cookie = (await context.cookies()).find((c) => c.name === cookieName("nl_user"));
   expect(cookie?.httpOnly).toBe(true);
   expect(cookie?.sameSite).toBe("Strict");
   return p;

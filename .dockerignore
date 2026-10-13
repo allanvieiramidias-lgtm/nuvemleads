@@ -1,10 +1,16 @@
-node_modules
+# Nada de segredos, dados locais nem artefatos de build na imagem
+.git
+.github
+.env
+.env.*
+!.env.example
+.data
 .next
 dist
-.data
-.env
-.git
-docs
+node_modules
 test-results
 playwright-report
+tsconfig.tsbuildinfo
+docs
 tests
+*.log

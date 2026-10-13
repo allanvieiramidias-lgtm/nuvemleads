@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { connection } from "next/server";
 import localFont from "next/font/local";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
@@ -29,7 +30,10 @@ export const viewport: Viewport = {
   themeColor: "#161826", // = --color-bg (a meta theme-color não aceita variáveis CSS)
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Toda página é montada na hora: só assim cada resposta recebe o próprio nonce da CSP
+  // (uma página estática levaria scripts sem nonce e seria bloqueada).
+  await connection();
   return (
     <html lang="pt-BR" className={inter.variable}>
       <body>
