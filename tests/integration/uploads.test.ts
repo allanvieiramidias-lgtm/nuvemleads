@@ -151,6 +151,13 @@ describe("arquivos bloqueados e limites", () => {
     ).toBe(ERR.tooBig);
   });
 
+  it("vídeo acima de 100 MB é recusado (corte durante o envio)", async () => {
+    const { maria } = await people();
+    expect(
+      await errorOf(upload(maria.id, Buffer.alloc(101 * 1024 * 1024, 1), "viagem.mp4", "media")),
+    ).toBe("O vídeo excede o limite de 100 MB.");
+  });
+
   it("vazio é recusado", async () => {
     const { maria } = await people();
     expect(await errorOf(upload(maria.id, Buffer.alloc(0), "nada.txt", "file"))).toBe(ERR.empty);
