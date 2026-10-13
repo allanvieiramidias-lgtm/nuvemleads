@@ -59,7 +59,7 @@ test("manual: tela bloqueada sem a conversa no DOM, 423 nas rotas, PIN errado e 
   // a conversa não existe mais na página (não é um modal por cima)
   await expect(page.locator(".nl-msg")).toHaveCount(0);
   expect(await page.content()).not.toContain("Mensagem antes de bloquear");
-  expect((await page.request.get("/api/messages")).status()).toBe(423);
+  await expect.poll(async () => (await page.request.get("/api/messages")).status()).toBe(423);
   await expect(page).toHaveTitle("NuvemLeads");
 
   await page.getByLabel("PIN de 6 dígitos").fill("000001");

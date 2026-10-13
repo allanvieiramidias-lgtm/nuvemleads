@@ -201,6 +201,7 @@ test("bloqueado não acessa a mídia (423)", async ({ browser }) => {
   expect((await maria.page.request.get(href!)).status()).toBe(200);
   await maria.page.getByRole("button", { name: "Bloquear" }).click();
   await expect(maria.page.getByRole("heading", { name: "Sessão bloqueada" })).toBeVisible();
-  expect((await maria.page.request.get(href!)).status()).toBe(423);
+  // o aviso de bloqueio vai ao servidor em segundo plano (sendBeacon): espera ele chegar
+  await expect.poll(async () => (await maria.page.request.get(href!)).status()).toBe(423);
   await maria.ctx.close();
 });
