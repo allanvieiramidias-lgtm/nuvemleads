@@ -79,6 +79,10 @@ export async function receiveUpload(
     bb.on("error", reject);
     bb.on("close", () => (writing ?? Promise.resolve()).then(resolve, reject));
   });
+  // O corte por tamanho rejeita `done` enquanto o resto do envio ainda está chegando; sem este
+  // marcador, o Node vê a rejeição "solta" e, em produção, derruba o processo. O erro continua
+  // sendo tratado no `await done` abaixo.
+  done.catch(() => undefined);
 
   try {
     await pipeline(Readable.fromWeb(req.body as import("stream/web").ReadableStream), bb);
