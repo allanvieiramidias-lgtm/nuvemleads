@@ -1,7 +1,14 @@
 "use client";
 
 import { create } from "zustand";
-import type { ChatMessage, ChatStatus, Connection, Contact, MessageDto } from "./types";
+import type {
+  ChatMessage,
+  ChatStatus,
+  Connection,
+  Contact,
+  MessageDto,
+  UploadState,
+} from "./types";
 
 const ORDER: Record<ChatStatus, number> = {
   failed: -1,
@@ -43,6 +50,10 @@ type State = {
   upsert: (m: MessageDto) => void;
   addOptimistic: (m: ChatMessage) => void;
   setLocalStatus: (clientId: string, status: "sending" | "failed") => void;
+  setUpload: (clientId: string, upload: UploadState | undefined) => void;
+  /** Visualizador de mídia aberto (README §6: viewer). */
+  viewer: string | null;
+  openViewer: (key: string | null) => void;
   setStatus: (id: string, status: "delivered" | "read") => void;
   /** Marca localmente como lidas as mensagens da outra pessoa até `upTo` (inclusive). */
   markReadUpTo: (contactId: string, upTo: string) => void;
@@ -64,6 +75,7 @@ const initial = {
   contactTyping: false,
   connection: "online" as Connection,
   fresh: new Set<string>(),
+  viewer: null as string | null,
 };
 
 export const useChat = create<State>((set) => ({
@@ -106,7 +118,7 @@ export const useChat = create<State>((set) => ({
       // nunca volta o status (ex.: ack "enviada" chegando depois de "entregue")
       const status = ORDER[prev.status] > ORDER[m.status] ? prev.status : m.status;
       const next = [...s.messages];
-      next[i] = { ...fromDto(m), status };
+      next[i] = { ...fromDto(m), status, local: prev.local };
       return { messages: sortMessages(next) };
     }),
 
@@ -121,6 +133,15 @@ export const useChat = create<State>((set) => ({
     set((s) => ({
       messages: s.messages.map((m) => (m.clientId === clientId && !m.id ? { ...m, status } : m)),
     })),
+
+  setUpload: (clientId, upload) =>
+    set((s) => ({
+      messages: s.messages.map((m) =>
+        m.clientId === clientId ? { ...m, local: { ...m.local, upload } } : m,
+      ),
+    })),
+
+  openViewer: (viewer) => set({ viewer }),
 
   setStatus: (id, status) =>
     set((s) => ({

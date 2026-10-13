@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { firstNameOf } from "@/lib/status";
+import { useToast } from "@/components/ui/Toast";
+import { pauseAllMedia } from "./attachments";
+import { revokeAllBlobUrls } from "./blob-urls";
 import { ChatHeader } from "./ChatHeader";
+import { MediaViewer } from "./MediaViewer";
+import { clearUploads, retryAttachment, sendAttachment } from "./upload-queue";
 import { Composer } from "./Composer";
 import { MessageList } from "./MessageList";
 import { clearQueue, retry, sendText } from "./send-queue";
@@ -79,6 +84,7 @@ function ChatInner({ name, slug }: { name: string; slug: string }) {
 function Conversation({ name, slug }: { name: string; slug: string }) {
   const router = useRouter();
   const qc = useQueryClient();
+  const toast = useToast();
   const chat = useChat;
   const connection = useChat((s) => s.connection);
   const loaded = useChat((s) => s.loaded);
@@ -99,6 +105,9 @@ function Conversation({ name, slug }: { name: string; slug: string }) {
 
   /** Apaga tudo o que a conversa deixou na memória (README §4.4). */
   const wipe = useCallback(() => {
+    pauseAllMedia();
+    clearUploads();
+    revokeAllBlobUrls();
     clearQueue();
     chat.getState().reset();
     qc.clear();
@@ -228,13 +237,25 @@ function Conversation({ name, slug }: { name: string; slug: string }) {
           meFirst={meFirst}
           contactFirst={contactFirst}
           onLoadOlder={loadOlder}
-          onRetry={retry}
+          onRetry={(clientId) => {
+            const m = chat.getState().messages.find((x) => x.clientId === clientId);
+            if (m?.kind === "TEXT") retry(clientId);
+            else retryAttachment(clientId, toast.error);
+          }}
           empty={<EmptyState me={meFirst} contact={contactFirst} />}
         />
       )}
       {contact && loaded && !loadError ? (
-        <Composer onSend={(t) => sendText(t, meId)} onTyping={rt.typing} />
+        <Composer
+          onSend={(t) => sendText(t, meId)}
+          onTyping={rt.typing}
+          onAttach={(a) => sendAttachment(a, meId, toast.error)}
+          notify={toast.error}
+        />
       ) : null}
+      <MediaViewer
+        names={contact ? { [meId]: name, [contact.id]: contact.name } : { [meId]: name }}
+      />
     </div>
   );
 }

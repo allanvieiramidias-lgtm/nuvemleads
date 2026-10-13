@@ -76,6 +76,8 @@ export function useRealtime(h: Handlers) {
         chat().setTyping(false);
       }
     });
+    // vídeo terminou de converter (ou falhou)
+    socket.on("message:updated", (m: MessageDto) => chat().upsert(m));
     socket.on("message:status", (p: { id: string; status: "delivered" | "read" }) =>
       chat().setStatus(p.id, p.status),
     );

@@ -82,16 +82,14 @@ describe("listar com paginação reversa", () => {
     const { maria, conv } = await setup();
     const at = new Date();
     for (let i = 0; i < 5; i++) {
-      await db
-        .insert(messages)
-        .values({
-          conversationId: conv.id,
-          clientId: crypto.randomUUID(),
-          senderId: maria.id,
-          kind: "TEXT",
-          body: `s${i}`,
-          createdAt: at,
-        });
+      await db.insert(messages).values({
+        conversationId: conv.id,
+        clientId: crypto.randomUUID(),
+        senderId: maria.id,
+        kind: "TEXT",
+        body: `s${i}`,
+        createdAt: at,
+      });
     }
     const p1 = await listMessages(db, conv, maria.id, { limit: 2 });
     const p2 = await listMessages(db, conv, maria.id, { limit: 2, cursor: p1.nextCursor });

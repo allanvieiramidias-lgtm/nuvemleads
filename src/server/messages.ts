@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, inArray, isNull, lt, lte, ne, or, sql } from "drizzle-orm";
+import type { SQL } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@/db";
 import { attachments, messages, users, type Conversation } from "@/db/schema";
@@ -234,4 +235,70 @@ export async function markRead(
       status: "read",
     });
   return rows.length;
+}
+
+export const AttachmentMessageSchema = z.object({
+  clientId: z.string().uuid(),
+  kind: z.enum(["IMAGE", "VIDEO", "AUDIO", "FILE"]),
+  attachmentId: z.string().uuid(),
+  caption: z.string().max(MAX_BODY).optional(),
+});
+
+/**
+ * Mensagem com anexo já enviado. O anexo precisa ser de quem envia, do mesmo tipo
+ * e ainda não usado. Idempotente por clientId.
+ */
+export async function createAttachmentMessage(
+  db: Db,
+  conv: Conversation,
+  senderId: string,
+  input: z.infer<typeof AttachmentMessageSchema>,
+): Promise<{ message: MessageDto; created: boolean }> {
+  const existing = await selectRows(
+    db,
+    and(eq(messages.senderId, senderId), eq(messages.clientId, input.clientId)),
+    "asc",
+  );
+  if (existing[0]) return { message: existing[0], created: false };
+
+  const [att] = await db.select().from(attachments).where(eq(attachments.id, input.attachmentId));
+  if (!att || att.uploaderId !== senderId)
+    throw new DomainError("NOT_FOUND", "Arquivo não encontrado.");
+  if (att.kind !== input.kind) throw new DomainError("VALIDATION", "Tipo de arquivo não confere.");
+  if (att.status === "FAILED")
+    throw new DomainError("VALIDATION", "Não foi possível processar o arquivo.");
+  const [used] = await db
+    .select({ id: messages.id })
+    .from(messages)
+    .where(eq(messages.attachmentId, att.id));
+  if (used) throw new DomainError("VALIDATION", "Este arquivo já foi enviado.");
+
+  const caption =
+    input.kind === "IMAGE" || input.kind === "VIDEO" ? input.caption?.trim() || null : null;
+  const [inserted] = await db
+    .insert(messages)
+    .values({
+      conversationId: conv.id,
+      clientId: input.clientId,
+      senderId,
+      kind: input.kind,
+      body: caption,
+      attachmentId: att.id,
+    })
+    .onConflictDoNothing()
+    .returning({ id: messages.id });
+  const [row] = await selectRows(
+    db,
+    and(eq(messages.senderId, senderId), eq(messages.clientId, input.clientId)),
+    "asc",
+  );
+  if (!row) throw new DomainError("VALIDATION", "Não foi possível enviar o arquivo.");
+  await db.update(users).set({ lastActiveAt: new Date() }).where(eq(users.id, senderId));
+  if (inserted) emit("message:new", { conversationId: conv.id, message: row });
+  return { message: row, created: !!inserted };
+}
+
+export async function getMessageDto(db: Db, attachmentId: string): Promise<MessageDto | null> {
+  const [row] = await selectRows(db, eq(messages.attachmentId, attachmentId), "asc");
+  return row ?? null;
 }

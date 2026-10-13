@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { getActiveConversation, otherParticipant } from "./conversations";
 import { on } from "./events";
-import { markDelivered } from "./messages";
+import { getMessageDto, markDelivered } from "./messages";
 import { getSessionByToken, type SessionInfo } from "./participant-auth";
 import { addSocket, isOnline, removeSocket } from "./presence";
 
@@ -111,6 +111,11 @@ export function attachRealtime(io: Server) {
   // Eventos vindos das rotas (mesmo processo).
   on("message:new", ({ conversationId, message }) => {
     io.to(convRoom(conversationId)).emit("message:new", message);
+  });
+  on("attachment:updated", async ({ attachmentId, conversationId }) => {
+    if (!conversationId) return;
+    const message = await getMessageDto(db, attachmentId);
+    if (message) io.to(convRoom(conversationId)).emit("message:updated", message);
   });
   on("message:status", ({ senderId, id, status }) => {
     io.to(userRoom(senderId)).emit("message:status", { id, status });

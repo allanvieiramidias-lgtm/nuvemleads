@@ -1259,3 +1259,372 @@
     right: 0;
   }
 }
+
+/* ═══ Anexos (README §4.3) ═══ */
+.nl-bubble[data-media] {
+  padding: 4px;
+}
+.nl-bubble[data-media] .nl-text {
+  padding: 4px 7px 0;
+}
+.nl-bubble[data-media] .nl-meta {
+  padding: 0 7px 2px;
+}
+.nl-media-btn {
+  position: relative;
+  display: block;
+  width: var(--nl-media-w);
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-neutral-900);
+  color: var(--color-text);
+}
+.nl-media-btn[data-kind="image"] {
+  cursor: zoom-in;
+  aspect-ratio: 4 / 3;
+}
+.nl-media-btn[data-kind="video"] {
+  cursor: pointer;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, var(--color-neutral-800), var(--color-accent-900));
+}
+.nl-media-btn img,
+.nl-media-btn video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.nl-media-btn[data-kind="video"] img,
+.nl-media-btn[data-kind="video"] video {
+  filter: brightness(0.62);
+}
+.nl-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.nl-play > span {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--color-neutral-300);
+  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
+  color: var(--color-neutral-100);
+}
+.nl-dur-chip {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.nl-audio {
+  width: 240px;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+}
+.nl-audio-btn {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--color-accent);
+  background: transparent;
+  color: var(--color-accent);
+  cursor: pointer;
+}
+.nl-msg[data-mine] .nl-audio-btn {
+  border-color: var(--color-accent-200);
+  color: var(--color-accent-100);
+}
+.nl-track {
+  position: relative;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.nl-track-bar {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-neutral-800);
+}
+.nl-msg[data-mine] .nl-track-bar {
+  background: color-mix(in srgb, var(--color-accent-100) 22%, transparent);
+}
+.nl-track-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+.nl-track-knob {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  transform: translateY(-50%);
+}
+.nl-times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--nl-msg-recv-meta);
+}
+.nl-msg[data-mine] .nl-times {
+  color: var(--nl-msg-sent-meta);
+}
+.nl-file {
+  width: 264px;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+}
+.nl-file-icon {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-800);
+}
+.nl-msg[data-mine] .nl-file-icon {
+  background: var(--color-accent-700);
+}
+.nl-file-name {
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nl-file-meta {
+  font-size: 11.5px;
+  color: var(--nl-msg-recv-meta);
+}
+.nl-msg[data-mine] .nl-file-meta {
+  color: var(--nl-msg-sent-meta);
+}
+.nl-file-dl {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  color: inherit;
+}
+.nl-file-dl:hover {
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+.nl-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 7px 2px;
+}
+.nl-progress-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--nl-msg-sent-meta);
+  font-variant-numeric: tabular-nums;
+}
+.nl-progress-row > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.nl-progress[data-state="done"] .nl-progress-row {
+  color: var(--nl-success);
+}
+.nl-progress-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-accent-100) 18%, transparent);
+  overflow: hidden;
+}
+.nl-progress-bar > div {
+  height: 100%;
+  background: var(--color-accent);
+  transition: width 0.2s;
+}
+.nl-progress[data-state="done"] .nl-progress-bar > div {
+  background: var(--nl-success);
+}
+@media (max-width: 699px) {
+  .nl-media-btn {
+    width: var(--nl-media-w-mobile);
+  }
+}
+
+/* — Menu de anexo — */
+.nl-attach-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  z-index: 20;
+  width: 240px;
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  animation: nl-rise 0.16s ease-out;
+}
+.nl-attach-menu button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.nl-attach-menu button:hover,
+.nl-attach-menu button:focus-visible {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+.nl-attach-menu svg {
+  color: var(--color-accent);
+  flex: none;
+}
+.nl-attach-menu small {
+  display: block;
+  font-size: 11.5px;
+  color: var(--color-neutral-500);
+}
+
+/* — Prévia antes de enviar — */
+.nl-draft-media {
+  display: grid;
+  place-items: center;
+  max-height: 320px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  overflow: hidden;
+}
+.nl-draft-media img,
+.nl-draft-media video {
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+}
+
+/* — Gravação — */
+.nl-rec-pill {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: var(--nl-radius-pill);
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-divider);
+  font-size: 14px;
+}
+.nl-rec-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--nl-error);
+  animation: nl-blink 1s infinite;
+}
+.nl-rec-time {
+  font-variant-numeric: tabular-nums;
+}
+
+/* — Visualizador de mídia — */
+.nl-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  display: flex;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--color-bg) 96%, transparent);
+  backdrop-filter: blur(10px);
+  animation: nl-fade 0.2s;
+}
+.nl-viewer-top {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  padding-top: calc(10px + env(safe-area-inset-top));
+}
+.nl-viewer-stage {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+}
+.nl-viewer-stage img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.2s var(--nl-ease-out);
+  transform-origin: center;
+}
+.nl-video-wrap {
+  width: min(920px, 100%);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: var(--color-neutral-900);
+}
+.nl-video-wrap video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--color-neutral-900);
+}
+.nl-video-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.nl-range {
+  accent-color: var(--color-accent);
+  width: 80px;
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import { XIcon } from "@phosphor-icons/react/ssr";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useEffect, useRef, type ReactNode } from "react";
 
@@ -13,6 +14,8 @@ export type ModalProps = {
   children?: ReactNode;
   /** Largura máxima (padrão 440; preview de anexo usa 480). */
   width?: number;
+  /** Mostra o "X" de fechar ao lado do título. */
+  closeButton?: boolean;
 };
 
 /** README §4.11: `.dialog` do Nocturne, backdrop com blur 4px, Esc fecha, foco preso no modal. */
@@ -24,6 +27,7 @@ export function Modal({
   actions,
   children,
   width = 440,
+  closeButton = false,
 }: ModalProps) {
   // Modal controlado (sem Dialog.Trigger): guarda quem tinha o foco para devolvê-lo ao fechar.
   const returnFocus = useRef<HTMLElement | null>(null);
@@ -48,7 +52,16 @@ export function Modal({
             }}
             {...(description ? {} : { "aria-describedby": undefined })}
           >
-            <Dialog.Title className="dialog-title">{title}</Dialog.Title>
+            {closeButton ? (
+              <div className="flex items-start justify-between gap-3">
+                <Dialog.Title className="dialog-title">{title}</Dialog.Title>
+                <Dialog.Close className="btn btn-icon btn-plain -mt-1 -mr-1" aria-label="Fechar">
+                  <XIcon size={18} aria-hidden />
+                </Dialog.Close>
+              </div>
+            ) : (
+              <Dialog.Title className="dialog-title">{title}</Dialog.Title>
+            )}
             {description ? (
               <Dialog.Description className="dialog-body">{description}</Dialog.Description>
             ) : null}

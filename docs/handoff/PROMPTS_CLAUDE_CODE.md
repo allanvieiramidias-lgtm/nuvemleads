@@ -75,7 +75,7 @@ Implemente README.md §4.3 (sem anexos ainda), ARQUITETURA.md §8 e DECISOES §6
 Teste Playwright com dois contextos de navegador (Allan e Maria) trocando mensagens.
 ```
 
-## Etapa 7 — Anexos, upload e mídia
+## Etapa 7 — Anexos, upload e mídia ✅ concluída em 13/10/2026
 ```
 Implemente o resto do README.md §4.3 (imagem, vídeo, áudio, arquivo, menu de anexo, câmera no mobile, gravação com MediaRecorder, modal de preview) e ARQUITETURA.md §5 (uploads/media), §7 (uploads) e §9 (estados).
 - POST /api/uploads por streaming (busboy) com limites de DECISOES §12, conversão de vídeo HEVC, detecção real de tipo, sharp para imagens (sem EXIF, 2560px, miniatura 600px), ffprobe/ffmpeg para duração e capa.

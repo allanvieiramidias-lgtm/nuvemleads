@@ -8,6 +8,11 @@ import type { MessageDto } from "./messages";
 
 export type AppEvents = {
   "message:new": { conversationId: string; message: MessageDto };
+  "attachment:updated": {
+    attachmentId: string;
+    conversationId: string | null;
+    status: "READY" | "FAILED";
+  };
   "message:status": {
     conversationId: string;
     senderId: string;

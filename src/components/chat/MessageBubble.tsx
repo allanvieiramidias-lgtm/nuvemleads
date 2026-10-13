@@ -5,15 +5,19 @@ import {
   CheckIcon,
   ChecksIcon,
   ClockIcon,
-  FileIcon,
-  ImageIcon,
-  MicrophoneIcon,
-  VideoCameraIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react/ssr";
 import { memo } from "react";
 import { Button } from "@/components/ui/Button";
 import { formatTime } from "@/lib/time";
+import {
+  AudioAttachment,
+  FileAttachment,
+  ImageAttachment,
+  ProcessingNote,
+  UploadProgress,
+  VideoAttachment,
+} from "./attachments";
 import type { ChatMessage, ChatStatus } from "./types";
 
 const STATUS_LABEL: Record<ChatStatus, string> = {
@@ -46,15 +50,7 @@ function StatusIcon({ status }: { status: ChatStatus }) {
   );
 }
 
-const KIND_LABEL = { IMAGE: "Imagem", VIDEO: "Vídeo", AUDIO: "Áudio", FILE: "Arquivo" } as const;
-const KIND_ICON = {
-  IMAGE: ImageIcon,
-  VIDEO: VideoCameraIcon,
-  AUDIO: MicrophoneIcon,
-  FILE: FileIcon,
-} as const;
-
-/** README §4.3 — Message Bubble. Anexos ganham visual completo na Etapa 7. */
+/** README §4.3 — Message Bubble (texto, imagem, vídeo, áudio, arquivo). */
 export const MessageBubble = memo(function MessageBubble({
   m,
   mine,
@@ -71,8 +67,8 @@ export const MessageBubble = memo(function MessageBubble({
   onRetry: (clientId: string) => void;
 }) {
   const time = formatTime(new Date(m.createdAt));
-  const kind = m.kind === "TEXT" ? null : m.kind;
-  const Icon = kind ? KIND_ICON[kind] : null;
+  const hasMedia = m.kind !== "TEXT" && !!m.attachment;
+  const upload = m.local?.upload;
 
   return (
     <div
@@ -83,14 +79,20 @@ export const MessageBubble = memo(function MessageBubble({
       data-status={mine ? m.status : undefined}
       style={{ marginTop: first ? 14 : 3 }}
     >
-      <div className="nl-bubble">
-        {kind && Icon ? (
-          <div className="nl-attach-chip">
-            <Icon size={18} aria-hidden />
-            {m.attachment?.name ?? KIND_LABEL[kind]}
-          </div>
-        ) : null}
+      <div
+        className="nl-bubble"
+        data-media={hasMedia || undefined}
+        data-kind={m.kind.toLowerCase()}
+      >
+        {hasMedia && m.kind === "IMAGE" ? <ImageAttachment m={m} /> : null}
+        {hasMedia && m.kind === "VIDEO" ? <VideoAttachment m={m} /> : null}
+        {hasMedia && m.kind === "AUDIO" ? <AudioAttachment m={m} /> : null}
+        {hasMedia && m.kind === "FILE" ? <FileAttachment m={m} /> : null}
         {m.body ? <div className="nl-text">{m.body}</div> : null}
+        {upload ? <UploadProgress upload={upload} /> : null}
+        {!upload && m.kind === "VIDEO" && m.attachment?.status === "PENDING" ? (
+          <ProcessingNote />
+        ) : null}
         <div className="nl-meta">
           <time dateTime={m.createdAt}>{time}</time>
           {mine ? <StatusIcon status={m.status} /> : null}
@@ -98,7 +100,7 @@ export const MessageBubble = memo(function MessageBubble({
       </div>
       {mine && m.status === "failed" ? (
         <div className="nl-fail" role="alert">
-          Não foi possível enviar.
+          {m.kind === "TEXT" ? "Não foi possível enviar." : "Não foi possível enviar o arquivo."}
           <Button
             variant="ghost"
             className="text-[12px]"

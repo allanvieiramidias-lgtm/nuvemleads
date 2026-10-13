@@ -1,6 +1,6 @@
 "use client";
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 import { cn } from "@/lib/cn";
 import { Tooltip } from "./Tooltip";
 
@@ -11,6 +11,7 @@ export type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "secondary" | "plain";
   /** Mostra o rótulo como tooltip ao passar o mouse/focar. */
   tooltip?: boolean;
+  ref?: Ref<HTMLButtonElement>;
 };
 
 export function IconButton({

@@ -182,3 +182,16 @@ Inter é servida pelo próprio app (`next/font/local`, arquivos em `src/app/font
 - O botão "Bloquear" e "Bloquear agora" já bloqueiam no servidor (`POST /api/session/lock`, rotas passam a responder 423). Até a Etapa 8, a pessoa volta para a tela de PIN.
 - Clipe de anexo e microfone aparecem desativados até a Etapa 7. Mensagens com anexo mostram o nome do arquivo até lá.
 - A conexão com o banco é aberta no primeiro uso (não ao carregar o módulo), para não depender da ordem de leitura do `.env` no código compilado.
+
+## 25. Anexos (Etapa 7)
+
+- Upload por streaming direto ao disco (busboy), cortado em 100 MB; depois de saber o tipo real, o que não é vídeo acima de 25 MB é recusado.
+- Tipo real pelos bytes (`file-type`) + `ffprobe`. "Foto ou vídeo" aceita só JPG/PNG/WEBP ou vídeo; "Arquivo" aceita o resto, menos executáveis e scripts (pelo conteúdo e pelo nome). Texto novo: "Este tipo de arquivo não é permitido.".
+- Fotos: rotação corrigida, sem EXIF/GPS, no máximo 2560 px; miniatura WEBP de 600 px usada na bolha (a original abre no visualizador).
+- Vídeo: capa WEBP no segundo 1; HEVC e outros codecs fora de H.264/VP8/VP9/AV1 são convertidos para MP4 H.264 numa fila de um por vez; a mensagem pode ser enviada enquanto converte ("Processando vídeo…") e a conversa é avisada quando termina (`message:updated`).
+- Áudio gravado no navegador é remontado sem recodificar ao chegar: o gravador do Chrome não grava a duração no arquivo, e o player mostrava 0:00.
+- Mídia sempre por rota autenticada, com `Cache-Control: private, no-store` (nada fica no cache do aparelho), `nosniff` e `sandbox`. Arquivos comuns sempre como download.
+- Gravação de áudio: envia direto ao tocar em enviar (sem prévia); máximo de 10 min; "Não foi possível acessar o microfone." se a permissão for negada.
+- Prévias locais (`blob:`) ficam registradas e são todas revogadas ao bloquear/sair; envios em andamento são cancelados.
+- O seletor de arquivo avisa o bloqueio (`picker-guard`) para a Etapa 8 suspender o bloqueio com véu enquanto a pessoa escolhe (§4).
+- Nos testes no navegador, o vídeo é WEBM: o Chromium de testes não toca H.264 (o Chrome e o Safari normais tocam).

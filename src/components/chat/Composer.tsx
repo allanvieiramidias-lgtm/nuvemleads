@@ -3,25 +3,52 @@
 import {
   MicrophoneIcon,
   PaperPlaneRightIcon,
-  PaperclipIcon,
   SmileyIcon,
+  TrashIcon,
 } from "@phosphor-icons/react/ssr";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { formatDuration } from "@/lib/format";
+import { AttachMenu } from "./AttachMenu";
+import { checkPicked, MSG } from "./attach-rules";
+import { DraftPreview, type Draft } from "./DraftPreview";
 import { EmojiPicker } from "./EmojiPicker";
+import type { AttachKind } from "./upload-queue";
+import { useRecorder } from "./useRecorder";
+
+export type AttachInput = {
+  file: File;
+  kind: AttachKind;
+  hint: "media" | "audio" | "file";
+  caption?: string;
+  durationSec?: number | null;
+};
 
 const TYPING_REFRESH_MS = 3000;
 const TYPING_IDLE_MS = 3000;
 
-/** README §4.3 — Composer. Anexos e gravação de áudio chegam na Etapa 7. */
+/** README §4.3 — Composer: texto, emojis, anexos com prévia e gravação de áudio. */
 export function Composer({
   onSend,
   onTyping,
+  onAttach,
+  notify,
 }: {
   onSend: (text: string) => void;
   onTyping: (on: boolean) => void;
+  onAttach: (a: AttachInput) => void;
+  notify: (error: string) => void;
 }) {
   const [text, setText] = useState("");
   const [emoji, setEmoji] = useState(false);
+  const [draft, setDraft] = useState<(Draft & { hint: "media" | "file" }) | null>(null);
+  const rec = useRecorder(
+    useCallback(
+      (file: File, durationSec: number) =>
+        onAttach({ file, kind: "AUDIO", hint: "audio", durationSec }),
+      [onAttach],
+    ),
+    useCallback(() => notify(MSG.mic), [notify]),
+  );
   const area = useRef<HTMLTextAreaElement>(null);
   const typingSince = useRef(0);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -86,75 +113,115 @@ export function Composer({
   return (
     <div className="nl-composer">
       <div className="nl-composer-row">
-        <button
-          type="button"
-          className="btn btn-icon btn-plain nl-attach-btn"
-          aria-label="Anexar"
-          disabled
-          title="Anexos chegam em breve"
-        >
-          <PaperclipIcon size={20} aria-hidden />
-        </button>
-        <div className="nl-field-pill">
-          <textarea
-            ref={area}
-            className="nl-textarea"
-            rows={1}
-            placeholder="Digite uma mensagem..."
-            aria-label="Mensagem"
-            value={text}
-            maxLength={4000}
-            onChange={(e) => {
-              setText(e.target.value);
-              if (e.target.value.trim()) signalTyping();
-              else stopTyping();
-            }}
-            onKeyDown={onKeyDown}
-            onBlur={stopTyping}
-          />
-          <button
-            type="button"
-            className="nl-emoji-btn"
-            aria-label="Emojis"
-            aria-expanded={emoji}
-            data-emoji-toggle
-            onClick={() => setEmoji((v) => !v)}
-          >
-            <SmileyIcon size={19} aria-hidden />
-          </button>
-        </div>
-        {emoji ? (
-          <EmojiPicker
-            onPick={(em) => {
-              insertEmoji(em);
-              setEmoji(false);
-            }}
-            onClose={() => setEmoji(false)}
-          />
-        ) : null}
-        {hasText ? (
-          <button
-            type="button"
-            key="send"
-            className="nl-round nl-round-send"
-            aria-label="Enviar"
-            onClick={send}
-          >
-            <PaperPlaneRightIcon size={18} weight="fill" aria-hidden />
-          </button>
+        {rec.recording ? (
+          <>
+            <button
+              type="button"
+              className="btn btn-icon btn-plain nl-attach-btn"
+              aria-label="Descartar gravação"
+              onClick={rec.discard}
+            >
+              <TrashIcon size={20} aria-hidden />
+            </button>
+            <div className="nl-rec-pill" role="status" aria-live="polite">
+              <span className="nl-rec-dot" aria-hidden />
+              <span className="nl-rec-time">{formatDuration(rec.elapsedSec)}</span>
+              <span className="text-[var(--color-neutral-400)]">Gravando áudio…</span>
+            </div>
+            <button
+              type="button"
+              className="nl-round nl-round-send"
+              aria-label="Enviar áudio"
+              onClick={rec.finish}
+            >
+              <PaperPlaneRightIcon size={18} weight="fill" aria-hidden />
+            </button>
+          </>
         ) : (
-          <button
-            type="button"
-            key="mic"
-            className="nl-round nl-round-mic"
-            aria-label="Gravar áudio"
-            disabled
-            title="Áudio chega em breve"
-          >
-            <MicrophoneIcon size={19} aria-hidden />
-          </button>
+          <>
+            <AttachMenu
+              onPick={(file, source) => {
+                const r = checkPicked(file, source);
+                if ("error" in r) notify(r.error);
+                else setDraft({ file, kind: r.kind, hint: source });
+              }}
+            />
+            <div className="nl-field-pill">
+              <textarea
+                ref={area}
+                className="nl-textarea"
+                rows={1}
+                placeholder="Digite uma mensagem..."
+                aria-label="Mensagem"
+                value={text}
+                maxLength={4000}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  if (e.target.value.trim()) signalTyping();
+                  else stopTyping();
+                }}
+                onKeyDown={onKeyDown}
+                onBlur={stopTyping}
+              />
+              <button
+                type="button"
+                className="nl-emoji-btn"
+                aria-label="Emojis"
+                aria-expanded={emoji}
+                data-emoji-toggle
+                onClick={() => setEmoji((v) => !v)}
+              >
+                <SmileyIcon size={19} aria-hidden />
+              </button>
+            </div>
+            {emoji ? (
+              <EmojiPicker
+                onPick={(em) => {
+                  insertEmoji(em);
+                  setEmoji(false);
+                }}
+                onClose={() => setEmoji(false)}
+              />
+            ) : null}
+            {hasText ? (
+              <button
+                type="button"
+                key="send"
+                className="nl-round nl-round-send"
+                aria-label="Enviar"
+                onClick={send}
+              >
+                <PaperPlaneRightIcon size={18} weight="fill" aria-hidden />
+              </button>
+            ) : (
+              <button
+                type="button"
+                key="mic"
+                className="nl-round nl-round-mic"
+                aria-label="Gravar áudio"
+                onClick={() => void rec.start()}
+              >
+                <MicrophoneIcon size={19} aria-hidden />
+              </button>
+            )}
+          </>
         )}
       </div>
+      <DraftPreview
+        draft={draft}
+        onCancel={() => setDraft(null)}
+        onSend={(caption, durationSec) => {
+          if (draft)
+            onAttach({
+              file: draft.file,
+              kind: draft.kind,
+              hint: draft.hint,
+              caption,
+              durationSec,
+            });
+          setDraft(null);
+        }}
+      />
     </div>
   );
 }
