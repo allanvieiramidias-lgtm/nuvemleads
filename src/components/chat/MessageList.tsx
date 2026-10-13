@@ -55,6 +55,25 @@ export function MessageList({
     firstRender.current = false;
   }, [lastKey, typing, meId, last?.senderId, messages.length]);
 
+  // Teclado abrindo ou girando o aparelho: se estava no fim, continua no fim.
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    let atBottom = true;
+    const onScroll = () => {
+      atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
+    };
+    const ro = new ResizeObserver(() => {
+      if (atBottom) el.scrollTop = el.scrollHeight;
+    });
+    el.addEventListener("scroll", onScroll, { passive: true });
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+    };
+  }, []);
+
   // Paginação reversa: ao ver o topo, carrega as anteriores.
   useEffect(() => {
     const el = topSentinel.current;

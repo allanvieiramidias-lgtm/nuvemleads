@@ -16,6 +16,7 @@ Nunca instalar com `@latest`. Versões exatas no `package.json` (sem `^`):
 | typescript | 5.9.3 | O TypeScript 7 ainda não é suportado por todas as ferramentas. |
 | eslint / eslint-config-next | 9.39.5 / 16.4.0 | |
 | vitest / @playwright/test | 5.0.3 / 1.64.0 | |
+| @axe-core/playwright / axe-core | 4.13.0 / 4.13.0 | Verificação automática de acessibilidade (Etapa 9). |
 | tailwindcss / @tailwindcss/postcss | 4.3.3 | |
 | socket.io / socket.io-client | 4.8.4 | |
 | @node-rs/argon2 | 2.2.2 | |
@@ -207,3 +208,12 @@ Inter é servida pelo próprio app (`next/font/local`, arquivos em `src/app/font
 - Uma aba por pessoa (§6): a aba que abre a conversa avisa as outras, que apagam a conversa e mostram "A conversa está aberta em outra aba." com "Usar esta aba".
 - Trocar o PIN, desativar a pessoa ou a sessão vencer: o desbloqueio responde "sessão revogada" e a pessoa volta para a tela de PIN do link.
 - Motivos na tela de bloqueio: aba, foco da janela, inatividade (com os minutos), reabertura e manual.
+
+## 27. Acabamento (Etapa 9)
+
+- Teclado do celular: além de `interactive-widget=resizes-content` (Chrome do Android), a conversa usa a altura da área visível (`--nl-vvh`, via `visualViewport`) porque o Safari do iPhone ignora essa opção. Se a lista estava no fim, continua no fim quando o teclado abre ou o aparelho gira.
+- Acessibilidade verificada com axe (`@axe-core/playwright` 4.13.0, regras WCAG 2.1 A/AA) em início, login, esqueci a senha, PIN, PIN incorreto, painel, usuários, confirmação, editar, novo usuário, configurações, alterar senha, conversa, menus e bloqueio, no desktop e no celular. Nenhuma violação séria ou crítica.
+- Correções: o texto auxiliar dos cartões do Nocturne (50% do texto) passa a usar `--color-neutral-400` para alcançar contraste 4,5:1; os menus suspensos deixaram de ser modais (o resto da página não fica "escondido" para o leitor de tela enquanto continua focável), mas o foco entra no menu, Esc e Tab fecham; avatar sem nome é lido como "Avatar".
+- Ícones: `icon.svg` (o símbolo do pacote), `apple-icon.png` 180 px com fundo até a borda (o iPhone arredonda), `icon-192.png` e `icon-512.png`; gerados por `node scripts/gen-icons.mjs`. Manifest mínimo (nome, cores, ícones), sem service worker.
+- O selo do modo de desenvolvimento do Next foi desligado: cobria o botão de anexo no celular.
+- Tablet (834 px): conversa em largura total e painel sem rolagem lateral, conferidos em teste.

@@ -96,7 +96,7 @@ Implemente README.md §4.4 e §5 (tabela de gatilhos), ARQUITETURA.md §7 (Bloqu
 Testes Playwright: bloqueio por aba, por inatividade (relógio falso), manual; 423 em /api/messages enquanto bloqueado.
 ```
 
-## Etapa 9 — Acabamento
+## Etapa 9 — Acabamento ✅ concluída em 13/10/2026
 ```
 Revise todas as telas contra o protótipo docs/handoff/prototipo/NuvemLeads.dc.html e a tela "Estados" dele, em 1440px, 834px e 390px.
 - Confira cada estado do README (loading, vazio, erro, offline, enviando, enviada, falhou, upload em andamento, upload falhou, bloqueada, PIN incorreto, usuário offline).

@@ -28,6 +28,7 @@ import { EmptyState, ErrorState, LoadingState, OfflineBanner, WaitingState } fro
 import { useChat } from "./store";
 import type { Contact, Me, MessageDto, Settings } from "./types";
 import { useRealtime } from "./useRealtime";
+import { useViewportHeight } from "./useViewportHeight";
 
 type MeResponse = {
   session: Me & { locked: boolean };
@@ -227,6 +228,7 @@ function Conversation({
   const qc = useQueryClient();
   const toast = useToast();
   const chat = useChat;
+  useViewportHeight();
   const connection = useChat((s) => s.connection);
   const loaded = useChat((s) => s.loaded);
   const loadError = useChat((s) => s.loadError);

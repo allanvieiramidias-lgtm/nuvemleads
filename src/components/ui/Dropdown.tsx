@@ -16,7 +16,9 @@ export function Dropdown({
   align?: "start" | "center" | "end";
 }) {
   return (
-    <Menu.Root>
+    // Não modal: o resto da página não ganha aria-hidden (aria-hidden-focus no axe);
+    // o foco entra no menu, Esc e Tab fecham, como no padrão de botão de menu.
+    <Menu.Root modal={false}>
       <Menu.Trigger asChild>{trigger}</Menu.Trigger>
       <Menu.Portal>
         <Menu.Content

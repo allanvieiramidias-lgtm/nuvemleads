@@ -29,6 +29,8 @@ export function Avatar({
   dim,
   className,
 }: AvatarProps) {
+  // Sem nome (formulário ainda vazio) o leitor de tela diz "Avatar" em vez de nada.
+  const who = name.trim() || "Avatar";
   return (
     <span
       className={cn("nl-avatar", className)}
@@ -41,7 +43,7 @@ export function Avatar({
         ["--nl-presence-ring" as string]: `var(--color-${presenceRing === "bg" ? "bg" : "surface"})`,
       }}
       role="img"
-      aria-label={presence ? `${name}, ${presence === "online" ? "online" : "offline"}` : name}
+      aria-label={presence ? `${who}, ${presence === "online" ? "online" : "offline"}` : who}
     >
       {photoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element -- mídia vem de rota autenticada, sem otimizador

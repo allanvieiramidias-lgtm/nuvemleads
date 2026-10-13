@@ -15,7 +15,8 @@ export default defineConfig({
     launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH || undefined },
   },
   // Ordem: 1) fluxo completo do admin (cria/altera pessoas) → 2) prepara Maria e Allan
-  // → 3) demais testes no desktop e no celular, em paralelo.
+  // → 3) conversa em tempo real (precisa começar com a conversa vazia)
+  // → 4) demais testes no desktop e no celular, em paralelo (eles também mandam mensagens).
   projects: [
     {
       name: "admin-flow",
@@ -28,15 +29,21 @@ export default defineConfig({
       dependencies: ["admin-flow"],
     },
     {
-      name: "desktop",
-      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/],
+      name: "conversation",
+      testMatch: /chat\.spec\.ts/,
       dependencies: ["seed-participants"],
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
     {
+      name: "desktop",
+      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/, /chat\.spec\.ts/],
+      dependencies: ["conversation"],
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
+    },
+    {
       name: "mobile",
-      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/],
-      dependencies: ["seed-participants"],
+      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/, /chat\.spec\.ts/],
+      dependencies: ["conversation"],
       use: { ...devices["Pixel 7"] },
     },
   ],
