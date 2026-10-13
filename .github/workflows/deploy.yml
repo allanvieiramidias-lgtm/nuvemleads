@@ -33,23 +33,58 @@ jobs:
   image:
     needs: check
     runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: nuvem, POSTGRES_PASSWORD: nuvem-ci, POSTGRES_DB: nuvemleads }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U nuvem" --health-interval 5s --health-retries 10
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v4
+      # 1) monta a imagem localmente
+      - uses: docker/build-push-action@v7
+        with:
+          load: true
+          tags: nuvemleads:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      # 2) liga a imagem como no VPS (migração + servidor) e confere antes de publicar
+      - name: Teste da imagem
+        run: |
+          docker run -d --name app --network host \
+            -e APP_URL=http://localhost:3000 \
+            -e DATABASE_URL=postgresql://nuvem:nuvem-ci@localhost:5432/nuvemleads \
+            -e ADMIN_SEED_NAME="Admin CI" -e ADMIN_SEED_EMAIL=admin@ci.test -e ADMIN_SEED_PASSWORD=senha-do-ci-123 \
+            -e SMTP_HOST=smtp.invalid -e SMTP_USER=ci -e SMTP_PASS=ci \
+            nuvemleads:ci
+          for i in $(seq 1 60); do curl -fsS http://localhost:3000/api/health && break; sleep 2; done
+          curl -fsS http://localhost:3000/api/health | grep -q '"ok":true'
+          docker exec app node dist/seed.js
+          csp=$(curl -fsSI http://localhost:3000/admin/login | grep -i '^content-security-policy:')
+          echo "$csp" | grep -q "'strict-dynamic'"
+          if echo "$csp" | grep -q "unsafe-eval"; then echo "CSP com eval em produção"; exit 1; fi
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3000/api/admin/login \
+            -H 'Origin: http://localhost:3000' -H 'Content-Type: application/json' \
+            -d '{"email":"admin@ci.test","password":"senha-do-ci-123"}')
+          test "$code" = 200
+          docker exec app sh -c 'command -v ffmpeg && command -v ffprobe && id -u' | tail -1 | grep -qx 1001
+          docker exec app sh -c 'touch /data/uploads/escrita && rm /data/uploads/escrita'
+      - if: failure()
+        run: docker logs app || true
+      # 3) só publica se o teste passou (reaproveita o cache: não monta de novo)
       - uses: docker/login-action@v4
         with:
-          {
-            registry: ghcr.io,
-            username: "${{ github.actor }}",
-            password: "${{ secrets.GITHUB_TOKEN }}",
-          }
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@v7
         with:
           push: true
           # o nome da imagem no GHCR precisa ser minúsculo
           tags: ghcr.io/allanvieiramidias-lgtm/nuvemleads:latest,ghcr.io/allanvieiramidias-lgtm/nuvemleads:${{ github.sha }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   deploy:
     needs: image
