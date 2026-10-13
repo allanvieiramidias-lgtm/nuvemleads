@@ -137,7 +137,7 @@ test("histórico ao reabrir e 'Bloquear' tira o acesso às mensagens (423)", asy
   await expect(maria.page.locator(".nl-seal")).toHaveText("Conversa privada entre Maria e Allan");
 
   await maria.page.getByRole("button", { name: "Bloquear" }).click();
-  await expect(maria.page).toHaveURL(/\/u\//);
+  await expect(maria.page.getByRole("heading", { name: "Sessão bloqueada" })).toBeVisible();
   const res = await maria.page.request.get("/api/messages");
   expect(res.status()).toBe(423);
   await maria.ctx.close();

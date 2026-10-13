@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { getCurrentSession } from "@/lib/auth/user-session";
 import { apiError, forbiddenOrigin, handleError, isSameOrigin, json } from "@/lib/http";
 import { bootSession } from "@/server/participant-auth";
+import { getSettings } from "@/server/settings";
 
 /**
  * Chamado uma única vez por carregamento completo de /chat (DECISOES §7):
@@ -18,6 +19,7 @@ export async function POST(req: Request) {
       lockReason: booted.lockReason,
       lockedAt: booted.lockedAt?.toISOString() ?? null,
       slug: booted.user.slug,
+      settings: await getSettings(db),
     });
   } catch (err) {
     return handleError(err);

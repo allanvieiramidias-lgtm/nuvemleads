@@ -116,10 +116,11 @@ test("PIN certo abre a conversa; recarregar pede o PIN de novo (DECISOES §7)", 
   page,
   context,
 }, info) => {
-  const p = await loginOk(page, context, info.project.name);
+  await loginOk(page, context, info.project.name);
   await page.reload();
-  await expect(page).toHaveURL(new RegExp(`/u/${p.slug}$`));
-  await expect(page.getByRole("heading", { name: "Digite seu PIN" })).toBeVisible();
+  await expect(page).toHaveURL(/\/chat$/);
+  await expect(page.getByRole("heading", { name: "Sessão bloqueada" })).toBeVisible();
+  await expect(page.getByText("A página foi aberta novamente.")).toBeVisible();
 });
 
 test("o link lembrado leva direto ao PIN; 'Trocar' esquece; 'Encerrar sessão' sai", async ({

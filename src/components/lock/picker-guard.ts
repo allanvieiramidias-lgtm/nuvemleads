@@ -38,3 +38,15 @@ export function openPicker(input: HTMLInputElement) {
   window.addEventListener("focus", onFocus);
   input.click();
 }
+
+/** Suspende o bloqueio enquanto uma promessa roda (ex.: pedido de permissão do microfone). */
+export async function guard<T>(p: () => Promise<T>): Promise<T> {
+  openCount++;
+  listeners.forEach((l) => l(true));
+  try {
+    return await p();
+  } finally {
+    openCount = Math.max(0, openCount - 1);
+    listeners.forEach((l) => l(false));
+  }
+}

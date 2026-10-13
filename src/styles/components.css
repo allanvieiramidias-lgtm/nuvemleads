@@ -1628,3 +1628,44 @@
   accent-color: var(--color-accent);
   width: 80px;
 }
+
+/* ═══ Bloqueio (README §4.4, DECISOES §5) ═══ */
+/* Véu síncrono: some com a conversa no mesmo instante em que a página sai de vista,
+   antes do React redesenhar (miniatura do alternador de apps, prévia de abas). */
+html[data-veil="on"] {
+  background: var(--nl-lock-ground);
+}
+html[data-veil="on"] body {
+  visibility: hidden;
+  background: transparent;
+}
+html[data-veil="on"] .nl-gate {
+  visibility: visible;
+}
+.nl-lock-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  box-shadow: 0 0 34px color-mix(in srgb, var(--color-accent) 28%, transparent);
+  transition:
+    border-color 0.3s,
+    color 0.3s,
+    box-shadow 0.3s;
+}
+.nl-lock-icon[data-success] {
+  border-color: var(--nl-success);
+  color: var(--nl-success);
+  box-shadow: 0 0 34px color-mix(in srgb, var(--nl-success) 28%, transparent);
+  animation: nl-unlock 0.5s var(--nl-ease-out);
+}
+.nl-lock-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--color-neutral-500);
+}

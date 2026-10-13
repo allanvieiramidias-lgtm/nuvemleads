@@ -5,6 +5,16 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { firstNameOf } from "@/lib/status";
+import { broadcast, LockController, type LockSource } from "@/components/lock/LockController";
+import {
+  type LockReason,
+  type LockSettings,
+  useLock,
+  veilOff,
+  veilOn,
+} from "@/components/lock/lock-store";
+import { LockScreen } from "@/components/lock/LockScreen";
+import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import { pauseAllMedia } from "./attachments";
 import { revokeAllBlobUrls } from "./blob-urls";
@@ -26,10 +36,19 @@ type MeResponse = {
 };
 type Page = { messages: MessageDto[]; nextCursor: string | null };
 
-// Uma vez por carregamento completo da página (DECISOES §7, §23).
-let bootPromise: Promise<{ locked: boolean; slug: string }> | null = null;
+type Boot = {
+  locked: boolean;
+  lockReason: LockReason | null;
+  lockedAt: string | null;
+  slug: string;
+  settings: LockSettings;
+};
+type Profile = { name: string; slug: string; tone: "ACCENT" | "NEUTRAL"; avatarUrl: string | null };
 
-export function ChatApp(props: { name: string; slug: string }) {
+// Uma vez por carregamento completo da página (DECISOES §7, §23).
+let bootPromise: Promise<Boot> | null = null;
+
+export function ChatApp(props: Profile) {
   const [qc] = useState(
     () =>
       new QueryClient({
@@ -43,19 +62,24 @@ export function ChatApp(props: { name: string; slug: string }) {
   );
 }
 
-function ChatInner({ name, slug }: { name: string; slug: string }) {
+function ChatInner(profile: Profile) {
+  const { slug } = profile;
   const router = useRouter();
-  const [phase, setPhase] = useState<"boot" | "ready">("boot");
+  const qc = useQueryClient();
+  const phase = useLock((s) => s.phase);
+  const [tabId] = useState(() => crypto.randomUUID());
+  const leaving = useRef(false);
 
   useEffect(() => {
-    bootPromise ??= api<{ locked: boolean; slug: string }>("/api/session/boot");
+    bootPromise ??= api<Boot>("/api/session/boot");
     let alive = true;
     bootPromise
       .then((r) => {
         if (!alive) return;
-        // Até a tela de bloqueio existir (Etapa 8), sessão bloqueada volta para o PIN.
-        if (r.locked) router.replace(`/u/${r.slug}`);
-        else setPhase("ready");
+        const lock = useLock.getState();
+        lock.setSettings(r.settings);
+        if (r.locked) lock.setLocked(r.lockReason ?? "REOPEN", r.lockedAt);
+        else lock.setPhase("unlocked");
       })
       .catch((e: unknown) => {
         bootPromise = null;
@@ -67,30 +91,145 @@ function ChatInner({ name, slug }: { name: string; slug: string }) {
     };
   }, [router, slug]);
 
-  if (phase === "boot") {
-    return (
-      <div className="nl-chat">
-        <div className="nl-msgs">
-          <div className="nl-col">
-            <LoadingState />
+  /** Apaga tudo o que a conversa deixou na memória (README §4.4, ARQUITETURA §7). */
+  const wipe = useCallback(() => {
+    pauseAllMedia();
+    clearUploads();
+    revokeAllBlobUrls();
+    clearQueue();
+    useChat.getState().reset();
+    qc.clear();
+  }, [qc]);
+
+  /**
+   * Bloquear (ARQUITETURA §7): (1) véu já está ligado; (2) desmonta a conversa; (3) limpa o
+   * cache; (4) avisa o servidor (sendBeacon); (5) avisa as outras abas; (6) o socket cai ao desmontar.
+   */
+  const lock = useCallback(
+    (reason: LockReason, source: LockSource) => {
+      const st = useLock.getState();
+      if (st.phase === "locked" || leaving.current) return;
+      veilOn();
+      wipe();
+      if (source !== "server") {
+        const body = JSON.stringify({ reason });
+        const sent = navigator.sendBeacon?.(
+          "/api/session/lock",
+          new Blob([body], { type: "text/plain" }),
+        );
+        if (!sent)
+          void fetch("/api/session/lock", {
+            method: "POST",
+            body,
+            keepalive: true,
+            credentials: "same-origin",
+          }).catch(() => null);
+      }
+      if (source !== "broadcast") broadcast({ type: "lock", reason });
+      st.setLocked(reason);
+    },
+    [wipe],
+  );
+
+  const leaveTo = useCallback(
+    (path: string) => {
+      if (leaving.current) return;
+      leaving.current = true;
+      wipe();
+      veilOff();
+      router.replace(path);
+    },
+    [router, wipe],
+  );
+
+  const unlocked = useCallback(() => {
+    veilOff();
+    useLock.getState().setPhase("unlocked");
+  }, []);
+
+  return (
+    <>
+      <LockController
+        active={phase === "unlocked"}
+        tabId={tabId}
+        onLock={lock}
+        onRevoked={() => leaveTo(`/u/${slug}`)}
+        onTakeover={() => {
+          if (useLock.getState().phase !== "unlocked") return;
+          wipe();
+          useLock.getState().setPhase("elsewhere");
+        }}
+      />
+      {phase === "boot" ? (
+        <div className="nl-chat">
+          <div className="nl-msgs">
+            <div className="nl-col">
+              <LoadingState />
+            </div>
+          </div>
+        </div>
+      ) : phase === "locked" ? (
+        <LockScreen me={profile} onUnlocked={unlocked} onRevoked={() => leaveTo(`/u/${slug}`)} />
+      ) : phase === "elsewhere" ? (
+        <ElsewhereState onUseHere={() => useLock.getState().setPhase("unlocked")} />
+      ) : (
+        <Conversation
+          name={profile.name}
+          slug={slug}
+          tabId={tabId}
+          onLock={(r) => lock(r, "local")}
+          onServerLock={(r) => lock(r, "server")}
+          onLeave={leaveTo}
+          wipe={wipe}
+        />
+      )}
+    </>
+  );
+}
+
+/** DECISOES §6: uma aba ativa por pessoa. */
+function ElsewhereState({ onUseHere }: { onUseHere: () => void }) {
+  return (
+    <div className="nl-chat">
+      <div className="nl-msgs">
+        <div className="nl-col">
+          <div className="nl-state">
+            <div className="nl-state-title">A conversa está aberta em outra aba.</div>
+            <div>
+              <Button variant="primary" onClick={onUseHere}>
+                Usar esta aba
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    );
-  }
-  return <Conversation name={name} slug={slug} />;
+    </div>
+  );
 }
 
-function Conversation({ name, slug }: { name: string; slug: string }) {
-  const router = useRouter();
+function Conversation({
+  name,
+  slug,
+  tabId,
+  onLock,
+  onServerLock,
+  onLeave,
+  wipe,
+}: {
+  name: string;
+  slug: string;
+  tabId: string;
+  onLock: (r: LockReason) => void;
+  onServerLock: (r: LockReason) => void;
+  onLeave: (path: string) => void;
+  wipe: () => void;
+}) {
   const qc = useQueryClient();
   const toast = useToast();
   const chat = useChat;
   const connection = useChat((s) => s.connection);
   const loaded = useChat((s) => s.loaded);
   const loadError = useChat((s) => s.loadError);
-  const leaving = useRef(false);
-
   const me = useQuery({
     queryKey: ["me"],
     queryFn: () => api<MeResponse>("/api/me", undefined, "GET"),
@@ -103,25 +242,17 @@ function Conversation({ name, slug }: { name: string; slug: string }) {
     chat.getState().setContact(contact);
   }, [contact, chat]);
 
-  /** Apaga tudo o que a conversa deixou na memória (README §4.4). */
-  const wipe = useCallback(() => {
-    pauseAllMedia();
-    clearUploads();
-    revokeAllBlobUrls();
-    clearQueue();
-    chat.getState().reset();
-    qc.clear();
-  }, [chat, qc]);
+  // Esta aba assume a conversa (DECISOES §6) e limpa a memória ao desmontar.
+  useEffect(() => {
+    broadcast({ type: "active", tab: tabId });
+  }, [tabId]);
 
-  const leaveTo = useCallback(
-    (path: string) => {
-      if (leaving.current) return;
-      leaving.current = true;
-      wipe();
-      router.replace(path);
-    },
-    [router, wipe],
-  );
+  const leaveTo = onLeave;
+
+  // Configurações vindas do servidor alimentam o bloqueio automático.
+  useEffect(() => {
+    if (settings) useLock.getState().setSettings(settings);
+  }, [settings]);
 
   const loadInitial = useCallback(async () => {
     try {
@@ -129,13 +260,13 @@ function Conversation({ name, slug }: { name: string; slug: string }) {
       chat.getState().setInitial(page.messages, page.nextCursor);
       chat.getState().setLoadError(false);
     } catch (e) {
-      if (e instanceof ApiError && (e.code === "LOCKED" || e.code === "REVOKED"))
-        leaveTo(`/u/${slug}`);
+      if (e instanceof ApiError && e.code === "LOCKED") onServerLock("IDLE");
+      else if (e instanceof ApiError && e.code === "REVOKED") leaveTo(`/u/${slug}`);
       else if (e instanceof ApiError && e.code === "NOT_FOUND")
         chat.getState().setInitial([], null);
       else chat.getState().setLoadError(true);
     }
-  }, [chat, leaveTo, slug]);
+  }, [chat, leaveTo, onServerLock, slug]);
 
   useEffect(() => {
     void loadInitial();
@@ -155,12 +286,15 @@ function Conversation({ name, slug }: { name: string; slug: string }) {
   const rt = useRealtime({
     meId,
     onRevoked: () => leaveTo(`/u/${slug}`),
-    onLocked: () => leaveTo(`/u/${slug}`),
+    onLocked: (reason) => onServerLock(reason as LockReason),
     onRoomChanged: () => {
       void me.refetch();
       void loadInitial();
     },
-    onSettings: (s) => qc.setQueryData<MeResponse>(["me"], (d) => (d ? { ...d, settings: s } : d)),
+    onSettings: (s) => {
+      useLock.getState().setSettings(s);
+      qc.setQueryData<MeResponse>(["me"], (d) => (d ? { ...d, settings: s } : d));
+    },
     onResync: () => {
       void me.refetch();
       void loadInitial();
@@ -190,14 +324,14 @@ function Conversation({ name, slug }: { name: string; slug: string }) {
     };
   }, [lastFromContact, contact, chat]);
 
-  async function lockNow() {
+  function lockNow() {
     rt.disconnectForLock();
-    await api("/api/session/lock", { reason: "MANUAL" }).catch(() => null);
-    leaveTo(`/u/${slug}`);
+    onLock("MANUAL");
   }
 
   async function logout() {
     rt.disconnectForLock();
+    wipe();
     await api("/api/auth/logout").catch(() => null);
     leaveTo("/");
   }

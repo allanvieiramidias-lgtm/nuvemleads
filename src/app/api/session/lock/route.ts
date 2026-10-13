@@ -4,7 +4,9 @@ import { getCurrentSession } from "@/lib/auth/user-session";
 import { apiError, forbiddenOrigin, handleError, isSameOrigin, json } from "@/lib/http";
 import { lockSession } from "@/server/session-lock";
 
-const Body = z.object({ reason: z.enum(["TAB", "BLUR", "IDLE", "MANUAL"]).default("MANUAL") });
+const Body = z.object({
+  reason: z.enum(["TAB", "BLUR", "IDLE", "MANUAL", "REOPEN"]).default("MANUAL"),
+});
 
 /** POST { reason } — aceita sendBeacon (corpo como texto). */
 export async function POST(req: Request) {

@@ -7,6 +7,7 @@ import { getActiveConversation, otherParticipant } from "./conversations";
 import { on } from "./events";
 import { getMessageDto, markDelivered } from "./messages";
 import { getSessionByToken, type SessionInfo } from "./participant-auth";
+import { lockIdleSessions } from "./session-lock";
 import { addSocket, isOnline, removeSocket } from "./presence";
 
 const isProd = process.env.NODE_ENV === "production";
@@ -47,7 +48,14 @@ async function presencePayload(userId: string) {
   return { userId, online: isOnline(userId), lastSeenAt: u?.lastActiveAt?.toISOString() ?? null };
 }
 
-export function attachRealtime(io: Server) {
+export function attachRealtime(io: Server, opts: { idleSweepMs?: number } = {}) {
+  // Varredura de inatividade no servidor (ARQUITETURA §7): a cada 30 s.
+  const sweep = setInterval(
+    () => void lockIdleSessions(db).catch(() => undefined),
+    opts.idleSweepMs ?? 30_000,
+  );
+  sweep.unref();
+
   // CSRF no handshake: só a própria origem.
   io.use(async (socket, next) => {
     try {

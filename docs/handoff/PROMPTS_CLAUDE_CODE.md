@@ -86,7 +86,7 @@ Implemente o resto do README.md §4.3 (imagem, vídeo, áudio, arquivo, menu de 
 - Erros de tamanho/formato via toast com os textos do README.
 ```
 
-## Etapa 8 — Camada de bloqueio
+## Etapa 8 — Camada de bloqueio ✅ concluída em 13/10/2026
 ```
 Implemente README.md §4.4 e §5 (tabela de gatilhos), ARQUITETURA.md §7 (Bloqueio) e DECISOES §4, §5, §6 e §7.
 - LockController: visibilitychange, blur com tolerância de 1,5 s (não bloquear enquanto o seletor de arquivo/câmera estiver aberto), inatividade com o tempo de Settings, botão Bloquear, BroadcastChannel entre abas, evento session:locked do servidor.

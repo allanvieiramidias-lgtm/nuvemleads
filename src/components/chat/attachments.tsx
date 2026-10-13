@@ -76,8 +76,8 @@ export function VideoAttachment({ m }: { m: ChatMessage }) {
       onClick={() => !processing && open(m.clientId)}
       aria-disabled={processing || undefined}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- capa privada servida por rota autenticada */}
       {thumb ? (
+        // eslint-disable-next-line @next/next/no-img-element -- capa privada servida por rota autenticada
         <img src={thumb} alt="" />
       ) : src ? (
         <video src={src} muted preload="metadata" playsInline />

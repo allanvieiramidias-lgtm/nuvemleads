@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { guard } from "@/components/lock/picker-guard";
 
 const MAX_MS = 10 * 60_000;
 
@@ -46,7 +47,7 @@ export function useRecorder(
 
   const start = useCallback(async () => {
     try {
-      const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const s = await guard(() => navigator.mediaDevices.getUserMedia({ audio: true }));
       const { mime, ext } = pickMime();
       const r = new MediaRecorder(s, mime ? { mimeType: mime } : undefined);
       stream.current = s;

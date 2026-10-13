@@ -195,3 +195,15 @@ Inter é servida pelo próprio app (`next/font/local`, arquivos em `src/app/font
 - Prévias locais (`blob:`) ficam registradas e são todas revogadas ao bloquear/sair; envios em andamento são cancelados.
 - O seletor de arquivo avisa o bloqueio (`picker-guard`) para a Etapa 8 suspender o bloqueio com véu enquanto a pessoa escolhe (§4).
 - Nos testes no navegador, o vídeo é WEBM: o Chromium de testes não toca H.264 (o Chrome e o Safari normais tocam).
+
+## 26. Camada de bloqueio (Etapa 8)
+
+- O bloqueio é decidido no aparelho e confirmado no servidor: o aparelho liga o véu, apaga a conversa da memória, avisa o servidor (`sendBeacon`) e as outras abas (`BroadcastChannel`). A partir daí as rotas de conteúdo respondem 423.
+- Véu imediato: ao perder a aba ou o foco, a página inteira fica escondida (`html[data-veil="on"]`) antes de qualquer outra coisa, para a conversa não aparecer na troca de apps nem na prévia do sistema.
+- Perda de foco da janela: 1,5 s de tolerância; se o foco voltar, só o véu sai.
+- Seletor de arquivo, câmera e permissão do microfone suspendem o bloqueio (no máximo 3 min); o véu continua.
+- Inatividade: o aparelho conta o tempo de Settings; o servidor também confere (sinal a cada 30 s e varredura a cada 30 s com 30 s de folga), então uma aba congelada pelo sistema também fica bloqueada.
+- Ao fechar ou recarregar a página com "Exigir PIN ao reabrir" ligado, a sessão é bloqueada com o motivo "A página foi aberta novamente." Com a opção desligada, a página volta desbloqueada.
+- Uma aba por pessoa (§6): a aba que abre a conversa avisa as outras, que apagam a conversa e mostram "A conversa está aberta em outra aba." com "Usar esta aba".
+- Trocar o PIN, desativar a pessoa ou a sessão vencer: o desbloqueio responde "sessão revogada" e a pessoa volta para a tela de PIN do link.
+- Motivos na tela de bloqueio: aba, foco da janela, inatividade (com os minutos), reabertura e manual.

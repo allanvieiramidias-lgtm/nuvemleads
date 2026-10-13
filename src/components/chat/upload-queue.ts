@@ -29,12 +29,10 @@ function uploadWithProgress(clientId: string, d: Draft): Promise<UploadResult> {
     xhr.withCredentials = true;
     xhr.upload.onprogress = (e) => {
       if (!e.lengthComputable) return;
-      useChat
-        .getState()
-        .setUpload(clientId, {
-          state: "uploading",
-          progress: Math.min(99, Math.round((e.loaded / e.total) * 100)),
-        });
+      useChat.getState().setUpload(clientId, {
+        state: "uploading",
+        progress: Math.min(99, Math.round((e.loaded / e.total) * 100)),
+      });
     };
     xhr.onload = () => {
       xhrs.delete(clientId);

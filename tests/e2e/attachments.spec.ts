@@ -200,7 +200,7 @@ test("bloqueado não acessa a mídia (423)", async ({ browser }) => {
   const href = await maria.page.locator(".nl-file a").first().getAttribute("href");
   expect((await maria.page.request.get(href!)).status()).toBe(200);
   await maria.page.getByRole("button", { name: "Bloquear" }).click();
-  await expect(maria.page).toHaveURL(/\/u\//);
+  await expect(maria.page.getByRole("heading", { name: "Sessão bloqueada" })).toBeVisible();
   expect((await maria.page.request.get(href!)).status()).toBe(423);
   await maria.ctx.close();
 });
