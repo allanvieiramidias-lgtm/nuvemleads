@@ -15,11 +15,13 @@ import {
 } from "@/components/lock/lock-store";
 import { LockScreen } from "@/components/lock/LockScreen";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { pauseAllMedia } from "./attachments";
 import { revokeAllBlobUrls } from "./blob-urls";
 import { ChatHeader } from "./ChatHeader";
 import { MediaViewer } from "./MediaViewer";
+import { MyPhoto } from "./MyPhoto";
 import { OnceViewer } from "./view-once";
 import { clearUploads, retryAttachment, sendAttachment } from "./upload-queue";
 import { Composer } from "./Composer";
@@ -27,7 +29,7 @@ import { MessageList } from "./MessageList";
 import { clearQueue, retry, sendText } from "./send-queue";
 import { EmptyState, ErrorState, LoadingState, OfflineBanner, WaitingState } from "./States";
 import { useChat } from "./store";
-import type { Contact, Me, MessageDto, Settings } from "./types";
+import type { ChatMessage, Contact, Me, MessageDto, Settings } from "./types";
 import { useRealtime } from "./useRealtime";
 import { useViewportHeight } from "./useViewportHeight";
 
@@ -70,6 +72,8 @@ function ChatInner(profile: Profile) {
   const qc = useQueryClient();
   const phase = useLock((s) => s.phase);
   const [tabId] = useState(() => crypto.randomUUID());
+  // "Minha foto" (DECISOES §31): a tela de bloqueio mostra a foto nova sem recarregar.
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
   const leaving = useRef(false);
 
   useEffect(() => {
@@ -171,12 +175,19 @@ function ChatInner(profile: Profile) {
           </div>
         </div>
       ) : phase === "locked" ? (
-        <LockScreen me={profile} onUnlocked={unlocked} onRevoked={() => leaveTo(`/u/${slug}`)} />
+        <LockScreen
+          me={{ ...profile, avatarUrl }}
+          onUnlocked={unlocked}
+          onRevoked={() => leaveTo(`/u/${slug}`)}
+        />
       ) : phase === "elsewhere" ? (
         <ElsewhereState onUseHere={() => useLock.getState().setPhase("unlocked")} />
       ) : (
         <Conversation
           name={profile.name}
+          tone={profile.tone}
+          avatarUrl={avatarUrl}
+          onAvatarChange={setAvatarUrl}
           slug={slug}
           tabId={tabId}
           onLock={(r) => lock(r, "local")}
@@ -211,6 +222,9 @@ function ElsewhereState({ onUseHere }: { onUseHere: () => void }) {
 
 function Conversation({
   name,
+  tone,
+  avatarUrl,
+  onAvatarChange,
   slug,
   tabId,
   onLock,
@@ -219,6 +233,9 @@ function Conversation({
   wipe,
 }: {
   name: string;
+  tone: "ACCENT" | "NEUTRAL";
+  avatarUrl: string | null;
+  onAvatarChange: (url: string | null) => void;
   slug: string;
   tabId: string;
   onLock: (r: LockReason) => void;
@@ -230,6 +247,11 @@ function Conversation({
   const toast = useToast();
   const chat = useChat;
   useViewportHeight();
+  // DECISOES §31: apagar para mim, limpar conversa, minha foto
+  const [hideTarget, setHideTarget] = useState<ChatMessage | null>(null);
+  const [clearOpen, setClearOpen] = useState(false);
+  const [photoOpen, setPhotoOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
   const connection = useChat((s) => s.connection);
   const loaded = useChat((s) => s.loaded);
   const loadError = useChat((s) => s.loadError);
@@ -298,6 +320,7 @@ function Conversation({
       useLock.getState().setSettings(s);
       qc.setQueryData<MeResponse>(["me"], (d) => (d ? { ...d, settings: s } : d));
     },
+    onProfile: () => void me.refetch(),
     onResync: () => {
       void me.refetch();
       void loadInitial();
@@ -326,6 +349,36 @@ function Conversation({
       document.removeEventListener("visibilitychange", mark);
     };
   }, [lastFromContact, contact, chat]);
+
+  async function hideNow() {
+    const m = hideTarget;
+    if (!m?.id) return;
+    setBusy(true);
+    try {
+      await api(`/api/messages/${m.id}/hide`);
+      chat.getState().removeMessage(m.id);
+      toast.success("Mensagem apagada para você.");
+      setHideTarget(null);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Não foi possível apagar.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function clearNow() {
+    setBusy(true);
+    try {
+      await api("/api/messages/clear");
+      chat.getState().clearConfirmed();
+      toast.success("Conversa limpa para você.");
+      setClearOpen(false);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Não foi possível limpar a conversa.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   function lockNow() {
     rt.disconnectForLock();
@@ -362,6 +415,8 @@ function Conversation({
         autoLockMinutes={settings?.autoLockMinutes ?? 5}
         onLock={lockNow}
         onLogout={logout}
+        onMyPhoto={() => setPhotoOpen(true)}
+        onClear={() => setClearOpen(true)}
       />
       {offline ? <OfflineBanner /> : null}
       {body ? (
@@ -374,6 +429,7 @@ function Conversation({
           meFirst={meFirst}
           contactFirst={contactFirst}
           onLoadOlder={loadOlder}
+          onHide={setHideTarget}
           onRetry={(clientId) => {
             const m = chat.getState().messages.find((x) => x.clientId === clientId);
             if (m?.kind === "TEXT") retry(clientId);
@@ -391,6 +447,42 @@ function Conversation({
         />
       ) : null}
       <OnceViewer />
+      <Modal
+        open={!!hideTarget}
+        onOpenChange={(o) => !o && setHideTarget(null)}
+        title="Apagar para você?"
+        description={`A mensagem some só da sua tela. ${contactFirst || "A outra pessoa"} continua vendo.`}
+        actions={
+          <>
+            <Button onClick={() => setHideTarget(null)}>Cancelar</Button>
+            <Button variant="primary" loading={busy} loadingText="Apagando…" onClick={hideNow}>
+              Apagar para mim
+            </Button>
+          </>
+        }
+      />
+      <Modal
+        open={clearOpen}
+        onOpenChange={setClearOpen}
+        title="Limpar a conversa?"
+        description={`Todas as mensagens até agora somem só da sua tela. ${contactFirst || "A outra pessoa"} continua vendo.`}
+        actions={
+          <>
+            <Button onClick={() => setClearOpen(false)}>Cancelar</Button>
+            <Button variant="primary" loading={busy} loadingText="Limpando…" onClick={clearNow}>
+              Limpar conversa
+            </Button>
+          </>
+        }
+      />
+      <MyPhoto
+        open={photoOpen}
+        onOpenChange={setPhotoOpen}
+        name={name}
+        tone={tone}
+        avatarUrl={avatarUrl}
+        onChanged={onAvatarChange}
+      />
       <MediaViewer
         names={contact ? { [meId]: name, [contact.id]: contact.name } : { [meId]: name }}
       />

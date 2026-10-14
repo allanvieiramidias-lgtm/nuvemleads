@@ -29,6 +29,13 @@
       "when": 1791994069019,
       "tag": "0003_visualizacao_unica_retencao",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792010871724,
+      "tag": "0004_apagar_para_mim",
+      "breakpoints": true
     }
   ]
 }

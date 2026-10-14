@@ -1026,6 +1026,50 @@
 .nl-msg[data-new] {
   animation: nl-msg-in 0.28s ease-out;
 }
+/* Ações da mensagem (DECISOES §31): "⋯" ao lado do balão ao passar o mouse */
+.nl-msg-actions {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.nl-msg[data-mine] .nl-msg-actions {
+  flex-direction: row-reverse;
+}
+.nl-msg-more {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  color: var(--color-neutral-500);
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    background-color 0.15s ease;
+}
+.nl-msg-more:hover {
+  background: var(--color-surface-2);
+  color: var(--color-neutral-300);
+}
+.nl-msg-actions:hover .nl-msg-more,
+.nl-msg-more:focus-visible,
+.nl-msg-more[data-state="open"] {
+  opacity: 1;
+}
+@media (hover: none) {
+  /* no toque, abre com toque longo; o botão fica só como âncora do menu */
+  .nl-msg-actions {
+    -webkit-touch-callout: none;
+  }
+  .nl-msg-more {
+    pointer-events: none;
+  }
+  .nl-msg-more[data-state="open"] {
+    opacity: 0;
+  }
+}
 .nl-bubble {
   max-width: var(--nl-bubble-max);
   min-width: 0;

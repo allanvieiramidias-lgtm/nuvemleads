@@ -1,11 +1,13 @@
 "use client";
 
 import {
+  BroomIcon,
   DotsThreeVerticalIcon,
   LockSimpleIcon,
   ShieldCheckIcon,
   SignOutIcon,
   TimerIcon,
+  UserCircleIcon,
 } from "@phosphor-icons/react/ssr";
 import { Logo } from "@/components/brand/Logo";
 import { Avatar } from "@/components/ui/Avatar";
@@ -19,10 +21,15 @@ export function ChatHeader({
   autoLockMinutes,
   onLock,
   onLogout,
+  onMyPhoto,
+  onClear,
 }: {
   autoLockMinutes: number;
   onLock: () => void;
   onLogout: () => void;
+  /** DECISOES §31 */
+  onMyPhoto?: () => void;
+  onClear?: () => void;
 }) {
   const contact = useChat((s) => s.contact);
   const typing = useChat((s) => s.contactTyping);
@@ -77,6 +84,17 @@ export function ChatHeader({
         <DropdownInfo icon={<TimerIcon size={16} />} title="Bloqueio automático">
           Após {auto} sem atividade ou ao sair da aba
         </DropdownInfo>
+        {onMyPhoto || onClear ? <div className="nl-menu-kicker">Para você</div> : null}
+        {onMyPhoto ? (
+          <DropdownItem icon={<UserCircleIcon size={16} />} onSelect={onMyPhoto}>
+            Minha foto
+          </DropdownItem>
+        ) : null}
+        {onClear ? (
+          <DropdownItem icon={<BroomIcon size={16} />} onSelect={onClear}>
+            Limpar conversa
+          </DropdownItem>
+        ) : null}
         <DropdownItem icon={<SignOutIcon size={16} />} onSelect={onLogout}>
           Encerrar sessão
         </DropdownItem>

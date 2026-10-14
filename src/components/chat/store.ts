@@ -49,6 +49,12 @@ type State = {
   /** Mensagem do servidor (ack do envio ou message:new): substitui a otimista pelo clientId. */
   upsert: (m: MessageDto) => void;
   addOptimistic: (m: ChatMessage) => void;
+  /** Só atualiza se a mensagem já estiver na tela (não traz de volta o que foi apagado). */
+  updateExisting: (m: MessageDto) => void;
+  /** "Apagar para mim" (DECISOES §31). */
+  removeMessage: (id: string) => void;
+  /** "Limpar conversa": tira tudo o que já foi confirmado pelo servidor. */
+  clearConfirmed: () => void;
   setLocalStatus: (clientId: string, status: "sending" | "failed") => void;
   setUpload: (clientId: string, upload: UploadState | undefined) => void;
   /** Visualizador de mídia aberto (README §6: viewer). */
@@ -132,6 +138,26 @@ export const useChat = create<State>((set) => ({
       next[i] = { ...fromDto(m), status, local: prev.local };
       return { messages: sortMessages(next) };
     }),
+
+  updateExisting: (m) =>
+    set((s) => {
+      const i = s.messages.findIndex((x) => x.id === m.id);
+      if (i === -1) return {};
+      const prev = s.messages[i]!;
+      const status = ORDER[prev.status] > ORDER[m.status] ? prev.status : m.status;
+      const next = [...s.messages];
+      next[i] = { ...fromDto(m), status, local: prev.local };
+      return { messages: next };
+    }),
+
+  removeMessage: (id) =>
+    set((s) => ({
+      messages: s.messages.filter((m) => m.id !== id),
+      onceView: s.onceView?.id === id ? null : s.onceView,
+    })),
+
+  clearConfirmed: () =>
+    set((s) => ({ messages: s.messages.filter((m) => !m.id), nextCursor: null, viewer: null })),
 
   addOptimistic: (m) =>
     set((s) => {

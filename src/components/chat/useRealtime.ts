@@ -14,6 +14,8 @@ type Handlers = {
   onSettings: (s: Settings) => void;
   /** Recarrega a conversa do servidor (ex.: depois de reconectar). */
   onResync: () => void;
+  /** Alguém trocou a própria foto (DECISOES §31). */
+  onProfile?: () => void;
 };
 
 /** Conexão Socket.IO da conversa (ARQUITETURA §8). Devolve funções para avisar o servidor. */
@@ -77,7 +79,8 @@ export function useRealtime(h: Handlers) {
       }
     });
     // vídeo terminou de converter (ou falhou)
-    socket.on("message:updated", (m: MessageDto) => chat().upsert(m));
+    socket.on("message:updated", (m: MessageDto) => chat().updateExisting(m));
+    socket.on("profile:updated", () => handlers.current.onProfile?.());
     socket.on("message:status", (p: { id: string; status: "delivered" | "read" }) =>
       chat().setStatus(p.id, p.status),
     );

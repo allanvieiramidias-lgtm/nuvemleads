@@ -8,6 +8,7 @@ import {
   integer,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -222,6 +223,39 @@ export const messages = pgTable(
       sql`(${t.kind} = 'TEXT' AND ${t.attachmentId} IS NULL AND (${t.body} IS NOT NULL OR ${t.contentDeletedAt} IS NOT NULL)) OR (${t.kind} <> 'TEXT' AND (${t.attachmentId} IS NOT NULL OR ${t.contentDeletedAt} IS NOT NULL))`,
     ),
   ],
+);
+
+/**
+ * "Apagar para mim" (DECISOES §31): a mensagem some só para esta pessoa. Quando as duas
+ * apagaram (ou limparam a conversa), o conteúdo é apagado de verdade do servidor.
+ */
+export const hiddenMessages = pgTable(
+  "hidden_messages",
+  {
+    userId: uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    messageId: uuid()
+      .notNull()
+      .references(() => messages.id, { onDelete: "cascade" }),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.messageId] }), index().on(t.messageId)],
+);
+
+/** "Limpar conversa" (DECISOES §31): esta pessoa não vê nada criado até `clearedAt`. */
+export const conversationClears = pgTable(
+  "conversation_clears",
+  {
+    userId: uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    conversationId: uuid()
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    clearedAt: ts().notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.conversationId] })],
 );
 
 // ── Configurações e limites ──────────────────────────────────────────────

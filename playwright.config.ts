@@ -1,6 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
 import { E2E, PROD } from "./tests/e2e/env";
 
+const IGNORE = [
+  /admin-panel\.spec\.ts/,
+  /\.setup\.ts/,
+  /chat\.spec\.ts/,
+  /username\.spec\.ts/,
+  /personal\.spec\.ts/,
+];
+
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
@@ -42,15 +50,22 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
     {
-      name: "desktop",
-      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/, /chat\.spec\.ts/, /username\.spec\.ts/],
+      // apagar para mim, limpar conversa e minha foto: mexe na conversa toda, roda sozinho
+      name: "personal",
+      testMatch: /personal\.spec\.ts/,
       dependencies: ["notice"],
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
     {
+      name: "desktop",
+      testIgnore: IGNORE,
+      dependencies: ["personal"],
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
+    },
+    {
       name: "mobile",
-      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/, /chat\.spec\.ts/, /username\.spec\.ts/],
-      dependencies: ["notice"],
+      testIgnore: IGNORE,
+      dependencies: ["personal"],
       use: { ...devices["Pixel 7"] },
     },
   ],

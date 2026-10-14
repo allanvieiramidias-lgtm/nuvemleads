@@ -2,6 +2,7 @@ import { and, eq, isNull, ne } from "drizzle-orm";
 import type { Db } from "@/db";
 import { messages } from "@/db/schema";
 import { getActiveConversation } from "./conversations";
+import { visibleTo } from "./messages";
 import { getSettings } from "./settings";
 
 /**
@@ -24,6 +25,7 @@ export async function getUnreadNotice(
         eq(messages.conversationId, conv.id),
         ne(messages.senderId, userId),
         isNull(messages.readAt),
+        visibleTo(userId, conv.id),
       ),
     )
     .limit(1);

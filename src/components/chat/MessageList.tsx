@@ -17,6 +17,7 @@ export function MessageList({
   contactFirst,
   onLoadOlder,
   onRetry,
+  onHide,
   empty,
 }: {
   meId: string;
@@ -24,6 +25,7 @@ export function MessageList({
   contactFirst: string;
   onLoadOlder: () => Promise<void>;
   onRetry: (clientId: string) => void;
+  onHide?: (m: ChatMessage) => void;
   /** Mostrado quando ainda não há mensagens (o "digitando" continua aparecendo). */
   empty?: React.ReactNode;
 }) {
@@ -122,6 +124,7 @@ export function MessageList({
               tail={tail}
               isNew={fresh.has(m.clientId)}
               onRetry={onRetry}
+              onHide={onHide}
             />
           </Fragment>
         ))}

@@ -136,6 +136,9 @@ export function attachRealtime(
   on("message:new", ({ conversationId, message }) => {
     io.to(convRoom(conversationId)).emit("message:new", message);
   });
+  on("profile:updated", ({ userId }) => {
+    io.emit("profile:updated", { userId });
+  });
   on("message:updated", ({ conversationId, message }) => {
     io.to(convRoom(conversationId)).emit("message:updated", message);
   });

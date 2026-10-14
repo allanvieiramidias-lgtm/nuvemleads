@@ -31,6 +31,8 @@ export type AppEvents = {
     mediaRetentionDays: number;
   };
   "room:changed": Record<string, never>;
+  /** A pessoa trocou a própria foto (DECISOES §31). */
+  "profile:updated": { userId: string };
 };
 
 const g = globalThis as unknown as { nlBus?: EventEmitter };

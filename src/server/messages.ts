@@ -2,7 +2,14 @@ import { and, asc, desc, eq, inArray, isNull, lt, lte, ne, or, sql } from "drizz
 import type { SQL } from "drizzle-orm";
 import { z } from "zod";
 import type { Db } from "@/db";
-import { attachments, messages, users, type Conversation } from "@/db/schema";
+import {
+  attachments,
+  conversationClears,
+  hiddenMessages,
+  messages,
+  users,
+  type Conversation,
+} from "@/db/schema";
 import { DomainError } from "./errors";
 import { emit } from "./events";
 
@@ -95,6 +102,15 @@ async function selectRows(
   return rows.map((r) => toDto({ ...r.m, att: r.att }));
 }
 
+/**
+ * O que esta pessoa ainda vê (DECISOES §31): nada que ela apagou para si nem nada criado
+ * até o momento em que limpou a conversa.
+ */
+export function visibleTo(viewerId: string, conversationId: string): SQL {
+  return sql`not exists (select 1 from ${hiddenMessages} h where h.message_id = ${messages.id} and h.user_id = ${viewerId})
+    and ${messages.createdAt} > coalesce((select c.cleared_at from ${conversationClears} c where c.user_id = ${viewerId} and c.conversation_id = ${conversationId}), '-infinity'::timestamptz)`;
+}
+
 /** Cursor opaco: "<createdAt ISO>|<id>" da mensagem mais antiga já carregada. */
 function parseCursor(cursor: string | null | undefined): { at: Date; id: string } | null {
   if (!cursor) return null;
@@ -118,6 +134,7 @@ export async function listMessages(
   const c = parseCursor(opts.cursor);
   const where = and(
     eq(messages.conversationId, conv.id),
+    visibleTo(viewerId, conv.id),
     c
       ? or(lt(messages.createdAt, c.at), and(eq(messages.createdAt, c.at), lt(messages.id, c.id)))
       : undefined,

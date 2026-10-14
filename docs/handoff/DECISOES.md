@@ -252,3 +252,13 @@ Pedido do responsável pelo produto. O admin continua sem acesso a conteúdo (re
 - **Painel "Mídias" no admin:** espaço usado (total, por tipo, por mês nos últimos 12 meses) e livre no disco; nunca nomes, miniaturas ou conteúdo. **Limpeza automática** "Apagar mídias com mais de: Nunca / 30 dias / 90 dias / 6 meses / 1 ano" (padrão Nunca; roda a cada hora e ao ligar). **Limpeza manual** por data ("antes de", horário de Brasília) e tipos, com prévia ("Apagar N mídias? Libera X…") e confirmação. Na conversa, a mídia apagada vira "Mídia expirada" para os dois; textos não são apagados. Ações registradas na trilha do admin (MEDIA_RETENTION_UPDATED, MEDIA_PURGED).
 - Arquivos são abertos antes de medidos ao enviar mídia: se forem apagados no meio, quem já abriu termina de receber e quem chega depois recebe 404 (antes, a conexão caía).
 - Celular: as 4 pílulas do painel (com "Mídias") rolam dentro da barra, sem rolar a página.
+
+## 31. Apagar para mim, limpar conversa e minha foto (14/10/2026)
+
+Pedido do responsável pelo produto. Só "para mim" de propósito: ninguém apaga o que está na tela da outra pessoa.
+
+- **Apagar para mim.** "⋯" ao lado do balão (aparece ao passar o mouse ou com Tab), botão direito ou toque longo (meio segundo) → "Apagar para mim" → confirmação "Apagar para você?". A mensagem some só desta pessoa (tabela `hidden_messages`); a outra continua vendo. Uma recebida e não lida conta como lida (o aviso de novas mensagens some).
+- **Limpar conversa.** No menu da sessão, "Limpar conversa" → "Limpar a conversa?". Tudo o que existe até agora some só desta pessoa (`conversation_clears.cleared_at`); as próximas mensagens aparecem normalmente.
+- **Apagar de verdade quando ninguém vê.** Se as duas pessoas apagaram (ou limparam) uma mensagem, o texto sai do banco e os arquivos saem do disco, como em §30. Antes disso, o conteúdo continua guardado porque a outra pessoa ainda vê.
+- **Minha foto.** No menu da sessão, "Minha foto": escolher (JPG, PNG ou WEBP, até 5 MB) ou remover. Mesmo tratamento das fotos enviadas pelo admin (sem EXIF/GPS, redimensionada). `POST/DELETE /api/me/avatar`, só com a sessão desbloqueada. A outra pessoa vê a foto nova na hora (evento `profile:updated`).
+- Testes no navegador: a fase "personal" (`personal.spec.ts`) roda sozinha, depois de "notice" e antes dos demais, porque limpar a conversa mexe no que as duas pessoas veem.

@@ -18,6 +18,7 @@ import {
   UploadProgress,
   VideoAttachment,
 } from "./attachments";
+import { MessageActions } from "./MessageActions";
 import type { ChatMessage, ChatStatus } from "./types";
 import { OnceBubble } from "./view-once";
 
@@ -59,6 +60,7 @@ export const MessageBubble = memo(function MessageBubble({
   first,
   isNew,
   onRetry,
+  onHide,
 }: {
   m: ChatMessage;
   mine: boolean;
@@ -66,6 +68,8 @@ export const MessageBubble = memo(function MessageBubble({
   first: boolean;
   isNew: boolean;
   onRetry: (clientId: string) => void;
+  /** "Apagar para mim" (DECISOES §31). */
+  onHide?: (m: ChatMessage) => void;
 }) {
   const time = formatTime(new Date(m.createdAt));
   // Visualização única ou mídia expirada: a bolha nunca mostra o conteúdo (DECISOES §30).
@@ -82,27 +86,29 @@ export const MessageBubble = memo(function MessageBubble({
       data-status={mine ? m.status : undefined}
       style={{ marginTop: first ? 14 : 3 }}
     >
-      <div
-        className="nl-bubble"
-        data-media={hasMedia || undefined}
-        data-kind={m.kind.toLowerCase()}
-        data-once={once || undefined}
-      >
-        {once ? <OnceBubble m={m} mine={mine} /> : null}
-        {hasMedia && m.kind === "IMAGE" ? <ImageAttachment m={m} /> : null}
-        {hasMedia && m.kind === "VIDEO" ? <VideoAttachment m={m} /> : null}
-        {hasMedia && m.kind === "AUDIO" ? <AudioAttachment m={m} /> : null}
-        {hasMedia && m.kind === "FILE" ? <FileAttachment m={m} /> : null}
-        {m.body && !once ? <div className="nl-text">{m.body}</div> : null}
-        {upload ? <UploadProgress upload={upload} /> : null}
-        {!upload && m.kind === "VIDEO" && m.attachment?.status === "PENDING" ? (
-          <ProcessingNote />
-        ) : null}
-        <div className="nl-meta">
-          <time dateTime={m.createdAt}>{time}</time>
-          {mine ? <StatusIcon status={m.status} /> : null}
+      <MessageActions disabled={!m.id || !onHide} onHide={() => onHide?.(m)}>
+        <div
+          className="nl-bubble"
+          data-media={hasMedia || undefined}
+          data-kind={m.kind.toLowerCase()}
+          data-once={once || undefined}
+        >
+          {once ? <OnceBubble m={m} mine={mine} /> : null}
+          {hasMedia && m.kind === "IMAGE" ? <ImageAttachment m={m} /> : null}
+          {hasMedia && m.kind === "VIDEO" ? <VideoAttachment m={m} /> : null}
+          {hasMedia && m.kind === "AUDIO" ? <AudioAttachment m={m} /> : null}
+          {hasMedia && m.kind === "FILE" ? <FileAttachment m={m} /> : null}
+          {m.body && !once ? <div className="nl-text">{m.body}</div> : null}
+          {upload ? <UploadProgress upload={upload} /> : null}
+          {!upload && m.kind === "VIDEO" && m.attachment?.status === "PENDING" ? (
+            <ProcessingNote />
+          ) : null}
+          <div className="nl-meta">
+            <time dateTime={m.createdAt}>{time}</time>
+            {mine ? <StatusIcon status={m.status} /> : null}
+          </div>
         </div>
-      </div>
+      </MessageActions>
       {mine && m.status === "failed" ? (
         <div className="nl-fail" role="alert">
           {m.kind === "TEXT" ? "Não foi possível enviar." : "Não foi possível enviar o arquivo."}
