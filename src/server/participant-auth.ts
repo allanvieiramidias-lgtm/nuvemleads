@@ -4,6 +4,7 @@ import { userSessions, users, type User } from "@/db/schema";
 import { USER_SESSION_HOURS } from "@/lib/auth/cookies";
 import { dummyHash, verifySecret } from "@/lib/auth/hash";
 import { hashToken, newSessionToken } from "@/lib/auth/tokens";
+import { normalizeUsername, USERNAME_RE } from "@/lib/validators";
 import { avatarUrl } from "./avatars";
 import { DomainError } from "./errors";
 import { pinRetryAfter, registerPinFailure, registerPinSuccess } from "./pin-limits";
@@ -54,14 +55,59 @@ export async function getPublicProfile(db: Db, slug: string): Promise<PublicProf
   };
 }
 
+async function activeByUsername(db: Db, username: string): Promise<User | null> {
+  if (!USERNAME_RE.test(username)) return null;
+  const [u] = await db
+    .select()
+    .from(users)
+    .where(and(eq(users.username, username), eq(users.status, "ACTIVE")));
+  return u ?? null;
+}
+
+/**
+ * Usuário que não existe (ou está inativo) na página principal: responde exatamente como um
+ * PIN errado, com o mesmo tempo e os mesmos limites, para não revelar quem existe.
+ */
+async function failUnknownUsername(
+  db: Db,
+  username: string,
+  pin: string,
+  ip: string,
+): Promise<never> {
+  const pseudoId = `name:${username.slice(0, 40)}`;
+  const wait = await pinRetryAfter(db, pseudoId, ip);
+  if (wait > 0) throw new DomainError("TOO_MANY", PIN_TOO_MANY, { retryAfter: String(wait) });
+  await verifySecret(await dummyHash(), pin);
+  const { retryAfter, attemptsLeft } = await registerPinFailure(db, pseudoId, ip);
+  if (retryAfter > 0)
+    throw new DomainError("TOO_MANY", PIN_TOO_MANY, { retryAfter: String(retryAfter) });
+  throw new DomainError("INVALID_PIN", PIN_INVALID, { attemptsLeft: String(attemptsLeft) });
+}
+
+export type LoginResult = {
+  token: string;
+  expiresAt: Date;
+  userId: string;
+  slug: string;
+  pinVersion: number;
+};
+
+/** Entrada pelo link pessoal ({ slug }) ou pela página principal ({ username }). */
 export async function loginWithPin(
   db: Db,
-  input: { slug: string; pin: string; ip: string },
-): Promise<{ token: string; expiresAt: Date; userId: string }> {
-  const user = await activeBySlug(db, input.slug);
-  if (!user) {
-    await verifySecret(await dummyHash(), input.pin); // mesmo tempo de resposta
-    throw new DomainError("NOT_FOUND", LINK_INVALID);
+  input: ({ slug: string } | { username: string }) & { pin: string; ip: string },
+): Promise<LoginResult> {
+  let user: User | null;
+  if ("username" in input) {
+    const username = normalizeUsername(input.username);
+    user = await activeByUsername(db, username);
+    if (!user) return failUnknownUsername(db, username, input.pin, input.ip);
+  } else {
+    user = await activeBySlug(db, input.slug);
+    if (!user) {
+      await verifySecret(await dummyHash(), input.pin); // mesmo tempo de resposta
+      throw new DomainError("NOT_FOUND", LINK_INVALID);
+    }
   }
 
   const wait = await pinRetryAfter(db, user.id, input.ip);
@@ -90,7 +136,7 @@ export async function loginWithPin(
     .set({ pinNoticeSeen: true, lastActiveAt: now })
     .where(eq(users.id, user.id));
   await db.delete(userSessions).where(lt(userSessions.expiresAt, now));
-  return { token, expiresAt, userId: user.id };
+  return { token, expiresAt, userId: user.id, slug: user.slug, pinVersion: user.pinVersion };
 }
 
 export type SessionInfo = {

@@ -2,3 +2,4 @@ docs/handoff/
 src/styles/tokens/
 .next/
 dist/
+src/components/chat/emoji-data.ts

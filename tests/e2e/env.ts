@@ -12,14 +12,29 @@ export const E2E = {
 
 /** Pessoas dos testes do participante: desktop usa Maria, celular usa Allan. */
 export const PARTICIPANTS = [
-  { key: "maria", name: "Maria Clara", tone: "ACCENT", pin: "905317", pinChangedNotice: false },
-  { key: "allan", name: "Allan Souza", tone: "NEUTRAL", pin: "481526", pinChangedNotice: true },
+  {
+    key: "maria",
+    name: "Maria Clara",
+    username: "maria",
+    tone: "ACCENT",
+    pin: "905317",
+    pinChangedNotice: false,
+  },
+  {
+    key: "allan",
+    name: "Allan Souza",
+    username: "allan",
+    tone: "NEUTRAL",
+    pin: "481526",
+    pinChangedNotice: true,
+  },
 ] as const;
 
 /** E2E_PROD=1: roda contra o build de produção (`npm run build` antes). */
 export const PROD = process.env.E2E_PROD === "1";
 /** Nome dos cookies: com o prefixo __Host- só em produção (DECISOES §14). */
-export const cookieName = (base: "nl_admin" | "nl_user") => (PROD ? `__Host-${base}` : base);
+export const cookieName = (base: "nl_admin" | "nl_user" | "nl_device") =>
+  PROD ? `__Host-${base}` : base;
 
 export const STATE_FILE = path.resolve(".data/e2e-state.json");
 

@@ -3,6 +3,7 @@
 import { CheckIcon, LockSimpleIcon, LockSimpleOpenIcon } from "@phosphor-icons/react/ssr";
 import { useEffect, useState } from "react";
 import { GateScreen } from "@/components/participant/GateScreen";
+import { UnreadNotice } from "@/components/participant/UnreadNotice";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { PinInput, PinMessage, type PinState } from "@/components/ui/PinInput";
@@ -104,6 +105,7 @@ export function LockScreen({
         <p className="m-0 text-[14px] text-[var(--color-neutral-400)]">
           Por segurança, sua conversa foi ocultada.
         </p>
+        <UnreadNotice />
       </div>
       <PinInput
         value={pin}

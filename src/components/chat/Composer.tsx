@@ -6,14 +6,19 @@ import {
   SmileyIcon,
   TrashIcon,
 } from "@phosphor-icons/react/ssr";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { formatDuration } from "@/lib/format";
 import { AttachMenu } from "./AttachMenu";
 import { checkPicked, MSG } from "./attach-rules";
 import { DraftPreview, type Draft } from "./DraftPreview";
-import { EmojiPicker } from "./EmojiPicker";
 import type { AttachKind } from "./upload-queue";
 import { useRecorder } from "./useRecorder";
+
+// O catálogo completo (~1.900 emojis) só é baixado quando o painel abre pela primeira vez.
+const EmojiPicker = dynamic(() => import("./EmojiPicker").then((m) => m.EmojiPicker), {
+  ssr: false,
+});
 
 export type AttachInput = {
   file: File;
@@ -104,10 +109,10 @@ export function Composer({
     const end = el?.selectionEnd ?? text.length;
     const next = text.slice(0, start) + em + text.slice(end);
     setText(next);
-    requestAnimationFrame(() => {
-      el?.focus();
-      el?.setSelectionRange(start + em.length, start + em.length);
-    });
+    // Foco de volta ao campo já no clique (antes de o painel fechar), para o Enter seguinte
+    // enviar; o cursor vai para depois do emoji assim que o texto novo aparece.
+    el?.focus();
+    requestAnimationFrame(() => el?.setSelectionRange(start + em.length, start + em.length));
   }
 
   return (

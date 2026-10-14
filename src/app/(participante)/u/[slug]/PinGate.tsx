@@ -2,7 +2,8 @@
 
 import { CheckIcon, LockSimpleOpenIcon, WarningIcon } from "@phosphor-icons/react/ssr";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { UnreadNotice } from "@/components/participant/UnreadNotice";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { PinInput, PinMessage, type PinState } from "@/components/ui/PinInput";
@@ -25,7 +26,18 @@ function waitMessage(seconds: number) {
     : `Muitas tentativas. Tente novamente em ${Math.ceil(seconds / 60)} min.`;
 }
 
-export function PinGate({ slug, profile }: { slug: string; profile: Profile }) {
+/**
+ * Tela de PIN. Pelo link pessoal (`slug` + `profile`) ou pela página principal
+ * (`username`, sem revelar quem é — DECISOES §29). `remembered`: este aparelho já é desta
+ * pessoa, então mostra o aviso de mensagens novas.
+ */
+export function PinGate(
+  props: (
+    | { slug: string; profile: Profile; username?: never; header?: never }
+    | { username: string; header: ReactNode; slug?: never; profile?: never }
+  ) & { remembered?: boolean },
+) {
+  const { slug, profile } = props;
   const router = useRouter();
   const [pin, setPin] = useState("");
   const [state, setState] = useState<PinState>("idle");
@@ -56,7 +68,12 @@ export function PinGate({ slug, profile }: { slug: string; profile: Profile }) {
     setBusy(true);
     setFormError(null);
     try {
-      await api("/api/auth/pin", { slug, pin: value });
+      await api(
+        "/api/auth/pin",
+        props.username !== undefined
+          ? { username: props.username, pin: value }
+          : { slug, pin: value },
+      );
       setState("success");
       setTimeout(() => router.replace("/chat"), SUCCESS_DELAY_MS);
     } catch (err) {
@@ -102,36 +119,41 @@ export function PinGate({ slug, profile }: { slug: string; profile: Profile }) {
 
   return (
     <>
-      <div className="flex items-center gap-3.5">
-        <span className="nl-me-ring" data-success={success || undefined}>
-          <Avatar
-            name={profile.name}
-            tone={profile.tone === "ACCENT" ? "accent" : "neutral"}
-            size={64}
-            photoUrl={profile.avatarUrl}
-          />
-        </span>
-        <div>
-          <div className="text-[16px] font-medium">{profile.name}</div>
-          <Button
-            variant="ghost"
-            className="-ml-[3px] text-[12.5px]"
-            onClick={async () => {
-              await api("/api/auth/switch").catch(() => null);
-              router.replace("/");
-            }}
-          >
-            Não é você? Trocar
-          </Button>
+      {profile ? (
+        <div className="flex items-center gap-3.5">
+          <span className="nl-me-ring" data-success={success || undefined}>
+            <Avatar
+              name={profile.name}
+              tone={profile.tone === "ACCENT" ? "accent" : "neutral"}
+              size={64}
+              photoUrl={profile.avatarUrl}
+            />
+          </span>
+          <div>
+            <div className="text-[16px] font-medium">{profile.name}</div>
+            <Button
+              variant="ghost"
+              className="-ml-[3px] text-[12.5px]"
+              onClick={async () => {
+                await api("/api/auth/switch").catch(() => null);
+                router.replace("/");
+              }}
+            >
+              Não é você? Trocar
+            </Button>
+          </div>
         </div>
-      </div>
+      ) : (
+        props.header
+      )}
 
       <div>
         <h3 className="mb-1.5">Digite seu PIN</h3>
         <p className="m-0 text-[14px] text-[var(--color-neutral-400)]">
           Use os 6 dígitos definidos pelo administrador.
         </p>
-        {profile.pinChangedByAdmin ? (
+        {props.remembered ? <UnreadNotice /> : null}
+        {profile?.pinChangedByAdmin ? (
           <p className="nl-notice-warning mt-2.5 mb-0" role="status">
             <WarningIcon size={15} aria-hidden className="mt-0.5 flex-none" />
             Seu PIN foi alterado pelo administrador.

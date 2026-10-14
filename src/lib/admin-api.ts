@@ -36,6 +36,7 @@ export function userDto(u: PublicUser) {
     tone: u.tone,
     status: u.status,
     slug: u.slug,
+    username: u.username,
     avatarUrl: avatarUrl(u.avatarKey),
     lastActiveAt: u.lastActiveAt?.toISOString() ?? null,
     createdAt: u.createdAt.toISOString(),

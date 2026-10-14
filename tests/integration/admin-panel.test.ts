@@ -123,6 +123,7 @@ describe("configurações (README §4.10)", () => {
       autoLockMinutes: 5,
       lockOnTabLeave: true,
       lockOnReopen: true,
+      unreadNotice: true,
     });
     let seen: unknown = null;
     const off = on("settings:updated", (s) => (seen = s));
@@ -132,8 +133,14 @@ describe("configurações (README §4.10)", () => {
       autoLockMinutes: 15,
       lockOnTabLeave: false,
       lockOnReopen: true,
+      unreadNotice: true,
     });
-    expect(seen).toEqual({ autoLockMinutes: 15, lockOnTabLeave: false, lockOnReopen: true });
+    expect(seen).toEqual({
+      autoLockMinutes: 15,
+      lockOnTabLeave: false,
+      lockOnReopen: true,
+      unreadNotice: true,
+    });
   });
 
   it("recusa tempo fora de 1/5/15/30", async () => {

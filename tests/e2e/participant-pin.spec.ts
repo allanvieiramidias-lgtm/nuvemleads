@@ -46,11 +46,10 @@ test("aviso de PIN alterado pelo admin aparece uma vez", async ({
   await expect(page.getByText("Seu PIN foi alterado pelo administrador.")).toHaveCount(0);
 });
 
-test("tela inicial pede o link pessoal (sem lista pública de nomes)", async ({ page }) => {
+test("tela inicial pede o usuário (sem lista pública de nomes)", async ({ page }) => {
   await page.goto("/");
-  await expect(
-    page.getByText("Abra o link pessoal que o administrador enviou para você."),
-  ).toBeVisible();
+  await expect(page.getByLabel("Usuário")).toBeVisible();
+  await expect(page.getByText("Ou abra o link pessoal que o administrador enviou.")).toBeVisible();
   await expect(page.getByText("Maria Clara")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Acesso administrativo" })).toBeVisible();
 });
@@ -133,9 +132,7 @@ test("o link lembrado leva direto ao PIN; 'Trocar' esquece; 'Encerrar sessão' s
   await expect(page).toHaveURL(new RegExp(`/u/${p.slug}$`)); // "/" lembra o link
   await page.getByRole("button", { name: "Não é você? Trocar" }).click();
   await expect(page).toHaveURL(/\/$/);
-  await expect(
-    page.getByText("Abra o link pessoal que o administrador enviou para você."),
-  ).toBeVisible();
+  await expect(page.getByLabel("Usuário")).toBeVisible();
   await page.goto("/");
   await expect(page).toHaveURL(/\/$/);
 });

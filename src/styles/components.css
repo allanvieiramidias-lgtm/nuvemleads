@@ -1201,28 +1201,83 @@
   right: 48px;
   bottom: calc(100% + 8px);
   z-index: 20;
-  width: 264px;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 2px;
-  padding: 8px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   box-shadow: var(--shadow-md);
+  overflow: hidden;
   animation: nl-rise 0.16s ease-out;
 }
-.nl-emoji-panel button {
+/* Catálogo completo (DECISOES §29): abas no topo, grade rolável. */
+.nl-emoji-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px 6px 4px;
+  border-bottom: 1px solid var(--color-divider);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nl-emoji-tabs button {
+  flex: 1 0 28px;
   height: 30px;
+  display: grid;
+  place-items: center;
   border: 0;
   border-radius: var(--radius-md);
   background: transparent;
-  font-size: 18px;
+  color: var(--color-neutral-500);
+  cursor: pointer;
+}
+.nl-emoji-tabs button:hover {
+  color: var(--color-text);
+}
+.nl-emoji-tabs button[aria-pressed="true"] {
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+.nl-emoji-grid {
+  height: 272px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 8px 8px;
+  scroll-behavior: smooth;
+}
+.nl-emoji-title {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 8px 2px 4px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-neutral-500);
+  background: var(--color-surface);
+}
+.nl-emoji-cells {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+.nl-emoji-cells button {
+  height: 34px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
 }
-.nl-emoji-panel button:hover,
-.nl-emoji-panel button:focus-visible {
+.nl-emoji-cells button:hover,
+.nl-emoji-cells button:focus-visible,
+.nl-emoji-tabs button:focus-visible {
   background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.nl-emoji-cells button:hover {
+  outline: none;
 }
 
 /* — Responsivo (README §5) — */
@@ -1258,6 +1313,7 @@
   }
   .nl-emoji-panel {
     right: 0;
+    width: min(340px, calc(100vw - 24px));
   }
 }
 
@@ -1674,4 +1730,48 @@ html[data-veil="on"] .nl-gate {
 /* Etapa 9 — contraste AA: o texto auxiliar dos cartões do Nocturne (50% do texto) ficava abaixo de 4,5:1. */
 .card-meta {
   color: var(--color-neutral-400);
+}
+
+/* — Aviso "Você tem novas mensagens" (DECISOES §29) — */
+.nl-unread-region:empty {
+  display: contents;
+}
+.nl-unread {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 6px 12px 6px 10px;
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  color: var(--color-accent-300);
+  font-size: 13px;
+  font-weight: 500;
+  animation: nl-rise 0.24s ease-out;
+}
+.nl-unread-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 55%, transparent);
+  animation: nl-unread-pulse 2.4s infinite;
+}
+@keyframes nl-unread-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 55%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nl-emoji-grid {
+    scroll-behavior: auto;
+  }
 }

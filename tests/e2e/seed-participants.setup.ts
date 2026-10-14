@@ -12,14 +12,14 @@ setup("preparar Maria e Allan", async () => {
     "truncate table messages, attachments, conversations, user_sessions, users, rate_limits restart identity cascade",
   );
   await pool.query(
-    "update settings set auto_lock_minutes = 5, lock_on_tab_leave = true, lock_on_reopen = true",
+    "update settings set auto_lock_minutes = 5, lock_on_tab_leave = true, lock_on_reopen = true, unread_notice = true",
   );
   const out: Record<string, string> = {};
   for (const p of PARTICIPANTS) {
     const slug = `${p.key}e2e${Math.random().toString(36).slice(2, 10)}`.slice(0, 16);
     await pool.query(
-      "insert into users (name, tone, slug, pin_hash, pin_notice_seen) values ($1, $2, $3, $4, $5)",
-      [p.name, p.tone, slug, await hash(p.pin), !p.pinChangedNotice],
+      "insert into users (name, username, tone, slug, pin_hash, pin_notice_seen) values ($1, $2, $3, $4, $5, $6)",
+      [p.name, p.username, p.tone, slug, await hash(p.pin), !p.pinChangedNotice],
     );
     out[p.key] = slug;
   }

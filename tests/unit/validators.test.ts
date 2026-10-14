@@ -39,3 +39,18 @@ describe("nome", () => {
     expect(userNameSchema.parse("  Maria Clara ")).toBe("Maria Clara");
   });
 });
+
+describe("usuário (DECISOES §29)", () => {
+  it("aceita minúsculas, números, ponto, hífen e sublinhado; normaliza maiúsculas e espaços", async () => {
+    const { usernameSchema, suggestUsername } = await import("@/lib/validators");
+    expect(usernameSchema.parse("  Maria.C ")).toBe("maria.c");
+    for (const ok of ["abc", "joao_2", "a-b.c", "x".repeat(24)])
+      expect(usernameSchema.safeParse(ok).success, ok).toBe(true);
+    for (const bad of ["ab", "joão", "com espaço", "x".repeat(25), "a/b", ""])
+      expect(usernameSchema.safeParse(bad).success, bad).toBe(false);
+    expect(suggestUsername("Maria Clara")).toBe("maria");
+    expect(suggestUsername("  Ângela  Souza")).toBe("angela");
+    expect(suggestUsername("D'Ávila")).toBe("davila");
+    expect(suggestUsername("")).toBe("");
+  });
+});

@@ -15,6 +15,13 @@
       "when": 1791894016663,
       "tag": "0001_ms_precision",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791990681439,
+      "tag": "0002_usuario_aparelho_aviso",
+      "breakpoints": true
     }
   ]
 }

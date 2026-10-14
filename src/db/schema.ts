@@ -81,6 +81,8 @@ export const users = pgTable(
   {
     id: uuid().primaryKey().defaultRandom(),
     slug: text().notNull().unique(), // link pessoal /u/<slug>
+    /** Entrada pela página principal: usuário + PIN (DECISOES §29). Minúsculo, único. */
+    username: text().unique(),
     name: text().notNull(),
     tone: avatarTone().notNull().default("NEUTRAL"),
     avatarKey: text(),
@@ -94,7 +96,31 @@ export const users = pgTable(
     createdAt: createdAt(),
     updatedAt: createdAt().$onUpdate(() => new Date()),
   },
-  (t) => [check("users_slug_length", sql`char_length(${t.slug}) >= 10`)],
+  (t) => [
+    check("users_slug_length", sql`char_length(${t.slug}) >= 10`),
+    check("users_username_format", sql`${t.username} ~ '^[a-z0-9._-]{3,24}$'`),
+  ],
+);
+
+/**
+ * Aparelho lembrado (DECISOES §29): depois do PIN certo, o navegador guarda um token por
+ * 180 dias e passa a abrir direto na tela de PIN, com o aviso de mensagens novas.
+ * Trocar o PIN (pinVersion) ou desativar a pessoa invalida o aparelho.
+ */
+export const trustedDevices = pgTable(
+  "trusted_devices",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    tokenHash: text().notNull().unique(),
+    userId: uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    pinVersion: integer().notNull(),
+    expiresAt: ts().notNull(),
+    lastUsedAt: createdAt(),
+    createdAt: createdAt(),
+  },
+  (t) => [index().on(t.userId)],
 );
 
 export const userSessions = pgTable(
@@ -201,6 +227,8 @@ export const settings = pgTable(
     autoLockMinutes: integer().notNull().default(5), // 1 | 5 | 15 | 30
     lockOnTabLeave: boolean().notNull().default(true),
     lockOnReopen: boolean().notNull().default(true),
+    /** "Você tem novas mensagens" na tela de PIN do aparelho lembrado e na de bloqueio. */
+    unreadNotice: boolean().notNull().default(true),
   },
   (t) => [
     check("settings_singleton", sql`${t.id} = 1`),

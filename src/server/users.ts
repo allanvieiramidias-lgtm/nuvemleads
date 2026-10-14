@@ -4,7 +4,8 @@ import type { Db } from "@/db";
 import { userSessions, users, type User } from "@/db/schema";
 import { hashSecret } from "@/lib/auth/hash";
 import { newSlug } from "@/lib/auth/tokens";
-import { MSG, pinSchema, userNameSchema } from "@/lib/validators";
+import { MSG, pinSchema, suggestUsername, userNameSchema, usernameSchema } from "@/lib/validators";
+import { forgetUserDevices } from "./devices";
 import { DomainError } from "./errors";
 import { emit } from "./events";
 
@@ -68,8 +69,45 @@ function validate<T>(schema: z.ZodType<T>, value: unknown, field: string): T {
   return r.data;
 }
 
+/** Usuário repetido: o banco recusa (índice único) e devolvemos o erro no campo. */
+function isUniqueViolation(err: unknown, constraint: string): boolean {
+  const e = err as {
+    code?: string;
+    constraint?: string;
+    cause?: { code?: string; constraint?: string };
+  };
+  const c = e?.cause ?? e;
+  return c?.code === "23505" && (c.constraint ?? "").includes(constraint);
+}
+
+export async function assertUsernameFree(db: DbOrTx, username: string, exceptId?: string) {
+  const [hit] = await db.select({ id: users.id }).from(users).where(eq(users.username, username));
+  if (hit && hit.id !== exceptId)
+    throw new DomainError("VALIDATION", MSG.usernameTaken, { username: MSG.usernameTaken });
+}
+
+/** Primeiro nome sem acento; se já existir, acrescenta um número. */
+export async function uniqueUsername(db: DbOrTx, name: string): Promise<string> {
+  let base = suggestUsername(name).slice(0, 20);
+  if (base.length < 3) base = `${base}pessoa`.slice(0, 20);
+  for (let i = 1; i < 1000; i++) {
+    const candidate = i === 1 ? base : `${base}${i}`;
+    const [hit] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.username, candidate));
+    if (!hit) return candidate;
+  }
+  throw new Error("Não foi possível gerar um usuário único");
+}
+
+const takenError = () =>
+  new DomainError("VALIDATION", MSG.usernameTaken, { username: MSG.usernameTaken });
+
 export type CreateUserInput = {
   name: string;
+  /** Sem usuário, um é gerado a partir do nome ("maria", "maria2"…). */
+  username?: string;
   pin: string;
   status: "ACTIVE" | "INACTIVE";
   tone?: "ACCENT" | "NEUTRAL";
@@ -78,27 +116,38 @@ export type CreateUserInput = {
 
 export async function createUser(db: Db, input: CreateUserInput): Promise<PublicUser> {
   const name = validate(userNameSchema, input.name, "name");
+  const chosen =
+    input.username !== undefined ? validate(usernameSchema, input.username, "username") : null;
   const pin = validate(pinSchema, input.pin, "pin");
+  if (chosen) await assertUsernameFree(db, chosen);
   const pinHash = await hashSecret(pin); // fora da transação: argon2 é lento de propósito
 
-  return db.transaction(async (tx) => {
-    await lockActiveUsers(tx);
-    if (input.status === "ACTIVE" && (await countActive(tx)) >= MAX_ACTIVE) {
-      throw new DomainError("ROOM_FULL", MSG.roomFullForm, { status: MSG.roomFullForm });
-    }
-    const [user] = await tx
-      .insert(users)
-      .values({
-        name,
-        pinHash,
-        status: input.status,
-        tone: input.tone ?? "NEUTRAL",
-        avatarKey: input.avatarKey ?? null,
-        slug: await uniqueSlug(tx),
-      })
-      .returning();
-    return toPublicUser(user!);
-  });
+  return db
+    .transaction(async (tx) => {
+      await lockActiveUsers(tx);
+      if (input.status === "ACTIVE" && (await countActive(tx)) >= MAX_ACTIVE) {
+        throw new DomainError("ROOM_FULL", MSG.roomFullForm, { status: MSG.roomFullForm });
+      }
+      // Gerado dentro da trava: duas criações ao mesmo tempo não pegam o mesmo usuário.
+      const username = chosen ?? (await uniqueUsername(tx, name));
+      const [user] = await tx
+        .insert(users)
+        .values({
+          name,
+          username,
+          pinHash,
+          status: input.status,
+          tone: input.tone ?? "NEUTRAL",
+          avatarKey: input.avatarKey ?? null,
+          slug: await uniqueSlug(tx),
+        })
+        .returning();
+      return toPublicUser(user!);
+    })
+    .catch((err: unknown) => {
+      if (isUniqueViolation(err, "username")) throw takenError();
+      throw err;
+    });
 }
 
 /** Ativar/desativar. Desativar encerra as sessões da pessoa na hora (README §4.8). */
@@ -121,7 +170,10 @@ export async function setUserStatus(
       .set({ status })
       .where(eq(users.id, userId))
       .returning();
-    if (status === "INACTIVE") await tx.delete(userSessions).where(eq(userSessions.userId, userId));
+    if (status === "INACTIVE") {
+      await tx.delete(userSessions).where(eq(userSessions.userId, userId));
+      await forgetUserDevices(tx, userId);
+    }
     return toPublicUser(updated!);
   });
   if (status === "INACTIVE") emit("session:revoked", { userId, reason: "DEACTIVATED" });
@@ -132,13 +184,30 @@ export async function setUserStatus(
 export async function updateUserProfile(
   db: Db,
   userId: string,
-  patch: { name?: string; avatarKey?: string | null; tone?: "ACCENT" | "NEUTRAL" },
+  patch: {
+    name?: string;
+    username?: string;
+    avatarKey?: string | null;
+    tone?: "ACCENT" | "NEUTRAL";
+  },
 ): Promise<PublicUser> {
   const values: Partial<typeof users.$inferInsert> = {};
   if (patch.name !== undefined) values.name = validate(userNameSchema, patch.name, "name");
+  if (patch.username !== undefined) {
+    values.username = validate(usernameSchema, patch.username, "username");
+    await assertUsernameFree(db, values.username, userId);
+  }
   if (patch.avatarKey !== undefined) values.avatarKey = patch.avatarKey;
   if (patch.tone !== undefined) values.tone = patch.tone;
-  const [updated] = await db.update(users).set(values).where(eq(users.id, userId)).returning();
+  const [updated] = await db
+    .update(users)
+    .set(values)
+    .where(eq(users.id, userId))
+    .returning()
+    .catch((err: unknown) => {
+      if (isUniqueViolation(err, "username")) throw takenError();
+      throw err;
+    });
   if (!updated) throw new DomainError("NOT_FOUND", "Usuário não encontrado.");
   return toPublicUser(updated);
 }
@@ -163,6 +232,7 @@ export async function changeUserPin(db: Db, userId: string, newPin: string): Pro
       .returning();
     if (!updated) throw new DomainError("NOT_FOUND", "Usuário não encontrado.");
     await tx.delete(userSessions).where(eq(userSessions.userId, userId));
+    await forgetUserDevices(tx, userId);
     return toPublicUser(updated);
   });
   emit("session:revoked", { userId, reason: "PIN_CHANGED" });

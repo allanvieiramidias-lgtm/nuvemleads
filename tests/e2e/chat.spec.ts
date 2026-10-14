@@ -67,7 +67,7 @@ test("Maria e Allan conversam em tempo real: entregue, lida, digitando, presenç
 
   // emoji
   await maria.page.getByRole("button", { name: "Emojis" }).click();
-  await maria.page.getByRole("button", { name: "Inserir 🎉" }).click();
+  await maria.page.getByRole("button", { name: "Inserir cone de festa" }).first().click();
   await expect(maria.page.getByLabel("Mensagem")).toHaveValue("🎉");
   await maria.page.keyboard.press("Enter");
   await expect(bubble(allan.page, "🎉")).toBeVisible();

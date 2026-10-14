@@ -19,10 +19,12 @@ import { useToast } from "@/components/ui/Toast";
 import type { UserDto } from "@/lib/admin-api";
 import { api, ApiError } from "@/lib/api-client";
 import { firstNameOf, STATUS_OPTIONS, type UserStatus } from "@/lib/status";
-import { isWeakPin, MSG } from "@/lib/validators";
+import { isWeakPin, MSG, normalizeUsername, suggestUsername, USERNAME_RE } from "@/lib/validators";
 import { CopyLink } from "./CopyLink";
 
-type Errors = Partial<Record<"name" | "pin" | "pin2" | "status" | "photo" | "form", string>>;
+type Errors = Partial<
+  Record<"name" | "username" | "pin" | "pin2" | "status" | "photo" | "form", string>
+>;
 
 type Props = {
   appUrl: string;
@@ -47,6 +49,9 @@ export function UserForm(props: Props) {
   const editing = props.mode === "edit" ? props.user : null;
 
   const [name, setName] = useState(editing?.name ?? "");
+  // Usuário da página principal (DECISOES §29). Ao criar, sugere a partir do nome até ser editado.
+  const [username, setUsername] = useState(editing?.username ?? "");
+  const [usernameTouched, setUsernameTouched] = useState(!!editing);
   const [status, setStatus] = useState<UserStatus>(
     editing?.status ?? (props.mode === "create" ? props.defaultStatus : "ACTIVE"),
   );
@@ -109,6 +114,7 @@ export function UserForm(props: Props) {
   function validate(): Errors {
     const e: Errors = {};
     if (name.trim().length < 2) e.name = MSG.nameRequired;
+    if (!USERNAME_RE.test(normalizeUsername(username))) e.username = MSG.usernameFormat;
     if (changingPin) Object.assign(e, validatePin(pin, pin2));
     if (status === "ACTIVE" && othersActive >= 2) e.status = MSG.roomFullForm;
     return e;
@@ -131,6 +137,7 @@ export function UserForm(props: Props) {
     if (err instanceof ApiError) {
       if (err.code === "ROOM_FULL") setErrors({ status: MSG.roomFullForm });
       else if (err.fields?.name) setErrors({ name: err.fields.name });
+      else if (err.fields?.username) setErrors({ username: err.fields.username });
       else if (err.fields?.pin) setErrors({ pin: err.fields.pin });
       else setErrors({ form: err.message });
     } else setErrors({ form: "Algo deu errado. Tente de novo." });
@@ -142,6 +149,7 @@ export function UserForm(props: Props) {
       if (!editing) {
         const { user } = await api<{ user: UserDto }>("/api/admin/users", {
           name,
+          username: normalizeUsername(username),
           pin,
           status,
           ...(avatarKey ? { avatarKey } : {}),
@@ -151,7 +159,12 @@ export function UserForm(props: Props) {
       }
       await api(
         `/api/admin/users/${editing.id}`,
-        { name, status, ...(avatarKey !== undefined ? { avatarKey } : {}) },
+        {
+          name,
+          username: normalizeUsername(username),
+          status,
+          ...(avatarKey !== undefined ? { avatarKey } : {}),
+        },
         "PATCH",
       );
       if (changingPin) await api(`/api/admin/users/${editing.id}/pin`, { pin });
@@ -209,10 +222,19 @@ export function UserForm(props: Props) {
               : `${first} foi criado(a) como Inativo. Ative quando houver uma vaga na sala.`}
           </p>
           <div className="field">
+            <label>Usuário</label>
+            <div className="input nl-pin-locked" aria-label={`Usuário ${created.username ?? ""}`}>
+              {created.username}
+            </div>
+            <div className="nl-field-hint">
+              {first} entra em {props.appUrl.replace(/^https?:\/\//, "")} com este usuário e o PIN.
+            </div>
+          </div>
+          <div className="field">
             <label>Link pessoal</label>
             <CopyLink url={`${props.appUrl}/u/${created.slug}`} />
             <div className="nl-field-hint">
-              Envie este link para {first}. O PIN continua sendo pedido.
+              Ou envie este link para {first}. O PIN continua sendo pedido.
             </div>
           </div>
           <div className="mt-1.5 flex flex-wrap gap-2">
@@ -226,6 +248,8 @@ export function UserForm(props: Props) {
               onClick={() => {
                 setCreated(null);
                 setName("");
+                setUsername("");
+                setUsernameTouched(false);
                 setPin("");
                 setPin2("");
                 setAvatarKey(undefined);
@@ -300,10 +324,31 @@ export function UserForm(props: Props) {
           onChange={(e) => {
             setName(e.target.value);
             clear("name");
+            if (!usernameTouched) {
+              setUsername(suggestUsername(e.target.value));
+              clear("username");
+            }
           }}
           error={errors.name}
           autoComplete="off"
           maxLength={60}
+        />
+
+        <Input
+          label="Usuário"
+          placeholder="ex.: maria"
+          value={username}
+          onChange={(e) => {
+            setUsername(e.target.value.toLowerCase().replace(/\s/g, ""));
+            setUsernameTouched(true);
+            clear("username");
+          }}
+          error={errors.username}
+          hint="Para entrar pela página principal, junto com o PIN. Letras sem acento, números, ponto, hífen ou sublinhado."
+          autoComplete="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          maxLength={24}
         />
 
         {changingPin ? (

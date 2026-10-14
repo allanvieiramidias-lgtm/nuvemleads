@@ -16,6 +16,7 @@ type Settings = {
   autoLockMinutes: 1 | 5 | 15 | 30;
   lockOnTabLeave: boolean;
   lockOnReopen: boolean;
+  unreadNotice: boolean;
 };
 type Minutes = "1" | "5" | "15" | "30";
 
@@ -121,6 +122,21 @@ export function SettingsForm({
             id="sw-reopen"
             checked={s.lockOnReopen}
             onCheckedChange={(v) => setS({ ...s, lockOnReopen: v })}
+          />
+        </div>
+        <div className="flex items-center gap-3.5">
+          <div className="flex-1">
+            <label htmlFor="sw-unread" className="nl-setting-title block">
+              Avisar novas mensagens na tela de PIN
+            </label>
+            <div className="nl-setting-hint">
+              Mostra “Você tem novas mensagens” no aparelho da pessoa, sem revelar o conteúdo.
+            </div>
+          </div>
+          <Switch
+            id="sw-unread"
+            checked={s.unreadNotice}
+            onCheckedChange={(v) => setS({ ...s, unreadNotice: v })}
           />
         </div>
       </section>

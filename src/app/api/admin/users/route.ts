@@ -10,6 +10,7 @@ export const GET = adminRoute(async () => json({ users: (await listUsers(db)).ma
 
 const Body = z.object({
   name: z.string().max(200),
+  username: z.string().max(60).optional(),
   pin: z.string().max(20),
   status: z.enum(["ACTIVE", "INACTIVE"]),
   tone: z.enum(["ACCENT", "NEUTRAL"]).optional(),

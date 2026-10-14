@@ -6,9 +6,11 @@ import { redirect } from "next/navigation";
 import { GateScreen } from "@/components/participant/GateScreen";
 import { Avatar } from "@/components/ui/Avatar";
 import { db } from "@/db";
-import { LAST_SLUG_COOKIE } from "@/lib/auth/cookies";
+import { DEVICE_COOKIE, LAST_SLUG_COOKIE } from "@/lib/auth/cookies";
 import { getCurrentSession } from "@/lib/auth/user-session";
+import { getDevice } from "@/server/devices";
 import { getPublicProfile, listActiveForPicker } from "@/server/participant-auth";
+import { UsernameGate } from "./UsernameGate";
 
 export const metadata: Metadata = { title: "NuvemLeads" };
 export const dynamic = "force-dynamic";
@@ -24,17 +26,18 @@ const adminLink = (
 export default async function AcessoPage() {
   if (await getCurrentSession()) redirect("/chat");
 
+  const store = await cookies();
+  // Aparelho lembrado (DECISOES §29): vai direto para a tela de PIN desta pessoa.
+  const device = await getDevice(db, store.get(DEVICE_COOKIE)?.value);
+  if (device) redirect(`/u/${device.slug}`);
+
   if (process.env.PUBLIC_PICKER !== "true") {
-    const last = (await cookies()).get(LAST_SLUG_COOKIE)?.value;
+    const last = store.get(LAST_SLUG_COOKIE)?.value;
     if (last && (await getPublicProfile(db, last))) redirect(`/u/${last}`);
+    // Entrada por usuário + PIN, sem mostrar quem existe (DECISOES §29).
     return (
-      <GateScreen footer={adminLink}>
-        <div>
-          <h3 className="mb-1.5">Conversa privada</h3>
-          <p className="m-0 text-[14px] text-[var(--color-neutral-500)]">
-            Abra o link pessoal que o administrador enviou para você.
-          </p>
-        </div>
+      <GateScreen width={340} gap={18} footer={adminLink}>
+        <UsernameGate />
         <div className="nl-note">
           <ShieldCheckIcon size={14} aria-hidden />A conversa é ocultada sempre que você sair da
           janela.

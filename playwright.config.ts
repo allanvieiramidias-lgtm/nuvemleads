@@ -35,15 +35,22 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
     {
-      name: "desktop",
-      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/, /chat\.spec\.ts/],
+      // aviso de novas mensagens: depende de mensagens não lidas, então roda sozinho
+      name: "notice",
+      testMatch: /username\.spec\.ts/,
       dependencies: ["conversation"],
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
     },
     {
+      name: "desktop",
+      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/, /chat\.spec\.ts/, /username\.spec\.ts/],
+      dependencies: ["notice"],
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
+    },
+    {
       name: "mobile",
-      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/, /chat\.spec\.ts/],
-      dependencies: ["conversation"],
+      testIgnore: [/admin-panel\.spec\.ts/, /\.setup\.ts/, /chat\.spec\.ts/, /username\.spec\.ts/],
+      dependencies: ["notice"],
       use: { ...devices["Pixel 7"] },
     },
   ],
