@@ -1,5 +1,4 @@
-import { createReadStream } from "node:fs";
-import { stat } from "node:fs/promises";
+import { open, type FileHandle } from "node:fs/promises";
 import { Readable } from "node:stream";
 import { resolveKey } from "@/lib/storage";
 
@@ -17,11 +16,15 @@ export async function streamFile(
   key: string,
   opts: { mime: string; disposition?: string },
 ): Promise<Response> {
-  const file = resolveKey(key);
+  // Abre antes de medir: se o arquivo for apagado no meio (visualização única fechada,
+  // limpeza), quem já abriu termina de receber e quem chega depois recebe 404.
+  let fh: FileHandle | null = null;
   let size: number;
   try {
-    size = (await stat(file)).size;
+    fh = await open(resolveKey(key), "r");
+    size = (await fh.stat()).size;
   } catch {
+    await fh?.close().catch(() => undefined);
     return new Response("Não encontrado", { status: 404, headers: { "Cache-Control": NO_STORE } });
   }
   const headers: Record<string, string> = {
@@ -40,12 +43,13 @@ export async function streamFile(
     start = Math.max(0, start);
     end = Math.min(end, size - 1);
     if (start > end || start >= size) {
+      await fh.close();
       return new Response(null, {
         status: 416,
         headers: { ...headers, "Content-Range": `bytes */${size}` },
       });
     }
-    const body = Readable.toWeb(createReadStream(file, { start, end })) as ReadableStream;
+    const body = Readable.toWeb(fh.createReadStream({ start, end })) as ReadableStream;
     return new Response(body, {
       status: 206,
       headers: {
@@ -55,7 +59,7 @@ export async function streamFile(
       },
     });
   }
-  const body = Readable.toWeb(createReadStream(file)) as ReadableStream;
+  const body = Readable.toWeb(fh.createReadStream()) as ReadableStream;
   return new Response(body, {
     status: 200,
     headers: { ...headers, "Content-Length": String(size) },

@@ -11,6 +11,7 @@ type Draft = {
   kind: AttachKind;
   hint: Hint;
   caption: string;
+  viewOnce: boolean;
   durationSec: number | null;
 };
 
@@ -78,6 +79,7 @@ async function run(clientId: string, onError: (message: string) => void) {
         kind: up.kind,
         attachmentId: up.attachmentId,
         caption: d.caption || undefined,
+        viewOnce: d.viewOnce || undefined,
       }),
     });
     const data = (await res.json().catch(() => null)) as { message?: MessageDto } | null;
@@ -104,6 +106,7 @@ export function sendAttachment(
     hint: Hint;
     caption?: string;
     durationSec?: number | null;
+    viewOnce?: boolean;
   },
   senderId: string,
   onError: (message: string) => void,
@@ -116,6 +119,7 @@ export function sendAttachment(
     hint: input.hint,
     caption: (input.caption ?? "").trim(),
     durationSec: input.durationSec ?? null,
+    viewOnce: !!input.viewOnce,
   };
   drafts.set(clientId, d);
   useChat.getState().addOptimistic({
@@ -138,6 +142,9 @@ export function sendAttachment(
     },
     createdAt: new Date().toISOString(),
     status: "sending",
+    viewOnce: d.viewOnce,
+    opened: false,
+    expired: false,
     local: { previewUrl, upload: { state: "preparing", progress: 0 } },
   });
   void run(clientId, onError);

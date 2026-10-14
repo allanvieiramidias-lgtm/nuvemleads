@@ -650,9 +650,23 @@
       var(--color-bg);
   }
   .nl-admin-top .nl-admin-nav {
+    flex: none;
     gap: 6px;
-    padding: 6px 10px;
+    padding: 6px 9px;
     font-size: 13px;
+    white-space: nowrap;
+  }
+  /* 4 pílulas (com "Mídias"): rolam dentro da barra se não couberem, sem rolar a página */
+  .nl-admin-pills {
+    display: flex;
+    gap: 2px;
+    margin: 0 -14px;
+    padding: 0 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nl-admin-pills::-webkit-scrollbar {
+    display: none;
   }
   .nl-admin-main {
     padding: 18px 14px 40px;
@@ -1773,5 +1787,178 @@ html[data-veil="on"] .nl-gate {
 @media (prefers-reduced-motion: reduce) {
   .nl-emoji-grid {
     scroll-behavior: auto;
+  }
+}
+
+/* — Visualização única e mídia expirada (DECISOES §30) — */
+.nl-once-btn[aria-pressed="true"] {
+  color: var(--color-accent);
+}
+.nl-once-hint {
+  max-width: var(--nl-chat-max);
+  margin: 0 auto 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+  font-size: 12px;
+  color: var(--color-accent-300);
+}
+.nl-once {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 0;
+  font-size: 13.5px;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+.nl-once[data-state="opened"],
+.nl-once[data-state="expired"] {
+  color: var(--color-neutral-400);
+  font-style: italic;
+}
+.nl-once-sub {
+  color: var(--color-neutral-400);
+}
+.nl-once-open {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: var(--color-text);
+}
+.nl-once-open > svg {
+  color: var(--color-accent);
+  flex: none;
+}
+.nl-once-open > span {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.nl-once-open .nl-once-sub {
+  font-size: 12px;
+}
+.nl-once-open:hover .nl-once-sub,
+.nl-once-open:focus-visible .nl-once-sub {
+  color: var(--color-accent-300);
+}
+.nl-once-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.nl-once-view img,
+.nl-once-view video {
+  display: block;
+  width: 100%;
+  max-height: 64vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  -webkit-touch-callout: none;
+}
+.nl-once-view audio {
+  width: 100%;
+}
+.nl-once-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.nl-once-caption {
+  margin: 0;
+  font-size: 13.5px;
+  color: color-mix(in srgb, var(--color-text) 80%, transparent);
+}
+
+/* — Painel de mídias (DECISOES §30) — */
+.nl-meter {
+  height: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-800);
+  overflow: hidden;
+}
+.nl-meter > span {
+  display: block;
+  height: 100%;
+  background: var(--color-accent);
+}
+.nl-media-section {
+  padding: 20px;
+  gap: 14px;
+}
+.nl-months {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.nl-months li {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+.nl-month-label {
+  color: var(--color-neutral-400);
+}
+.nl-month-bar {
+  height: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-800);
+  overflow: hidden;
+}
+.nl-month-bar > span {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  background: var(--color-accent);
+}
+.nl-month-value {
+  color: color-mix(in srgb, var(--color-text) 80%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.nl-kinds {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+.nl-kinds legend {
+  width: 100%;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+.nl-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.nl-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-accent);
+}
+@media (max-width: 699px) {
+  .nl-months li {
+    grid-template-columns: 64px 1fr;
+  }
+  .nl-month-value {
+    grid-column: 2;
+    font-size: 12px;
   }
 }

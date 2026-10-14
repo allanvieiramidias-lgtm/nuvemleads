@@ -43,6 +43,9 @@ const demoMsg = (over: Partial<ChatMessage>): ChatMessage => ({
   body: "",
   attachment: null,
   createdAt: "2026-10-13T12:15:00.000Z",
+  viewOnce: false,
+  opened: false,
+  expired: false,
   status: "read",
   ...over,
 });

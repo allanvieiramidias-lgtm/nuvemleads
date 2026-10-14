@@ -206,14 +206,20 @@ export const messages = pgTable(
     createdAt: createdAt(),
     deliveredAt: ts(),
     readAt: ts(),
+    /** Visualização única (DECISOES §30): o conteúdo nunca sai na lista, só ao abrir. */
+    viewOnce: boolean().notNull().default(false),
+    /** Quando a outra pessoa abriu a visualização única. */
+    openedAt: ts(),
+    /** Conteúdo apagado de verdade (visualização única aberta ou mídia expirada). */
+    contentDeletedAt: ts(),
   },
   (t) => [
     uniqueIndex().on(t.senderId, t.clientId),
     index().on(t.conversationId, t.createdAt),
-    // texto exige corpo; mídia exige anexo
+    // texto exige corpo; mídia exige anexo — a não ser que o conteúdo já tenha sido apagado
     check(
       "messages_kind_payload",
-      sql`(${t.kind} = 'TEXT' AND ${t.body} IS NOT NULL AND ${t.attachmentId} IS NULL) OR (${t.kind} <> 'TEXT' AND ${t.attachmentId} IS NOT NULL)`,
+      sql`(${t.kind} = 'TEXT' AND ${t.attachmentId} IS NULL AND (${t.body} IS NOT NULL OR ${t.contentDeletedAt} IS NOT NULL)) OR (${t.kind} <> 'TEXT' AND (${t.attachmentId} IS NOT NULL OR ${t.contentDeletedAt} IS NOT NULL))`,
     ),
   ],
 );
@@ -229,10 +235,13 @@ export const settings = pgTable(
     lockOnReopen: boolean().notNull().default(true),
     /** "Você tem novas mensagens" na tela de PIN do aparelho lembrado e na de bloqueio. */
     unreadNotice: boolean().notNull().default(true),
+    /** Apagar mídias com mais de N dias (0 = nunca) — DECISOES §30. */
+    mediaRetentionDays: integer().notNull().default(0),
   },
   (t) => [
     check("settings_singleton", sql`${t.id} = 1`),
     check("settings_auto_lock", sql`${t.autoLockMinutes} IN (1, 5, 15, 30)`),
+    check("settings_media_retention", sql`${t.mediaRetentionDays} IN (0, 30, 90, 180, 365)`),
   ],
 );
 

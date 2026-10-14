@@ -152,6 +152,8 @@ test("só com o teclado: foco visível, ordem do campo e foco preso no modal", a
   await expect(box).toBeVisible();
   await box.focus();
   await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "Ver uma vez" })).toBeFocused();
+  await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Emojis" })).toBeFocused();
   // anel de foco visível em botão de ícone
   const ring = await page.evaluate(() => {
@@ -161,8 +163,6 @@ test("só com o teclado: foco visível, ordem do campo e foco preso no modal", a
   expect(ring).toBe(true);
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Gravar áudio" })).toBeFocused();
-  await page.keyboard.press("Shift+Tab");
-  await page.keyboard.press("Shift+Tab");
-  await page.keyboard.press("Shift+Tab");
+  for (let i = 0; i < 4; i++) await page.keyboard.press("Shift+Tab");
   await expect(page.getByRole("button", { name: "Anexar" })).toBeFocused();
 });

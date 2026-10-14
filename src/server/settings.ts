@@ -10,6 +10,10 @@ export const SettingsSchema = z.object({
   lockOnReopen: z.boolean(),
   /** DECISOES §29. Opcional no envio: se faltar, mantém o valor atual. */
   unreadNotice: z.boolean().optional(),
+  /** DECISOES §30. Apagar mídias com mais de N dias (0 = nunca). Opcional como o anterior. */
+  mediaRetentionDays: z
+    .union([z.literal(0), z.literal(30), z.literal(90), z.literal(180), z.literal(365)])
+    .optional(),
 });
 export type SettingsInput = Required<z.infer<typeof SettingsSchema>>;
 
@@ -18,6 +22,7 @@ const DEFAULTS: SettingsInput = {
   lockOnTabLeave: true,
   lockOnReopen: true,
   unreadNotice: true,
+  mediaRetentionDays: 0,
 };
 
 export async function getSettings(db: Db): Promise<SettingsInput> {
@@ -31,6 +36,7 @@ function pick(row: Settings): SettingsInput {
     lockOnTabLeave: row.lockOnTabLeave,
     lockOnReopen: row.lockOnReopen,
     unreadNotice: row.unreadNotice,
+    mediaRetentionDays: row.mediaRetentionDays as SettingsInput["mediaRetentionDays"],
   };
 }
 
@@ -39,9 +45,11 @@ export async function updateSettings(
   input: z.infer<typeof SettingsSchema>,
 ): Promise<SettingsInput> {
   const parsed = SettingsSchema.parse(input);
+  const current = await getSettings(db);
   const values: SettingsInput = {
     ...parsed,
-    unreadNotice: parsed.unreadNotice ?? (await getSettings(db)).unreadNotice,
+    unreadNotice: parsed.unreadNotice ?? current.unreadNotice,
+    mediaRetentionDays: parsed.mediaRetentionDays ?? current.mediaRetentionDays,
   };
   const [row] = await db
     .insert(settings)

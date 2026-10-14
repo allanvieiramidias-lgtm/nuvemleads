@@ -54,6 +54,9 @@ type State = {
   /** Visualizador de mídia aberto (README §6: viewer). */
   viewer: string | null;
   openViewer: (key: string | null) => void;
+  /** Visualização única aberta agora (conteúdo só na memória até fechar) — DECISOES §30. */
+  onceView: OnceView | null;
+  setOnceView: (v: OnceView | null) => void;
   setStatus: (id: string, status: "delivered" | "read") => void;
   /** Marca localmente como lidas as mensagens da outra pessoa até `upTo` (inclusive). */
   markReadUpTo: (contactId: string, upTo: string) => void;
@@ -66,6 +69,13 @@ type State = {
   reset: () => void;
 };
 
+export type OnceView = {
+  id: string;
+  kind: ChatMessage["kind"];
+  body: string | null;
+  attachment: ChatMessage["attachment"];
+};
+
 const initial = {
   messages: [] as ChatMessage[],
   nextCursor: null,
@@ -76,6 +86,7 @@ const initial = {
   connection: "online" as Connection,
   fresh: new Set<string>(),
   viewer: null as string | null,
+  onceView: null as OnceView | null,
 };
 
 export const useChat = create<State>((set) => ({
@@ -142,6 +153,7 @@ export const useChat = create<State>((set) => ({
     })),
 
   openViewer: (viewer) => set({ viewer }),
+  setOnceView: (onceView) => set({ onceView }),
 
   setStatus: (id, status) =>
     set((s) => ({

@@ -1,6 +1,12 @@
 "use client";
 
-import { GearSixIcon, SignOutIcon, SquaresFourIcon, UsersIcon } from "@phosphor-icons/react/ssr";
+import {
+  GearSixIcon,
+  ImagesIcon,
+  SignOutIcon,
+  SquaresFourIcon,
+  UsersIcon,
+} from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -12,6 +18,7 @@ import { api } from "@/lib/api-client";
 const NAV = [
   { href: "/admin", label: "Painel", Icon: SquaresFourIcon },
   { href: "/admin/usuarios", label: "Usuários", Icon: UsersIcon },
+  { href: "/admin/midias", label: "Mídias", Icon: ImagesIcon },
   { href: "/admin/configuracoes", label: "Configurações", Icon: GearSixIcon },
 ] as const;
 
@@ -90,7 +97,7 @@ export function AdminShell({
             icon={<SignOutIcon size={18} />}
           />
         </div>
-        <nav className="flex gap-1" aria-label="Navegação do painel">
+        <nav className="nl-admin-pills" aria-label="Navegação do painel">
           {nav(16)}
         </nav>
       </header>

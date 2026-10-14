@@ -23,6 +23,7 @@ const TextBody = z.object({
   clientId: z.string().uuid(),
   kind: z.literal("TEXT"),
   body: z.string(),
+  viewOnce: z.boolean().optional(),
 });
 const Body = z.union([TextBody, AttachmentMessageSchema]);
 

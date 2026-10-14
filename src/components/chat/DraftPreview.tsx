@@ -4,6 +4,7 @@ import { FileIcon, PaperPlaneRightIcon, VideoCameraIcon } from "@phosphor-icons/
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { Switch } from "@/components/ui/Switch";
 import { extLabel, formatBytes, formatDuration } from "@/lib/format";
 import { createBlobUrl, revokeBlobUrl } from "./blob-urls";
 import type { AttachKind } from "./upload-queue";
@@ -20,14 +21,19 @@ const TITLE: Record<AttachKind, string> = {
 /** README §4.3 — Preview antes de enviar (modal de 480px). */
 export function DraftPreview({
   draft,
+  viewOnce: initialOnce,
   onCancel,
   onSend,
 }: {
   draft: Draft | null;
+  /** Já vem marcado se "Ver uma vez" estava ligado no campo. */
+  viewOnce: boolean;
   onCancel: () => void;
-  onSend: (caption: string, durationSec: number | null) => void;
+  onSend: (caption: string, durationSec: number | null, viewOnce: boolean) => void;
 }) {
   const [caption, setCaption] = useState("");
+  const [onceOverride, setOnce] = useState<boolean | null>(null);
+  const once = onceOverride ?? initialOnce;
   const [url, setUrl] = useState<string | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
 
@@ -53,6 +59,7 @@ export function DraftPreview({
       onOpenChange={(o) => {
         if (!o) {
           setCaption("");
+          setOnce(null);
           onCancel();
         }
       }}
@@ -62,6 +69,7 @@ export function DraftPreview({
           <Button
             onClick={() => {
               setCaption("");
+              setOnce(null);
               onCancel();
             }}
           >
@@ -73,7 +81,8 @@ export function DraftPreview({
             onClick={() => {
               const c = caption;
               setCaption("");
-              onSend(c, duration);
+              setOnce(null);
+              onSend(c, duration, once);
             }}
           >
             Enviar
@@ -134,11 +143,21 @@ export function DraftPreview({
               e.preventDefault();
               const c = caption;
               setCaption("");
-              onSend(c, duration);
+              setOnce(null);
+              onSend(c, duration, once);
             }
           }}
         />
       ) : null}
+      <div className="flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <label htmlFor="draft-once" className="nl-setting-title block">
+            Ver uma vez
+          </label>
+          <div className="nl-setting-hint">Some para os dois depois de aberta.</div>
+        </div>
+        <Switch id="draft-once" checked={once} onCheckedChange={setOnce} />
+      </div>
     </Modal>
   );
 }

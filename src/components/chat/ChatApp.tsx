@@ -20,6 +20,7 @@ import { pauseAllMedia } from "./attachments";
 import { revokeAllBlobUrls } from "./blob-urls";
 import { ChatHeader } from "./ChatHeader";
 import { MediaViewer } from "./MediaViewer";
+import { OnceViewer } from "./view-once";
 import { clearUploads, retryAttachment, sendAttachment } from "./upload-queue";
 import { Composer } from "./Composer";
 import { MessageList } from "./MessageList";
@@ -383,12 +384,13 @@ function Conversation({
       )}
       {contact && loaded && !loadError ? (
         <Composer
-          onSend={(t) => sendText(t, meId)}
+          onSend={(t, once) => sendText(t, meId, once)}
           onTyping={rt.typing}
           onAttach={(a) => sendAttachment(a, meId, toast.error)}
           notify={toast.error}
         />
       ) : null}
+      <OnceViewer />
       <MediaViewer
         names={contact ? { [meId]: name, [contact.id]: contact.name } : { [meId]: name }}
       />

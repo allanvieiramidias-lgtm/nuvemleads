@@ -124,6 +124,7 @@ describe("configurações (README §4.10)", () => {
       lockOnTabLeave: true,
       lockOnReopen: true,
       unreadNotice: true,
+      mediaRetentionDays: 0,
     });
     let seen: unknown = null;
     const off = on("settings:updated", (s) => (seen = s));
@@ -134,12 +135,14 @@ describe("configurações (README §4.10)", () => {
       lockOnTabLeave: false,
       lockOnReopen: true,
       unreadNotice: true,
+      mediaRetentionDays: 0,
     });
     expect(seen).toEqual({
       autoLockMinutes: 15,
       lockOnTabLeave: false,
       lockOnReopen: true,
       unreadNotice: true,
+      mediaRetentionDays: 0,
     });
   });
 

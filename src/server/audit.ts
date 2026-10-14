@@ -11,7 +11,9 @@ export type AdminAction =
   | "PIN_ATTEMPTS_RESET"
   | "SETTINGS_UPDATED"
   | "ACCOUNT_UPDATED"
-  | "PASSWORD_CHANGED";
+  | "PASSWORD_CHANGED"
+  | "MEDIA_RETENTION_UPDATED"
+  | "MEDIA_PURGED";
 
 /** Trilha de ações do admin — sem nenhum conteúdo de mensagens (ARQUITETURA §3). */
 export async function logAdminEvent(

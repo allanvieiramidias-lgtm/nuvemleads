@@ -32,33 +32,47 @@ export type MessageDto = {
   attachment: AttachmentDto | null;
   createdAt: string;
   status: MessageStatus;
+  /** Visualização única: o conteúdo nunca vem na lista, só em POST /abrir (DECISOES §30). */
+  viewOnce: boolean;
+  /** Visualização única já aberta pela outra pessoa. */
+  opened: boolean;
+  /** Conteúdo apagado de verdade (aberta ou mídia expirada). */
+  expired: boolean;
 };
 
 type Row = typeof messages.$inferSelect & { att: typeof attachments.$inferSelect | null };
 
+function toAttachmentDto(r: Row): AttachmentDto | null {
+  return r.att
+    ? {
+        id: r.att.id,
+        kind: r.att.kind as AttachmentDto["kind"],
+        mime: r.att.mime,
+        sizeBytes: r.att.sizeBytes,
+        name: r.att.originalName,
+        width: r.att.width,
+        height: r.att.height,
+        durationSec: r.att.durationSec,
+        status: r.att.status,
+        hasThumb: !!r.att.thumbKey,
+      }
+    : null;
+}
+
 function toDto(r: Row): MessageDto {
+  const hidden = r.viewOnce || !!r.contentDeletedAt;
   return {
     id: r.id,
     clientId: r.clientId,
     senderId: r.senderId,
     kind: r.kind,
-    body: r.body,
-    attachment: r.att
-      ? {
-          id: r.att.id,
-          kind: r.att.kind as AttachmentDto["kind"],
-          mime: r.att.mime,
-          sizeBytes: r.att.sizeBytes,
-          name: r.att.originalName,
-          width: r.att.width,
-          height: r.att.height,
-          durationSec: r.att.durationSec,
-          status: r.att.status,
-          hasThumb: !!r.att.thumbKey,
-        }
-      : null,
+    body: hidden ? null : r.body,
+    attachment: hidden ? null : toAttachmentDto(r),
     createdAt: r.createdAt.toISOString(),
     status: r.readAt ? "read" : r.deliveredAt ? "delivered" : "sent",
+    viewOnce: r.viewOnce,
+    opened: !!r.openedAt,
+    expired: !!r.contentDeletedAt,
   };
 }
 
@@ -133,6 +147,7 @@ export const TextMessageSchema = z.object({
     .string()
     .max(MAX_BODY, `A mensagem pode ter até ${MAX_BODY} caracteres.`)
     .refine((s) => s.trim().length > 0, "A mensagem está vazia."),
+  viewOnce: z.boolean().optional(),
 });
 
 /** Envia texto. Idempotente por (remetente, clientId): reenvio devolve a mesma mensagem. */
@@ -140,7 +155,7 @@ export async function createTextMessage(
   db: Db,
   conv: Conversation,
   senderId: string,
-  input: { clientId: string; body: string },
+  input: { clientId: string; body: string; viewOnce?: boolean },
 ): Promise<{ message: MessageDto; created: boolean }> {
   const parsed = TextMessageSchema.safeParse({ ...input, kind: "TEXT" });
   if (!parsed.success) throw new DomainError("VALIDATION", parsed.error.issues[0]!.message);
@@ -152,6 +167,7 @@ export async function createTextMessage(
       senderId,
       kind: "TEXT",
       body: input.body,
+      viewOnce: !!input.viewOnce,
     })
     .onConflictDoNothing({ target: [messages.senderId, messages.clientId] })
     .returning({ id: messages.id });
@@ -242,6 +258,7 @@ export const AttachmentMessageSchema = z.object({
   kind: z.enum(["IMAGE", "VIDEO", "AUDIO", "FILE"]),
   attachmentId: z.string().uuid(),
   caption: z.string().max(MAX_BODY).optional(),
+  viewOnce: z.boolean().optional(),
 });
 
 /**
@@ -284,6 +301,7 @@ export async function createAttachmentMessage(
       kind: input.kind,
       body: caption,
       attachmentId: att.id,
+      viewOnce: !!input.viewOnce,
     })
     .onConflictDoNothing()
     .returning({ id: messages.id });
@@ -296,6 +314,35 @@ export async function createAttachmentMessage(
   await db.update(users).set({ lastActiveAt: new Date() }).where(eq(users.id, senderId));
   if (inserted) emit("message:new", { conversationId: conv.id, message: row });
   return { message: row, created: !!inserted };
+}
+
+/**
+ * Uma mensagem pelo id. `reveal` devolve também o conteúdo escondido da visualização única
+ * — usado só por openViewOnce, que já conferiu quem pode ver.
+ */
+export async function getMessageById(
+  db: Db,
+  id: string,
+  opts: { reveal?: boolean } = {},
+): Promise<{
+  conversationId: string;
+  message: MessageDto;
+  revealedBody: string | null;
+  revealedAttachment: AttachmentDto | null;
+} | null> {
+  const [r] = await db
+    .select({ m: messages, att: attachments })
+    .from(messages)
+    .leftJoin(attachments, eq(attachments.id, messages.attachmentId))
+    .where(eq(messages.id, id));
+  if (!r) return null;
+  const row = { ...r.m, att: r.att };
+  return {
+    conversationId: r.m.conversationId,
+    message: toDto(row),
+    revealedBody: opts.reveal && !r.m.contentDeletedAt ? r.m.body : null,
+    revealedAttachment: opts.reveal && !r.m.contentDeletedAt ? toAttachmentDto(row) : null,
+  };
 }
 
 export async function getMessageDto(db: Db, attachmentId: string): Promise<MessageDto | null> {

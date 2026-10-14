@@ -7,6 +7,7 @@ import { getActiveConversation, otherParticipant } from "./conversations";
 import { on } from "./events";
 import { getMessageDto, markDelivered } from "./messages";
 import { getSessionByToken, type SessionInfo } from "./participant-auth";
+import { purgeByRetention, sweepViewOnce } from "./media-lifecycle";
 import { lockIdleSessions } from "./session-lock";
 import { addSocket, isOnline, removeSocket } from "./presence";
 
@@ -48,13 +49,28 @@ async function presencePayload(userId: string) {
   return { userId, online: isOnline(userId), lastSeenAt: u?.lastActiveAt?.toISOString() ?? null };
 }
 
-export function attachRealtime(io: Server, opts: { idleSweepMs?: number } = {}) {
+export function attachRealtime(
+  io: Server,
+  opts: { idleSweepMs?: number; viewOnceSweepMs?: number; retentionSweepMs?: number } = {},
+) {
   // Varredura de inatividade no servidor (ARQUITETURA §7): a cada 30 s.
   const sweep = setInterval(
     () => void lockIdleSessions(db).catch(() => undefined),
     opts.idleSweepMs ?? 30_000,
   );
   sweep.unref();
+
+  // DECISOES §30: visualização única aberta e esquecida (a cada minuto) e limpeza de mídias
+  // pela idade definida no painel (a cada hora; também logo ao ligar).
+  const viewOnceSweep = setInterval(
+    () => void sweepViewOnce(db).catch(() => undefined),
+    opts.viewOnceSweepMs ?? 60_000,
+  );
+  viewOnceSweep.unref();
+  const retention = () => void purgeByRetention(db).catch(() => undefined);
+  const retentionSweep = setInterval(retention, opts.retentionSweepMs ?? 3_600_000);
+  retentionSweep.unref();
+  setTimeout(retention, 15_000).unref();
 
   // CSRF no handshake: só a própria origem.
   io.use(async (socket, next) => {
@@ -119,6 +135,9 @@ export function attachRealtime(io: Server, opts: { idleSweepMs?: number } = {}) 
   // Eventos vindos das rotas (mesmo processo).
   on("message:new", ({ conversationId, message }) => {
     io.to(convRoom(conversationId)).emit("message:new", message);
+  });
+  on("message:updated", ({ conversationId, message }) => {
+    io.to(convRoom(conversationId)).emit("message:updated", message);
   });
   on("attachment:updated", async ({ attachmentId, conversationId }) => {
     if (!conversationId) return;

@@ -2,6 +2,7 @@
 
 import {
   MicrophoneIcon,
+  NumberCircleOneIcon,
   PaperPlaneRightIcon,
   SmileyIcon,
   TrashIcon,
@@ -26,6 +27,8 @@ export type AttachInput = {
   hint: "media" | "audio" | "file";
   caption?: string;
   durationSec?: number | null;
+  /** Visualização única (DECISOES §30). */
+  viewOnce?: boolean;
 };
 
 const TYPING_REFRESH_MS = 3000;
@@ -38,7 +41,7 @@ export function Composer({
   onAttach,
   notify,
 }: {
-  onSend: (text: string) => void;
+  onSend: (text: string, viewOnce: boolean) => void;
   onTyping: (on: boolean) => void;
   onAttach: (a: AttachInput) => void;
   notify: (error: string) => void;
@@ -46,10 +49,21 @@ export function Composer({
   const [text, setText] = useState("");
   const [emoji, setEmoji] = useState(false);
   const [draft, setDraft] = useState<(Draft & { hint: "media" | "file" }) | null>(null);
+  // "Ver uma vez" (DECISOES §30): vale para a próxima mensagem, texto, anexo ou áudio gravado.
+  const [once, setOnceState] = useState(false);
+  const onceRef = useRef(false);
+  const setOnce = (v: boolean) => {
+    onceRef.current = v;
+    setOnceState(v);
+  };
   const rec = useRecorder(
     useCallback(
-      (file: File, durationSec: number) =>
-        onAttach({ file, kind: "AUDIO", hint: "audio", durationSec }),
+      (file: File, durationSec: number) => {
+        const viewOnce = onceRef.current;
+        onceRef.current = false;
+        setOnceState(false);
+        onAttach({ file, kind: "AUDIO", hint: "audio", durationSec, viewOnce });
+      },
       [onAttach],
     ),
     useCallback(() => notify(MSG.mic), [notify]),
@@ -89,7 +103,8 @@ export function Composer({
 
   function send() {
     if (!hasText) return;
-    onSend(text);
+    onSend(text, once);
+    setOnce(false);
     setText("");
     stopTyping();
     area.current?.focus();
@@ -117,6 +132,12 @@ export function Composer({
 
   return (
     <div className="nl-composer">
+      {once ? (
+        <div className="nl-once-hint" role="status">
+          <NumberCircleOneIcon size={14} weight="fill" aria-hidden />
+          Visualização única: a próxima mensagem some depois de aberta.
+        </div>
+      ) : null}
       <div className="nl-composer-row">
         {rec.recording ? (
           <>
@@ -170,6 +191,16 @@ export function Composer({
               />
               <button
                 type="button"
+                className="nl-emoji-btn nl-once-btn"
+                aria-label="Ver uma vez"
+                title="Ver uma vez: some depois de aberta"
+                aria-pressed={once}
+                onClick={() => setOnce(!once)}
+              >
+                <NumberCircleOneIcon size={19} weight={once ? "fill" : "regular"} aria-hidden />
+              </button>
+              <button
+                type="button"
                 className="nl-emoji-btn"
                 aria-label="Emojis"
                 aria-expanded={emoji}
@@ -214,8 +245,9 @@ export function Composer({
       </div>
       <DraftPreview
         draft={draft}
+        viewOnce={once}
         onCancel={() => setDraft(null)}
-        onSend={(caption, durationSec) => {
+        onSend={(caption, durationSec, viewOnce) => {
           if (draft)
             onAttach({
               file: draft.file,
@@ -223,7 +255,9 @@ export function Composer({
               hint: draft.hint,
               caption,
               durationSec,
+              viewOnce,
             });
+          setOnce(false);
           setDraft(null);
         }}
       />

@@ -8,6 +8,8 @@ import type { MessageDto } from "./messages";
 
 export type AppEvents = {
   "message:new": { conversationId: string; message: MessageDto };
+  /** Visualização única aberta, conteúdo apagado ou mídia expirada (DECISOES §30). */
+  "message:updated": { conversationId: string; message: MessageDto };
   "attachment:updated": {
     attachmentId: string;
     conversationId: string | null;
@@ -21,7 +23,13 @@ export type AppEvents = {
   };
   "session:locked": { sessionId: string; reason: "IDLE" | "MANUAL" | "TAB" | "BLUR" | "REOPEN" };
   "session:revoked": { userId: string; reason: "PIN_CHANGED" | "DEACTIVATED" };
-  "settings:updated": { autoLockMinutes: number; lockOnTabLeave: boolean; lockOnReopen: boolean };
+  "settings:updated": {
+    autoLockMinutes: number;
+    lockOnTabLeave: boolean;
+    lockOnReopen: boolean;
+    unreadNotice: boolean;
+    mediaRetentionDays: number;
+  };
   "room:changed": Record<string, never>;
 };
 

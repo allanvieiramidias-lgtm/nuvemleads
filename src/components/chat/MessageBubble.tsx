@@ -19,6 +19,7 @@ import {
   VideoAttachment,
 } from "./attachments";
 import type { ChatMessage, ChatStatus } from "./types";
+import { OnceBubble } from "./view-once";
 
 const STATUS_LABEL: Record<ChatStatus, string> = {
   sending: "enviando",
@@ -67,7 +68,9 @@ export const MessageBubble = memo(function MessageBubble({
   onRetry: (clientId: string) => void;
 }) {
   const time = formatTime(new Date(m.createdAt));
-  const hasMedia = m.kind !== "TEXT" && !!m.attachment;
+  // Visualização única ou mídia expirada: a bolha nunca mostra o conteúdo (DECISOES §30).
+  const once = m.viewOnce || m.expired;
+  const hasMedia = !once && m.kind !== "TEXT" && !!m.attachment;
   const upload = m.local?.upload;
 
   return (
@@ -83,12 +86,14 @@ export const MessageBubble = memo(function MessageBubble({
         className="nl-bubble"
         data-media={hasMedia || undefined}
         data-kind={m.kind.toLowerCase()}
+        data-once={once || undefined}
       >
+        {once ? <OnceBubble m={m} mine={mine} /> : null}
         {hasMedia && m.kind === "IMAGE" ? <ImageAttachment m={m} /> : null}
         {hasMedia && m.kind === "VIDEO" ? <VideoAttachment m={m} /> : null}
         {hasMedia && m.kind === "AUDIO" ? <AudioAttachment m={m} /> : null}
         {hasMedia && m.kind === "FILE" ? <FileAttachment m={m} /> : null}
-        {m.body ? <div className="nl-text">{m.body}</div> : null}
+        {m.body && !once ? <div className="nl-text">{m.body}</div> : null}
         {upload ? <UploadProgress upload={upload} /> : null}
         {!upload && m.kind === "VIDEO" && m.attachment?.status === "PENDING" ? (
           <ProcessingNote />

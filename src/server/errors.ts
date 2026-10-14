@@ -7,7 +7,8 @@ export type ErrorCode =
   | "REVOKED"
   | "ROOM_FULL"
   | "NOT_FOUND"
-  | "FORBIDDEN";
+  | "FORBIDDEN"
+  | "GONE";
 
 export class DomainError extends Error {
   constructor(

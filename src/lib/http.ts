@@ -11,6 +11,7 @@ const STATUS: Record<ErrorCode, number> = {
   REVOKED: 401,
   NOT_FOUND: 404,
   ROOM_FULL: 409,
+  GONE: 410,
   LOCKED: 423,
   TOO_MANY: 429,
 };

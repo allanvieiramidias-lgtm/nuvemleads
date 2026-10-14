@@ -8,6 +8,10 @@
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+/* O campo de mensagem mostra o foco no contorno arredondado (.nl-field-pill:focus-within). */
+.nl-textarea:focus-visible {
+  outline: none;
+}
 
 body {
   background: var(--color-bg);

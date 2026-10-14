@@ -8,19 +8,19 @@ import type { MessageDto } from "./types";
  * - erro de rede → continua "enviando" e tenta de novo quando a conexão volta, com o mesmo clientId;
  * - o servidor recusou (4xx/5xx) → "falhou" + "Tentar novamente".
  */
-const pending = new Map<string, string>(); // clientId → texto
+const pending = new Map<string, { body: string; viewOnce: boolean }>(); // clientId → texto
 let flushing = false;
 
 async function post(
   clientId: string,
-  body: string,
+  { body, viewOnce }: { body: string; viewOnce: boolean },
 ): Promise<"ok" | "network" | "rejected" | "locked"> {
   let res: Response;
   try {
     res = await fetch("/api/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ clientId, kind: "TEXT", body }),
+      body: JSON.stringify({ clientId, kind: "TEXT", body, ...(viewOnce ? { viewOnce } : {}) }),
       credentials: "same-origin",
       cache: "no-store",
     });
@@ -36,7 +36,7 @@ async function post(
 
 async function attempt(clientId: string) {
   const body = pending.get(clientId);
-  if (body === undefined) return;
+  if (!body) return;
   useChat.getState().setLocalStatus(clientId, "sending");
   const r = await post(clientId, body);
   if (r === "ok") pending.delete(clientId);
@@ -47,7 +47,7 @@ async function attempt(clientId: string) {
   // "network" e "locked": fica na fila, "enviando"
 }
 
-export function sendText(text: string, senderId: string) {
+export function sendText(text: string, senderId: string, viewOnce = false) {
   const clientId = crypto.randomUUID();
   useChat.getState().addOptimistic({
     id: null,
@@ -58,8 +58,11 @@ export function sendText(text: string, senderId: string) {
     attachment: null,
     createdAt: new Date().toISOString(),
     status: "sending",
+    viewOnce,
+    opened: false,
+    expired: false,
   });
-  pending.set(clientId, text);
+  pending.set(clientId, { body: text, viewOnce });
   void attempt(clientId);
 }
 
@@ -67,7 +70,7 @@ export function sendText(text: string, senderId: string) {
 export function retry(clientId: string) {
   const m = useChat.getState().messages.find((x) => x.clientId === clientId);
   if (!m?.body) return;
-  pending.set(clientId, m.body);
+  pending.set(clientId, { body: m.body, viewOnce: m.viewOnce });
   void attempt(clientId);
 }
 

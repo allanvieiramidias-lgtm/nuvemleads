@@ -16,6 +16,7 @@ test("navegação do painel no celular usa pílulas e não rola para o lado", as
   await expect(page.locator(".nl-admin-side")).toBeHidden();
   for (const [link, heading] of [
     ["Usuários", "Usuários"],
+    ["Mídias", "Mídias"],
     ["Configurações", "Configurações"],
     ["Painel", "Olá, Renata"],
   ]) {
